@@ -1,0 +1,20 @@
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:240:7:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:242:7:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:910:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:911:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:912:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:913:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:914:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:915:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:916:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:917:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:918:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:919:5:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1220:10:: Name is not a valid handler name
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1223:19:: Argument is not a handler name
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1224:16:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1240:16:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1276:16:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1278:16:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1299:19:: Argument is not a handler name
+C:\Users\Steve\Documents\GitHub\flexon\recipe\Recipe.src:1307:3:: Undefined identifier

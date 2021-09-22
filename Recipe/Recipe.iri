@@ -1,0 +1,153 @@
+-- Scale Aliases
+Scale1    : constant integer := 1;
+
+-- Digital I/O Aliases
+DIOCRD0   : constant integer := 0;
+DIO0_1    : constant integer := 1;
+DIO0_2    : constant integer := 2;
+DIO0_3    : constant integer := 3;
+DIO0_4    : constant integer := 4;
+DIO0_5    : constant integer := 5;
+DIO0_6    : constant integer := 6;
+DIO0_7    : constant integer := 7;
+DIO0_8    : constant integer := 8;
+
+
+
+-- Analog Output Aliases
+
+-- Database Type Definitions and Field Aliases
+type IngredDatabase is database ("Ingred")
+        Id: Integer;
+      Name: String;
+    Preact: Real;
+end database;
+type RecipeDatabase is database ("Recipe")
+        Id: Integer;
+      Name: String;
+   Ingred1: Integer;
+   Target1: Real;
+   Ingred2: Integer;
+   Target2: Real;
+   Ingred3: Integer;
+   Target3: Real;
+   Ingred4: Integer;
+   Target4: Real;
+end database;
+
+Ingred_Id       : constant integer := 1;
+Ingred_Name     : constant integer := 2;
+Ingred_Preact   : constant integer := 3;
+
+Recipe_Id       : constant integer := 1;
+Recipe_Name     : constant integer := 2;
+Recipe_Ingred1  : constant integer := 3;
+Recipe_Target1  : constant integer := 4;
+Recipe_Ingred2  : constant integer := 5;
+Recipe_Target2  : constant integer := 6;
+Recipe_Ingred3  : constant integer := 7;
+Recipe_Target3  : constant integer := 8;
+Recipe_Ingred4  : constant integer := 9;
+Recipe_Target4  : constant integer := 10;
+
+
+
+-- Serial Port Aliases
+Port1     : constant integer := 1;
+Port2     : constant integer := 2;
+Port3     : constant integer := 3;
+Port4     : constant integer := 4;
+
+-- Ethernet Communication Aliases
+TCPS      : constant string := "TCPS";
+UDPS      : constant string := "UDPS";
+TCPC1     : constant string := "TCPC1";
+TCPC2     : constant string := "TCPC2";
+
+-- Setpoint Aliases
+SP1       : constant integer :=1;
+SP2       : constant integer :=2;
+SP3       : constant integer :=3;
+SP4       : constant integer :=4;
+
+-- Widget Aliases
+lbl2      : constant integer := 2;
+lbProg    : constant integer := 3;
+Exit9     : constant integer := 4;
+bar8      : constant integer := 8;
+lbSt      : constant integer := 9;
+lbl10     : constant integer := 10;
+lbl11     : constant integer := 11;
+lbl12     : constant integer := 12;
+lbl13     : constant integer := 13;
+lbl14     : constant integer := 14;
+lbl15     : constant integer := 15;
+lbl16     : constant integer := 16;
+lbl17     : constant integer := 17;
+lbl18     : constant integer := 18;
+lbl19     : constant integer := 19;
+lbl20     : constant integer := 20;
+lbSts1    : constant integer := 21;
+lbl22     : constant integer := 22;
+lbl23     : constant integer := 23;
+lbl24     : constant integer := 24;
+sym25     : constant integer := 25;
+sym26     : constant integer := 26;
+sym27     : constant integer := 27;
+sym28     : constant integer := 28;
+sym29     : constant integer := 29;
+lbl30     : constant integer := 30;
+bar31     : constant integer := 31;
+bar32     : constant integer := 32;
+bar33     : constant integer := 33;
+bar34     : constant integer := 34;
+sym35     : constant integer := 35;
+lbARS     : constant integer := 36;
+sym37     : constant integer := 37;
+lbl38     : constant integer := 38;
+lbl39     : constant integer := 39;
+lbl40     : constant integer := 40;
+bar41     : constant integer := 41;
+lbSet1    : constant integer := 42;
+lbSet11   : constant integer := 43;
+bar44     : constant integer := 44;
+bar45     : constant integer := 45;
+bar46     : constant integer := 46;
+Setup     : constant integer := 48;
+lbUnit    : constant integer := 51;
+bar56     : constant integer := 56;
+bar64     : constant integer := 64;
+lbZero    : constant integer := 6;
+lbTare    : constant integer := 50;
+lbKTare   : constant integer := 52;
+bar80     : constant integer := 80;
+bar81     : constant integer := 81;
+lbGN      : constant integer := 53;
+lbPrint   : constant integer := 54;
+lbAuxP    : constant integer := 55;
+Exit4     : constant integer := 5;
+bar94     : constant integer := 94;
+lbSet2    : constant integer := 95;
+lbSet22   : constant integer := 96;
+lbSet3    : constant integer := 97;
+lbSet33   : constant integer := 98;
+lbSet4    : constant integer := 99;
+lbset5    : constant integer := 100;
+lbSet55   : constant integer := 101;
+lbSEt6    : constant integer := 102;
+lbSet66   : constant integer := 103;
+lbSet7    : constant integer := 104;
+lbSet77   : constant integer := 105;
+lbSet8    : constant integer := 106;
+lbSet88   : constant integer := 107;
+lbI1      : constant integer := 108;
+lbI2      : constant integer := 109;
+lbI3      : constant integer := 110;
+lbI4      : constant integer := 111;
+lbD       : constant integer := 112;
+line113   : constant integer := 113;
+line114   : constant integer := 114;
+lbRec     : constant integer := 115;
+
+USBPRN    : constant string := "USBPRN";
+ADVPRN    : constant string := "ADVPRN";
