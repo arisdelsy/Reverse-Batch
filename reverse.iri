@@ -1,5 +1,6 @@
 -- Scale Aliases
 Scale1    : constant integer := 1;
+Scale2    : constant integer := 2;
 
 -- Digital I/O Aliases
 DIOCRD0   : constant integer := 0;
