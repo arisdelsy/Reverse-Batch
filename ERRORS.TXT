@@ -1,0 +1,2 @@
+E:\GitHub\reverse-batch\reverse.iri :32:11:: Unexpected character
+E:\GitHub\reverse-batch\reverse.iri :33:8:: syntax error
