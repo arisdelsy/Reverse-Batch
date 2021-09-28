@@ -6,7 +6,7 @@
 
 program Recipe; 
  
-#include Recipe.iri 
+#include reverse.iri 
 
   -- Constants and aliases definitions 
   g_csProgName          : constant string  := "Recipe"; --Program Name 
