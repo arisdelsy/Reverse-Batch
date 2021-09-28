@@ -113,8 +113,9 @@ program Recipe;
   -- Database display array
   g_arRecipe : stored RecipeArrays;   
        
-  IngredDB : IngredDatabase;
-  RecipeDB : RecipeDatabase;       
+  BatchDB : BatchDatabase;
+  RecipeDB : RecipeDatabase;
+  TransDB : TransDatabase;       
 
   procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
   begin
@@ -132,6 +133,7 @@ program Recipe;
     DisableSP(2);
     DisableSP(3);
     DisableSP(4);
+    DisableSP(5);
     
   end;
 
