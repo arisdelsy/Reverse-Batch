@@ -22,14 +22,14 @@ program Recipe;
   
   -- Inputs/Outputs  
   g_ciStartAbort    : constant integer := 1;
-  g_ciEStop         : constant integer := 2;  
+  g_ciEStop         : constant integer := 2;
   g_coIngredient1   : constant integer := 3;
   g_coIngredient2   : constant integer := 4;
   g_coIngredient3   : constant integer := 5;
   g_coIngredient4   : constant integer := 6;
   g_coDischarge     : constant integer := 7;  
 
-  -- Screens
+  -- Screns
   g_ciMain    : constant integer := 1;
   g_ciSetup   : constant integer := 9; 
   g_ciIOTest  : constant integer := 4;    

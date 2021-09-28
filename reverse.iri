@@ -29,8 +29,8 @@ type TransDatabase is database ("Trans")
 end database;
 type CustomerDatabase is database ("Customer")
       Name: String;
-   Street#: String;
-  Town/St.: String;
+    Street: String;
+  TownStat: String;
    ZipCode: Integer;
 end database;
 type BatchDatabase is database ("Batch")
@@ -50,8 +50,8 @@ Trans_checksum : constant integer := 6;
 Trans_DT       : constant integer := 7;
 
 Customer_Name     : constant integer := 1;
-Customer_Street#  : constant integer := 2;
-Customer_Town/St. : constant integer := 3;
+Customer_Street   : constant integer := 2;
+Customer_TownStat : constant integer := 3;
 Customer_ZipCode  : constant integer := 4;
 
 Batch_Product  : constant integer := 1;
