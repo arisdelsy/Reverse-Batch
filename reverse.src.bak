@@ -1,0 +1,1318 @@
+
+------------------------------------------------------------------------------
+-- Program Name: Recipe
+
+------------------------------------------------------------------------------
+
+program Recipe; 
+ 
+#include Recipe.iri 
+
+  -- Constants and aliases definitions 
+  g_csProgName          : constant string  := "Recipe"; --Program Name 
+  g_csVersion           : constant string  := "1.02"; --Program Version   
+  g_ciPrinter           : constant integer := 0;
+  g_ciDigInOn           : constant integer := 0; --Digital Input is On 
+  g_ciDigInOff          : constant integer := 1; --Digital Input is Off
+  g_ciDigOutOn          : constant integer := 1; --Digital Output is On
+  g_ciDigOutOff         : constant integer := 0; --Digital Output is Off  
+  g_ciBackDoorPassword  : constant string  := "1234";  --Backdoor Password 
+  g_ciInt32_Max         : constant integer := 2147483647;   
+  g_ciMaxIngredients    : constant integer := 4;
+  
+  -- Inputs/Outputs  
+  g_ciStartAbort    : constant integer := 1;
+  g_ciEStop         : constant integer := 2;  
+  g_coIngredient1   : constant integer := 3;
+  g_coIngredient2   : constant integer := 4;
+  g_coIngredient3   : constant integer := 5;
+  g_coIngredient4   : constant integer := 6;
+  g_coDischarge     : constant integer := 7;  
+
+  -- Screens
+  g_ciMain    : constant integer := 1;
+  g_ciSetup   : constant integer := 9; 
+  g_ciIOTest  : constant integer := 4;    
+  
+  -- Operation Modes
+  LockMode                : constant integer := 0;
+  NoMode                  : constant integer := 100;    
+  EnterRecipeID           : constant integer := 101; 
+  
+  -- Setup Modes
+  SetupEnterPasswordMode   : constant integer := 999;
+  Setup1Mode               : constant integer := 1000; 
+    SetupChangePasswordMode  : constant integer := 1100;
+    SetupVerifyPasswordMode  : constant integer := 1101;
+    SetupRecipeId             : constant integer := 1210;
+      SetupRecipeName           : constant integer := 1211;
+      SetupRecipeIngred1        : constant integer := 1212;
+      SetupRecipeTarget1        : constant integer := 1213;
+      SetupRecipeIngred2        : constant integer := 1214;
+      SetupRecipeTarget2        : constant integer := 1215;
+      SetupRecipeIngred3        : constant integer := 1216;
+      SetupRecipeTarget3        : constant integer := 1217;
+      SetupRecipeIngred4        : constant integer := 1218;
+      SetupRecipeTarget4        : constant integer := 1219;                
+    SetupDeleteRecipe         : constant integer := 1220;
+    SetupIngredId             : constant integer := 1230;
+      SetupIngredName           : constant integer := 1231;
+      SetupIngredPreact         : constant integer := 1232;
+    SetupDeleteIngred         : constant integer := 1240; 
+    SetupScaleEmptyWeightMode  : constant integer := 1300;
+    SetupScaleDischargeTimeMode : constant integer := 1301; 
+  Setup2Mode                     : constant integer :=  2000; 	
+
+  EntryMode : integer; 
+
+  -- Batch Modes     
+  Complete               : constant integer := 50000;
+  WaitSSTare             : constant integer := 50001;
+  Filling                : constant integer := 50002;  
+  WaitSSFull             : constant integer := 50003;
+  Discharging            : constant integer := 50004;
+  DischargeDelay         : constant integer := 50005; 
+  
+  BatchMode : integer; 
+  type Pausedmode is (Yes, No);
+  Paused : PausedMode;
+
+  Blank : constant string := "";      
+  type boolean is (False,True); 
+
+  -- Global/Types variables definitions 
+  g_sSetupPassword : stored string;
+  g_iDownload : stored integer;
+  g_sTmpPassword : string;  
+  g_rCountby : real;    
+  g_bUpdate : boolean;
+  g_iDecimal1 : integer;  
+  g_uUnits : Units; 
+  g_sysResult : SysCode;   
+  g_iDebug : integer;
+  g_rScaleEmptyWeight : stored real;
+  g_rScaleDischargeTime : stored real;
+  g_iRecipeId : stored integer;  
+  g_iTotalNbrIngredients : integer;    
+  g_iCurrentIngredient : integer;    
+  g_iDelayCnt : integer; 
+  g_iWidget : integer;    
+
+  type RecipeRecord is
+    record 
+      iRecipeId : integer;
+      sRecipeName : string; 
+      iIngredientId : integer;
+      sIngredientName : string;  
+      rTargetWgt : real;    
+      rPreactWgt : real;
+      rActualWgt : real;      
+    end record;   
+
+  type RecipeArrays is array [4] of RecipeRecord;
+  -- Database display array
+  g_arRecipe : stored RecipeArrays;   
+       
+  IngredDB : IngredDatabase;
+  RecipeDB : RecipeDatabase;       
+
+  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  begin
+  
+    SetTimer(iTimer, iDuration);
+    SetTimerMode(iTimer, itmMode);
+    StartTimer(iTimer);
+    
+  end;  
+  
+  procedure DisableSetPoints;
+  begin
+    
+    DisableSP(1);
+    DisableSP(2);
+    DisableSP(3);
+    DisableSP(4);
+    
+  end;
+
+  function GetCurrentUnitsString(s : integer) : string;  -- Gets current units string (lb/kg/etc). 
+    sUnit : Units;
+    sUnitString : string;  
+  begin          
+    
+    if GetUnits(s, sUnit) = SysOk then
+      GetUnitsString(s, sUnit, sUnitString);    
+    else
+      sUnitString := Blank;
+    end if; 
+    
+    return sUnitString; 
+    
+  end;    
+  
+  function Pad15Spaces(s : string) : string;
+  begin
+
+    while Len(s) < 15
+    loop   
+      s := s + " "; 
+    end loop; 
+     
+    return s;   
+
+  end; 
+
+  procedure PrintTicket; 
+    sUnitsString : string;   
+    rTargetWgt : real := 0.0;
+    rActualWgt : real := 0.0;   
+    i : integer;
+  begin  
+
+    sUnitsString := GetCurrentUnitsString(1);    
+        
+    SetPrintText(1, IntegerToString(g_arRecipe[1].iRecipeId,0));
+    SetPrintText(2, g_arRecipe[1].sRecipeName);
+    Print(AuxFmt1);    
+    ProgramDelay(25);
+				
+    for i := 1 to g_ciMaxIngredients
+    loop
+      if g_arRecipe[i].rTargetWgt <> 0.0 then
+        SetPrintText(3, Pad15Spaces(g_arRecipe[i].sIngredientName));
+        SetPrintText(4, RealToString(g_arRecipe[i].rTargetWgt,6,g_iDecimal1) + " " + sUnitsString);    
+        SetPrintText(5, RealToString(g_arRecipe[i].rActualWgt,6,g_iDecimal1) + " " + sUnitsString);    
+        rTargetWgt := rTargetWgt + g_arRecipe[i].rTargetWgt;
+        rActualWgt := rActualWgt + g_arRecipe[i].rActualWgt; 
+        Print(AuxFmt2);                                                                   
+        ProgramDelay(25);          
+      end if; 
+    end loop;
+     
+    SetPrintText(6, RealToString(rTargetWgt,6,g_iDecimal1) + " " + sUnitsString);                                                                                                 
+    SetPrintText(7, RealToString(rActualWgt,6,g_iDecimal1) + " " + sUnitsString); 
+    Print(AuxFmt3); 
+    ProgramDelay(25);
+    
+    SetLabelText(lbSts1, Blank); 
+
+  end;    
+
+  procedure LockMajorKeys;  -- Locks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    LockKey(GrossNetKey);
+    LockKey(TareKey);
+    LockKey(UnitsKey);
+    LockKey(PrintKey);
+    
+  end; 
+
+  procedure UnLockMajorKeys;  -- UnLocks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    UnlockKey(GrossNetKey);
+    UnlockKey(TareKey);
+    UnlockKey(UnitsKey);
+    UnlockKey(PrintKey);
+    
+  end;   
+
+  procedure LockAllKeys; -- Lock All Keys
+  begin
+    LockMajorKeys;
+  end;
+
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iType : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+    
+    LockMajorKeys;
+ 
+		SetEntry(sDefault);
+    if iType = 0 then
+      PromptUser(sPrompt);
+    elsif iType = 1 then
+      Promptpassword(sPrompt);
+    elsif iType = 2 then
+      PromptNumeric(sPrompt);
+    end if;
+    EntryMode := iMode;
+    
+  end;  
+
+  function IsDigits(sNumeric : string) : boolean;  -- Makes ure user entry is numeric       
+    i : integer;
+    sTemp : string;
+    bResult : boolean := True;
+    bDecimal : boolean := False;
+  begin
+  
+    if sNumeric = "." or StringToInteger(sNumeric) >= g_ciInt32_Max then   
+      bResult := False;
+      return bResult;
+    end if;  
+
+    for i := 1 to Len(sNumeric)
+    loop                              
+    
+      sTemp := Mid$(sNumeric, i, 1); 
+      
+      -- ignore first decimal point
+      if sTemp = "." then  
+        if bDecimal = True then   
+          bResult := False;
+          exit;   
+        end if;     
+        bDecimal := True;  
+      end if; 
+      
+      -- ignore negative if first character
+      if i <> 1 and sTemp = "-" then
+        bResult := False;
+        exit;
+      end if;
+      
+      if (sTemp < "0" or sTemp > "9") and sTemp <> "." and sTemp <> "-" then        
+        bResult := False;
+        exit;
+      end if; 
+      
+    end loop;
+        
+    return bResult; 
+    
+  end;   
+
+  function IsValid(sTemp : string; sValidFor : string; iLength : integer) : boolean;  -- Validates a String, Integer and Real
+    bResult : boolean := True; 
+    sMessage : string;
+  begin 
+    
+    sValidFor := UCase$(sValidFor);
+    
+    if sValidFor = "S" then
+    
+      if Len(sTemp) = 0 or (Len(sTemp) > iLength and iLength <> 0) then  
+        bResult := False;
+        sMessage := "Required Entry - Try Again";  
+      end if;      
+        
+    elsif sValidFor = "I" then
+      
+      if isDigits(sTemp) = False then
+        bResult := False;  
+        sMessage := "Invalid Number - Try Again";        
+      elsif (Len(sTemp) = 0 or StringToInteger(sTemp) < 1) and iLength = 0 then   -- iLength to 1 will allow zero for an entry
+        bResult := False;  
+        sMessage := "Invalid Number (0) - Try Again";
+      end if;      
+    
+    elsif sValidFor = "R" then
+    
+      if isDigits(sTemp) = False or StringToReal(sTemp) < 0 then     
+        bResult := False;    
+        sMessage := "Invalid Number - Try Again";
+      elsif (Len(sTemp) = 0 or StringToReal(sTemp) = 0) and iLength = 0 then  -- iLength to 1 will allow zero for an entry
+        bResult := False;    
+        sMessage := "Invalid Number (0) - Try Again";              
+      end if;  
+
+    elsif sValidFor = "P" then
+    
+      if isDigits(sTemp) = False or StringToReal(sTemp) < 0 or StringToReal(sTemp) > 100 then 
+        bResult := False; 
+        sMessage := "Invalid Number (0-100) - Try Again";
+      end if; 
+                
+    else
+      
+      DisplayStatus("Validation Error");
+      bResult := False;
+      
+    end if;
+
+    if bResult = False then
+      if sValidFor = "P" or sValidFor = "R" or sValidFor = "I" then
+        PromptForEntry(sMessage, EntryMode, Blank,2);
+      else
+        PromptForEntry(sMessage, EntryMode, Blank,0); 
+      end if;
+    end if;
+    
+    return bResult;
+
+  end;   
+  
+  function CalcDecimal(rCountBy : real) : integer;  -- Calculates the amount of decimal positions  
+    iDecimal : integer := 0;    
+  begin   
+         
+    while rCountBy < 1.0
+    loop    
+      iDecimal := iDecimal + 1;
+      rCountBy := rCountBy * 10.0;  
+     end loop;
+
+     return iDecimal; 
+     
+  end; 
+
+  procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
+  begin   
+  
+    DisplayStatus(g_csProgName + " " + g_csVersion); 
+    SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
+    
+  end; 
+
+  procedure TurnOffAllOutputs;  -- Turn off All Outputs
+    i : integer;
+  begin
+    
+    for i := 3 to 7
+    loop
+      SetDigout(0, i, g_ciDigOutOff);
+    end loop;  
+  
+  end;     
+
+  procedure RefreshSetupDisplay;  -- Update display screen in setup menu 
+    sUnits : string;    
+		sPassword : string;
+		i : integer;
+  begin          
+
+		for i := 1 to Len(g_sSetupPassword)
+		loop
+			sPassword := sPassword + "*";
+		end loop;  
+
+    sUnits := GetCurrentUnitsString(1);     
+
+    SetLabelText(lbSet1, "Setup Password");
+    setlabeltext(lbSet11, sPassword);          
+    SetLabelText(lbSet2, "Empty Weight");
+    Setlabeltext(lbSet22, RealToString(g_rScaleEmptyWeight,0,g_iDecimal1) + " " + sUnits); 
+    SetLabelText(lbSet3, "Discharge Time");
+    setlabeltext(lbSet33, RealToString(g_rScaleDischargeTime,0,1) + " Sec");  
+    SetLabelText(lbSet4, "Import / Export");
+		SetLabelText(lbSet5, "Add/Edit");
+    Setlabeltext(lbSet55,"Ingredients");
+    SetLabelText(lbSet6, "Delete");
+    Setlabeltext(lbSet66, "Ingredients");
+		SetLabelText(lbSet7, "Add/Edit");
+    setlabeltext(lbSet77, "Recipes");
+    SetLabelText(lbSet8, "Delete");
+    setlabeltext(lbSet88, "Recipes");
+
+  end; 
+  
+  procedure RefreshMainDisplay;       
+    i : integer;      
+    iStart : integer;
+		sUnits : string;
+  begin
+		
+		sUnits := GetCurrentUnitsString(1); 
+    
+    if g_arRecipe[1].iRecipeId <> 0 then 
+      SetLabelText(lbRec, "Recipe " + IntegerToString(g_arRecipe[1].iRecipeId,0) + " - " + g_arRecipe[1].sRecipeName);
+    else
+      SetLabelText(lbRec, Blank);
+    end if; 
+    
+    iStart := lbSt - 3;
+    
+    for i := 1 to 4
+    loop  
+      
+      if g_arRecipe[i].sIngredientName <> Blank then
+        SetLabelText(iStart + (i * 3),  IntegerToString(g_arRecipe[i].iIngredientId,0) + " - " + g_arRecipe[i].sIngredientName);
+        SetLabelText(iStart + 1 + (i * 3),  RealToString(g_arRecipe[i].rTargetWgt,0,g_iDecimal1) + " " + sUnits);
+        SetLabelText(iStart + 2 + (i * 3),  RealToString(g_arRecipe[i].rActualWgt,0,g_iDecimal1) + " " + sUnits);
+      else
+        SetLabelText(iStart + (i * 3),  Blank);
+        SetLabelText(iStart + 1 + (i * 3),  Blank);
+        SetLabelText(iStart + 2 + (i * 3),  Blank);        
+      end if;
+      
+    end loop;
+  
+  end;
+
+  procedure ToggleOutput(iOUtput : integer);
+    iDigOutSts : integer;
+  begin
+
+    GetDigout(0, iOutput, iDigOutSts);
+    if iDigOutSts = g_ciDigOutOn then
+      SetDigout(0, iOutput, g_ciDigOutOff);
+    else
+      SetDigout(0, iOutput, g_ciDigOutOn);
+    end if;
+
+  end;  
+  
+  procedure GoIntoSetupMenu;  -- Enters Setup Menu
+  begin
+
+    DisplayStatus("Setup Menu");
+    EntryMode := Setup1Mode;    
+    SelectScreen(g_ciSetup);     
+    RefreshSetupDisplay;     
+  
+  end; 
+
+  procedure ClearStatus(iTime : integer);  -- Removes Display Status Message
+  begin 
+  
+    SetupStartTimer(29, iTime, TimerOneShot);
+    
+  end;    
+  
+  procedure ClearRecipeArray;  
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciMaxIngredients 
+    loop
+      g_arRecipe[i].iRecipeId := 0; 
+      g_arRecipe[i].sRecipeName := Blank; 
+      g_arRecipe[i].iIngredientId := 0; 
+      g_arRecipe[i].sIngredientName := Blank;
+      g_arRecipe[i].rTargetWgt := 0.0;    
+      g_arRecipe[i].rPreactWgt := 0.0;
+      g_arRecipe[i].rActualWgt := 0.0;            
+    end loop;
+         
+  end;     
+
+  procedure PopulateRecipeArray; 
+    i : integer := 0;
+  begin 
+    
+    ClearRecipeArray;   
+      
+    IngredDB.Id := RecipeDB.Ingred1;
+    if IngredDB.FindFirst(Ingred_Id) = SysOk then 
+      if RecipeDB.Target1 <> 00.00 then  -- Don't include ingredients with a target of zero 
+        i := i + 1;  
+        g_arRecipe[i].iRecipeId := RecipeDB.Id; 
+        g_arRecipe[i].sRecipeName := RecipeDB.Name; 
+        g_arRecipe[i].iIngredientId := IngredDB.Id; 
+        g_arRecipe[i].sIngredientName := IngredDB.Name;
+        g_arRecipe[i].rTargetWgt := RecipeDB.Target1;    
+        g_arRecipe[i].rPreactWgt := IngredDB.Preact; 
+        SetSPValue(RecipeDB.Ingred1, g_arRecipe[i].rTargetWgt - g_arRecipe[i].rPreactWgt);              
+      end if; 
+    end if; 
+
+    IngredDB.Id := RecipeDB.Ingred2;
+    if IngredDB.FindFirst(Ingred_Id) = SysOk then 
+      if RecipeDB.Target2 <> 00.00 then  -- Don't include ingredients with a target of zero 
+        i := i + 1;  
+        g_arRecipe[i].iRecipeId := RecipeDB.Id; 
+        g_arRecipe[i].sRecipeName := RecipeDB.Name; 
+        g_arRecipe[i].iIngredientId := IngredDB.Id; 
+        g_arRecipe[i].sIngredientName := IngredDB.Name;
+        g_arRecipe[i].rTargetWgt := RecipeDB.Target2;    
+        g_arRecipe[i].rPreactWgt := IngredDB.Preact;  
+        SetSPValue(RecipeDB.Ingred2, g_arRecipe[i].rTargetWgt - g_arRecipe[i].rPreactWgt);             
+      end if; 
+    end if;
+
+    IngredDB.Id := RecipeDB.Ingred3;
+    if IngredDB.FindFirst(Ingred_Id) = SysOk then 
+      if RecipeDB.Target3 <> 00.00 then  -- Don't include ingredients with a target of zero 
+        i := i + 1;  
+        g_arRecipe[i].iRecipeId := RecipeDB.Id; 
+        g_arRecipe[i].sRecipeName := RecipeDB.Name; 
+        g_arRecipe[i].iIngredientId := IngredDB.Id; 
+        g_arRecipe[i].sIngredientName := IngredDB.Name;
+        g_arRecipe[i].rTargetWgt := RecipeDB.Target3;    
+        g_arRecipe[i].rPreactWgt := IngredDB.Preact;   
+        SetSPValue(RecipeDB.Ingred3, g_arRecipe[i].rTargetWgt - g_arRecipe[i].rPreactWgt);            
+      end if; 
+    end if; 
+
+    IngredDB.Id := RecipeDB.Ingred4;
+    if IngredDB.FindFirst(Ingred_Id) = SysOk then 
+      if RecipeDB.Target4 <> 00.00 then  -- Don't include ingredients with a target of zero 
+        i := i + 1;  
+        g_arRecipe[i].iRecipeId := RecipeDB.Id; 
+        g_arRecipe[i].sRecipeName := RecipeDB.Name; 
+        g_arRecipe[i].iIngredientId := IngredDB.Id; 
+        g_arRecipe[i].sIngredientName := IngredDB.Name;
+        g_arRecipe[i].rTargetWgt := RecipeDB.Target4;    
+        g_arRecipe[i].rPreactWgt := IngredDB.Preact;
+        g_arRecipe[i].rActualWgt := 0.0;    
+        SetSPValue(RecipeDB.Ingred4, g_arRecipe[i].rTargetWgt - g_arRecipe[i].rPreactWgt);             
+      end if; 
+    end if;		
+
+    g_iTotalNbrIngredients := i;
+
+  end;   
+
+  procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
+  begin 
+  
+    ClosePrompt;  
+    UnLockMajorKeys;
+    if EntryMode >= Setup1Mode and EntryMode < Setup2Mode then   
+      EntryMode := Setup1Mode;  
+    else    
+      SetLabelText(lbSts1, Blank);  
+      EntryMode := NoMode; 
+    end if;
+    
+  end;    
+  
+  procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
+  begin 
+    
+    ClosePrompt;   
+    UnLockMajorKeys;
+    if EntryMode = SetupChangePasswordMode then
+      g_sTmpPassword := sTemp;
+      PromptForEntry("Re-enter Password to Verify", SetupVerifyPasswordMode, Blank,0);       
+     
+    elsif EntryMode = SetupVerifyPasswordMode then 
+      if sTemp = g_sTmpPassword then    
+        g_sSetupPassword := sTemp;
+        EntryMode := Setup1Mode;
+        DisplayStatus("Password Changed");      
+      else 
+        DisplayStatus("Error: Passwords don't Match");
+        EntryMode := Setup1Mode;  
+      end if;
+
+    elsif Entrymode = SetupEnterPasswordMode then
+      g_sTmpPassword := sTemp;
+      if g_sTmpPassword = g_sSetupPassword or g_sTmpPassword = g_ciBackDoorPassword then  
+        GoIntoSetupMenu;          
+      else      
+        DisplayStatus("Error: Invalid Password");   
+        g_sTmpPassword := Blank;        
+        EntryMode := NoMode;                            
+      end if;  
+
+    elsif EntryMode = SetupScaleEmptyWeightMode then
+      if isValid(sTemp, "r", 1) then
+        g_rScaleEmptyWeight  :=  StringToReal(sTemp);   
+        EntryMode := Setup1Mode;       
+      end if;
+
+    elsif EntryMode = SetupScaleDischargeTimeMode then
+      if isValid(sTemp, "r", 1) then
+        g_rScaleDischargeTime  :=  StringToReal(sTemp);
+        EntryMode := Setup1Mode;
+      end if;
+
+    elsif EntryMode = SetupRecipeId then
+      if IsValid(stemp, "i", 0) then
+        RecipeDB.Id  :=  StringToInteger(sTemp);
+        if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+          g_bUpdate := True;
+          PromptForEntry("Enter Recipe Name", SetupRecipeName, RecipeDB.Name,0);
+        else
+          g_bUpdate := False;
+          PromptForEntry("Enter Recipe Name", SetupRecipeName, Blank,0);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeName then
+      if IsValid(stemp, "s",15) then
+        RecipeDB.Name  :=  sTemp;
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeIngred1 then
+      if IsValid(stemp, "i", 1) then    			
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred1 := 0;
+					RecipeDB.Target1 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred1, Blank,2);    
+        else
+          RecipeDB.Ingred1  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #1 Target", SetupRecipeTarget1, RealToString(RecipeDB.Target1, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #1 Target", SetupRecipeTarget1, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget1 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target1 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2);
+        end if;       
+      end if;   
+
+    elsif EntryMode = SetupRecipeIngred2 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred2 := 0;
+					RecipeDB.Target2 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, IntegerToString(RecipeDB.Ingred3, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred2, Blank,2);    
+        else
+          RecipeDB.Ingred2  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #2 Target", SetupRecipeTarget2, RealToString(RecipeDB.Target2, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #2 Target", SetupRecipeTarget2, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget2 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target2 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, IntegerToString(RecipeDB.Ingred3, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, Blank,2);
+        end if;       
+      end if;       
+
+    elsif EntryMode = SetupRecipeIngred3 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred3 := 0;
+					RecipeDB.Target3 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, IntegerToString(RecipeDB.Ingred4, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred3, Blank,2);    
+        else
+          RecipeDB.Ingred3  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #3 Target", SetupRecipeTarget3, RealToString(RecipeDB.Target3, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #3 Target", SetupRecipeTarget3, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget3 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target3 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, IntegerToString(RecipeDB.Ingred4, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, Blank,2);
+        end if;       
+      end if;     
+
+    elsif EntryMode = SetupRecipeIngred4 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred4 := 0;
+          RecipeDB.Target4 := 0.0;  
+          if g_bUpdate = True then
+            if RecipeDB.Update = SysOk then
+              DisplayStatus("Recipe Updated");
+            else 
+              DisplayStatus("Error: Recipe DB");
+            end if;
+          else
+            if RecipeDB.Add = SysOk then
+              DisplayStatus("Recipe Added");
+            else 
+              DisplayStatus("Error: Recipe DB");
+            end if;
+          end if; 
+          EntryMode := Setup1Mode;          
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred4, Blank,2);    
+        else
+          RecipeDB.Ingred4  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #4 Target", SetupRecipeTarget4, RealToString(RecipeDB.Target4, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #4 Target", SetupRecipeTarget4, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget4 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target4 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          if RecipeDB.Update = SysOk then
+            DisplayStatus("Recipe Updated");
+          else 
+            DisplayStatus("Error: Recipe DB");
+          end if;
+        else
+          if RecipeDB.Add = SysOk then
+            DisplayStatus("Recipe Added");
+          else 
+            DisplayStatus("Error: Recipe DB");
+          end if;
+        end if; 
+        EntryMode := Setup1Mode;    
+      end if;             
+
+    elsif EntryMode = SetupIngredId then
+      if IsValid(stemp, "i", 0 ) then
+        if StringToInteger(sTemp) >= 1 and StringToInteger(sTemp) <= 4 then
+          IngredDB.Id  :=  StringToInteger(sTemp);
+          if IngredDB.FindFirst(Ingred_Id) = SysOk then
+            g_bUpdate := True;
+            PromptForEntry("Enter Ingredient Name", SetupIngredName, IngredDB.Name,0);
+          else
+            g_bUpdate := False;
+            PromptForEntry("Enter Ingredient Name", SetupIngredName, Blank,0);
+          end if; 
+        else
+          PromptForEntry("Error Ingredient Id (1-4) - Retry", SetupIngredId, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupIngredName then
+      if IsValid(stemp, "s", 15) then
+        IngredDB.Name  :=  sTemp;
+        if g_bUpdate = True then
+          PromptForEntry("Enter Ingredient Preact", SEtupIngredPreact, RealToString(IngredDB.Preact, 0, g_iDecimal1),2);
+        else
+          PromptForEntry("Enter Ingredient Preact", SEtupIngredPreact, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SEtupIngredPreact then
+      if IsValid(stemp, "r", 1 ) then
+        IngredDB.Preact  :=  StringToReal(sTemp);
+        if g_bUpdate = True then
+          if IngredDB.Update = SysOk then
+            DisplayStatus("Ingredient " + IntegerToString(IngredDB.Id,0) + " Updated");
+          else 
+            DisplayStatus("Error: Ingredient Database");
+          end if;    
+        else
+        
+          if IngredDB.Add = SysOk then
+            DisplayStatus("Ingredient " + IntegerToString(IngredDB.Id,0) + " Added");
+          else 
+            DisplayStatus("Error: Ingredient Database");
+          end if;    
+        end if;       
+        EntryMode := Setup1Mode;
+      end if;
+
+      elsif EntryMode = SetupDeleteRecipe then
+        if IsValid(stemp, "i", 0 ) then
+          RecipeDB.Id  :=  StringToInteger(sTemp);
+          if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+            g_sysResult := RecipeDB.Delete;  
+            while RecipeDB.FindNext = SysOk       
+            loop
+              RecipeDB.Delete;    
+             end loop;
+             DisplayStatus("Recipe Deleted");
+          else
+            DisplayStatus("Recipe NOT FOUND");
+          end if;
+          EntryMode := Setup1Mode;
+        end if;
+
+      elsif EntryMode = SetupDeleteIngred then
+        if IsValid(stemp, "s", 0 ) then
+          IngredDB.Id  :=  StringToInteger(sTemp);
+          if IngredDB.FindFirst(Ingred_Id) = SysOk then
+            g_sysResult := IngredDB.Delete;
+            if g_sysResult = SysOk then
+              DisplayStatus("Ingred Deleted");
+            else
+              DisplayStatus("DB Error: " + SysCodeToString(g_sysResult));
+            end if;
+          else
+            DisplayStatus("Ingredient NOT FOUND");
+          end if;
+          EntryMode := Setup1Mode;
+        end if;
+
+    elsif EntryMode = EnterRecipeID then
+      
+      RecipeDB.Id := StringToInteger(sTemp);
+      if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+        g_iRecipeId := RecipeDB.Id;  
+        PopulateRecipeArray; 
+        g_iCurrentIngredient := 1;         
+        RefreshMainDisplay;   
+        SetLabelText(lbSts1, Blank);   
+        EntryMode := NoMode;
+      else
+        PromptForEntry("Recipe NOT Found - Retry", EnterRecipeID, Blank,2); 
+      end if;
+   
+    end if; 
+
+    if EntryMode >=  Setup1Mode then
+      RefreshSetupDisplay;
+    end if; 
+          
+  end; 
+
+  procedure setupScreen;
+  i : integer;
+  begin
+
+
+    for i := 31 to 34
+    loop
+      Setbargraphlevel(i,100); 
+    end loop;
+    Setbargraphlevel(bar8,100);
+    Setbargraphlevel(bar44,100);
+    Setbargraphlevel(bar46,100);
+    Setbargraphlevel(bar45,100);
+    Setbargraphlevel(bar56,100);
+    Setbargraphlevel(bar64,100);
+    Setbargraphlevel(bar80,100);
+    Setbargraphlevel(bar81,100);
+    Setbargraphlevel(bar94,100);
+    Setbargraphlevel(bar41,100);
+
+
+    SetImageWidgetPath(Exit9, "local://9.png");
+    SetImageWidgetPath(Exit4, "local://9.png");
+    SetImageWidgetPath(lbZero, "local://8.png");
+    SetImageWidgetPath(lbTare, "local://6.png");
+    SetImageWidgetPath(lbKTare, "local://3.png");
+    SetImageWidgetPath(lbUnit, "local://7.png");
+    SetImageWidgetPath(lbGN, "local://2.png");
+    SetImageWidgetPath(LbPrint, "local://4.png");
+    SetImageWidgetPath(lbAuxP, "local://1.png");
+    SetImageWidgetPath(Setup, "local://11.png");
+
+  end;
+
+  procedure Ready;  -- Initialization procedure
+  begin
+ 
+    UnLockMajorKeys;
+    setupScreen;
+    SetLabelText(lbSts1, Blank);     
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;              
+    Paused := No;
+    BatchMode := Complete;  
+    RefreshMainDisplay;
+    SelectScreen(g_ciMain); 
+    EntryMode := NoMode;
+  
+  end;                
+  
+  procedure StartProcess;  -- Start Process
+  begin
+
+    RecipeDB.Id := g_iRecipeId;   
+    if RecipeDB.FindFirst(Recipe_Id) = SysOk then   
+      DisplayStatus(Blank);    
+      PopulateRecipeArray; 
+      RefreshMainDisplay;
+      g_iCurrentIngredient := 1;
+      Paused := No;
+      EntryMode := NoMode;  
+      BatchMode := WaitSSTare;  
+      LockMajorKeys;  
+      Setwidgetvisibility(setup, Voff);     
+      SetupStartTimer(1, 10, TimerContinuous);
+    
+    else 
+      SetLabelText(lbSts1, "Error Loading Recipe");
+      ClearStatus(100);
+    
+    end if;
+
+  end;  
+  
+  procedure StopProcess;  -- Stop Process after its been started 
+  begin                        
+
+    StopTimer(1);
+    Paused := Yes;  
+    DisableSetPoints;    
+    TurnOffAllOutputs;     
+    SetLabelText(lbSts1, "System Paused");  
+
+  end;   
+
+  procedure AbortProcess; -- Abort the process
+  begin 
+    
+    SetLabelText(lbSts1, "Batch Aborted"); 
+    Paused := No;
+    Setwidgetvisibility(setup, Von);         
+    UnLockMajorKeys; 
+    BatchMode := Complete;  
+    ClearStatus(200);  
+    ClearTare(Scale1);
+    SetMode(Scale1, GrossMode);    
+
+  end;  
+
+  procedure RestartProcess;  -- Restart the process
+  begin  
+
+    Paused := No; 
+    StartTimer(1);             
+
+  end;    
+
+  handler DigInS0B1Activate;  -- Start / Run / Abort Switch 
+    iDigInSts : integer; 
+    rGrossWgt1 : real;
+    rGrossWgt2 : real; 
+  begin       
+
+    if EntryMode = NoMode and Paused = No and BatchMode = Complete then  
+      if g_iRecipeId = 0 then
+        SetLabelText(lbSts1, "Please Select Recipe");
+        return;
+      end if;    
+      
+      GetGross(1, g_uUnits, rGrossWgt1);
+      if rGrossWgt1 >= g_rScaleEmptyWeight then
+        SetLabelText(lbSts1, "Scale NOT Empty"); 
+        ClearStatus(100);
+        return;
+      end if; 
+      
+      -- Get status of Emergency Mushroom switch
+      GetDigin(0, g_ciEStop, iDigInSts);  
+  
+      if iDigInsts = 0 then 
+        StartProcess;
+      else
+        SetLabelText(lbSts1, "Check E-Stop");   
+        ClearStatus(100);
+      end if;      
+        
+    elsif EntryMode = NoMode and Paused = Yes and BatchMode <> Complete then    
+      -- Get status of Emergency Mushroom switch
+      GetDigin(0, g_ciEStop, iDigInSts);  
+            
+      if iDigInsts = 1 then 
+        AbortProcess;
+      elsif iDigInsts = 0 then
+        RestartProcess;
+      else
+        DisplayStatus("Error: Invalid Operation");
+        ClearStatus(100);
+      end if;   
+
+    end if;   
+
+  end;
+
+  handler DigInS0B2DeActivate;   -- Batch Run Mushroom swtich (ESTOP) 
+  begin 
+
+    if EntryMode = NoMode and Paused = No and BatchMode <> Complete then      
+      StopProcess;   
+      DisableSetpoints;
+    end if;
+    
+  end;  
+
+  handler Timer1Trip;    -- Batching Timer 
+    iMotion : integer; 
+    rScaleWgt : real;    
+  begin    
+	
+    if BatchMode = WaitSSTare and Paused = No then
+      InMotion(1, iMotion);   
+      if iMotion = 0 then 
+        GetGross(1 , g_uUnits, rScaleWgt);
+				
+        if SetTare(1 , g_uUnits, rScaleWgt) = SysOk then
+          SetMode(1 , NetMode);          
+          BatchMode := Filling;  
+        else
+          SetLabelText(lbSts1, "Trying to Tare Scale");
+        end if;
+      else
+        SetLabelText(lbSts1, "...In Motion..."); 
+      end if;      
+                
+    elsif BatchMode = Filling and Paused = No then 
+      if g_arRecipe[g_iCurrentIngredient].iIngredientId = 1 then
+        EnableSP(1);
+      elsif g_arRecipe[g_iCurrentIngredient].iIngredientId = 2 then
+        EnableSP(2); 
+      elsif g_arRecipe[g_iCurrentIngredient].iIngredientId = 3 then
+        EnableSP(3); 
+      elsif g_arRecipe[g_iCurrentIngredient].iIngredientId = 4 then
+        EnableSP(4); 
+      end if; 
+      SetLabelText(lbSts1, "Filling " + g_arRecipe[g_iCurrentIngredient].sIngredientName + " to " + RealToString(g_arRecipe[g_iCurrentIngredient].rTargetWgt,0,g_iDecimal1) + " " + GetCurrentUnitsString(1)); 
+      StopTimer(1);
+
+    elsif BatchMode = WaitSSFull and Paused = No then 
+      
+      InMotion(1, iMotion); 
+      if iMotion = 0 then        
+        GetNet(1, g_uUnits, g_arRecipe[g_iCurrentIngredient].rActualWgt);    
+        RefreshMainDisplay;
+        
+        if g_iCurrentIngredient >= g_iTotalNbrIngredients then 
+          ClearTare(Scale1);  
+          SetLabelText(lbSts1, Blank);
+          if g_rScaleDischargeTime <> 0.0 then        
+            BatchMode := Discharging; 
+          else
+            SetDigout(0, g_coDischarge, g_ciDigOutOff); 
+            StopTimer(1);                                        
+            BatchMode := Complete;         
+            SetLabelText(lbSts1, "Batch Complete");  
+            PrintTicket;  
+            Paused := No;      
+            UnLockMajorKeys;  
+            ClearStatus(200);  
+          end if;                    
+        else   
+          g_iCurrentIngredient := g_iCurrentIngredient + 1; 
+          BatchMode := WaitSSTare;       
+        end if;    
+        
+      else
+        SetLabelText(lbSts1, "...In Motion...");
+      end if;       
+      
+   elsif BatchMode = Discharging and Paused = No then 
+      
+      SelectScale(Scale1);
+      GetGross(Scale1, g_uUnits, rScaleWgt);
+      if rScaleWgt <= g_rScaleEmptyWeight then   
+        g_iDelayCnt :=  0; 
+        BatchMode := DischargeDelay;   
+      else   
+        SetDigout(0, g_coDischarge, g_ciDigOutOn);                                     
+        SetLabelText(lbSts1, "Discharging");
+      end if;  
+      
+    elsif BatchMode = DischargeDelay and Paused = No then
+
+      g_iDelayCnt := g_iDelayCnt + 1;  
+      if g_iDelayCnt >= g_rScaleDischargeTime * 10 then    
+        SetDigout(0, g_coDischarge, g_ciDigOutOff); 
+        StopTimer(1);                                        
+        BatchMode := Complete;         
+        SetLabelText(lbSts1, "Batch Complete");  
+        PrintTicket;  
+        Paused := No;      
+        UnLockMajorKeys;    
+        ClearStatus(200);  
+        Setwidgetvisibility(setup, Von);        
+      else    
+        SetLabelText(lbSts1, "...Discharge Delay...");
+      end if; 
+
+    end if;        
+    
+  end;  
+  
+  handler SP1Trip; -- Ingredient #1 Setpoint
+  begin 
+      
+    DisableSP(1);
+    BatchMode := WaitSSFull;
+    RestartProcess; 
+    
+  end;  
+
+  handler SP2Trip; -- Ingredient #2 Setpoint
+  begin
+      
+    DisableSP(2);
+    BatchMode := WaitSSFull;
+    RestartProcess; 
+    
+  end;
+
+  handler SP3Trip; -- Ingredient #3 Setpoint
+  begin  
+      
+    DisableSP(3);
+    BatchMode := WaitSSFull;
+    RestartProcess; 
+    
+  end;
+
+  handler SP4Trip; -- Ingredient #4 Setpoint
+  begin  
+
+    DisableSP(4);
+    BatchMode := WaitSSFull;
+    RestartProcess; 
+    
+  end;      
+
+  handler Timer29Trip;  -- Removes display status text  
+  begin 
+ 
+    DisplayStatus(Blank);     
+    SetLabelText(lbSts1, Blank);
+    
+  end;    
+
+  handler UserEntry;  -- Processing a data entry method
+    sTemp : string;  
+  begin   
+  
+    sTemp := GetEntry; 
+    
+    if EventKey = EnterKey then     --Enter key pressed
+      ProcessDataEntry(sTemp); 
+    else                            --Cancel key pressed    
+      ProcessPromptCancel;    
+    end if;
+
+  end;  
+
+	handler UnitsKeyReleased;  -- Just incase secondary units is on (let't refresh decimal and screen)
+	begin
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;   	
+		RefreshMainDisplay;
+	end; 
+
+ handler WidgetClicked;
+  begin
+
+  	DisableHandler(WidgetClicked);
+		g_iWidget := EventWidget;
+		DisplayStatus("");
+    SetupStartTimer(4, 5, TimerOneShot);  
+   
+  end;
+
+  handler Timer4Trip;
+  begin
+
+    if g_iWidget = lbSet1 or g_iWidget = lbSet11 then
+			PromptForEntry("Enter New Password", SetupChangePasswordMode, Blank,0); 
+    elsif g_iWidget = lbSet2 or g_iWidget = lbSet22 then
+      PromptForEntry("Enter Empty Weight", SetupScaleEmptyWeightMode, RealToString(g_rScaleEmptyWeight, 0, g_iDecimal1),2); 
+    elsif g_iWidget = lbSet3 or g_iwidget = lbSet33 then
+      PromptForEntry("Enter Discharge Time (sec) ", SetupScaleDischargeTimeMode, RealToString(g_rScaleDischargeTime, 0, 1),2);     
+    elsif g_iWidget = lbSet4 then 
+      KeyPress(DatabaseKey);
+    elsif g_iWidget = lbSet5 or g_iWidget = lbSet55 then 
+      PromptForEntry("Enter Ingredient Id (1-4)", SetupIngredId, Blank,2);
+    elsif g_iWidget = lbSet6 or g_iWidget = lbSet66 then
+      PromptForEntry("Enter Ingredient Id (1-4)", SetupDeleteIngred, Blank,2);        
+    elsif g_iWidget = lbSet7 or g_iWidget = lbSet77 then 
+      PromptForEntry("Enter Recipe Id", SetupRecipeId, Blank,2);
+    elsif g_iWidget = lbSet8 or g_iWidget = lbSet88 then 	  
+      PromptForEntry("Enter Recipe Id", SetupDeleteRecipe, Blank,2);     
+    elsif g_iWidget = lbI1 then
+      ToggleOutput(g_coIngredient1);
+    elsif g_iWidget = lbI2 then
+      ToggleOutput(g_coIngredient2);
+    elsif g_iWidget = lbI3 then
+      ToggleOutput(g_coIngredient3);
+    elsif g_iWidget = lbI4 then
+      ToggleOutput(g_coIngredient4);   
+    elsif g_iWidget = lbD then
+      ToggleOutput(g_coDischarge);   
+    elsif g_iWidget = lbRec and EntryMode = NoMode and BatchMode = Complete then 
+      PromptForEntry("Enter Recipe Id", EnterRecipeID, Blank,2);
+    elsif g_iWidget = 1 then
+      SelectScreen(4);
+    elsif g_iWidget = Exit4 then 
+      SelectScreen(1);
+    elsif g_iWidget = lbZero then
+      KeyPress(ZeroKey);
+    elsif g_iWidget = lbTare then 
+      KeyPress(TareKey);
+    elsif g_iWidget = lbUnit then 
+      KeyPress(UnitsKey);
+    elsif g_iWidget = lbGN then
+      KeyPress(GrossNetKey);
+    elsif g_iWidget = LbPrint then
+      KeyPress(PrintKey);
+    elsif g_iWidget = lbKTare then
+      KeyPress(KeyedTareKey);
+    elsif g_iWidget = lbAuxP then
+      KeyPress(AuxPrintKey); 
+
+    elsif g_iWidget = Setup then 
+
+      if EntryMode = noMode and BatchMode = Complete then     
+        -- Bypassing password entry if zero or blank
+        if g_sSetupPassword = "0" or g_sSetupPassword = Blank then
+          GoIntoSetupMenu;           
+        else       
+          PromptForEntry("Enter Password", SetupEnterPasswordMode, Blank, 1);
+        end if; 
+      end if;
+
+    elsif g_iWidget = Exit9 then
+      SelectScreen(g_ciMain);
+      EntryMode := NoMode;
+			DisplayStatus(Blank);
+      TurnOffAllOutputs;
+
+    end if;
+
+    EnableHandler(WidgetClicked);
+
+  end;     
+
+begin
+
+  DisableSetPoints; 
+  DisplayVersion; 
+  setmenubarcolor("Black");
+
+  if g_iDownload = 0 then
+    g_iDownload := 1;
+    g_sSetupPassword := Blank; 
+    g_rScaleEmptyWeight := 5;
+    g_rScaleDischargeTime := 3.0;
+  end if;    
+  
+  Ready;       
+
+end SZ2177596; 
