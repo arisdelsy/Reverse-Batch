@@ -8,7 +8,130 @@ program Reverse;
   g_ciDigOutOff         : constant integer := 0; --Digital Output is Off  
   g_ciBackDoorPassword  : constant string  := "1234";  --Backdoor Password 
   g_ciInt32_Max         : constant integer := 2147483647;   
-  g_ciMaxIngredients    : constant integer := 4;
   
   --Screens
   g_ciMain    : constant integer := 1;
+  g_ciList    : constant integer := 4;
+  g_ciYN      : constant integer := 5;
+  g_ciSetup   : constant integer := 10;
+
+  -- Setup Modes
+  SetupEnterPasswordMode   : constant integer := 999;
+  Setup1Mode               : constant integer := 1000; 
+    SetupChangePasswordMode  : constant integer := 1100;
+    SetupVerifyPasswordMode  : constant integer := 1101;
+      --Modes for storing into Product database
+      SetupProductName           : constant integer := 1211;
+      --Stone
+      SetupMaterial1             : constant integer := 1212;
+      SetupTarget1               : constant integer := 1213;
+      --Cement
+      SetupMaterial2             : constant integer := 1214;
+      SetupTarget2               : constant integer := 1215;             
+    SetupDeleteProduct        : constant integer := 1220;
+    Setup             : constant integer := 1230;
+      SetupIngredName           : constant integer := 1231;
+      SetupIngredPreact         : constant integer := 1232;
+    SetupDeleteIngred         : constant integer := 1240; 
+    SetupScaleEmptyWeightMode  : constant integer := 1300;
+  Setup2Mode                     : constant integer :=  2000; 	
+
+  EntryMode : integer; 
+
+  -- Batch Modes     
+  Complete               : constant integer := 50000;
+  WaitSSTare             : constant integer := 50001;
+  Filling                : constant integer := 50002;  
+  WaitSSFull             : constant integer := 50003;
+  Discharging            : constant integer := 50004;
+  DischargeDelay         : constant integer := 50005;   
+
+  BatchMode : integer; 
+  
+  type Pausedmode is (Yes, No);
+  Paused : PausedMode;
+
+  Blank : constant string := "";      
+  type boolean is (False,True);
+
+  -- Global/Types variables definitions 
+  g_sSetupPassword : stored string;
+  g_iDownload : stored integer;
+  g_sTmpPassword : string;  
+  g_rCountby : real;    
+  g_bUpdate : boolean;
+  g_iDecimal1 : integer;  
+  g_uUnits : Units; 
+  g_sysResult : SysCode;   
+  g_iDebug : integer;
+  g_rScaleEmptyWeight : stored real;
+  g_rScaleDischargeTime : stored real;
+  g_iRecipeId : stored integer;  
+  g_iTotalNbrIngredients : integer;    
+  g_iCurrentIngredient : integer;    
+  g_iDelayCnt : integer; 
+  g_iWidget : integer;    
+
+  --Actual record to store to transaction database
+  type ProductRecord is
+    record 
+      sProductName : string;  
+      rTargetWgt1 : real;    
+      rTargetWgt2 : real;
+      rTotalTon   : real;      
+    end record;   
+
+  -- Database display array !!LOOK HERE!!
+  --g_arRecipe : stored RecipeArrays;   
+       
+  CustDB : CustomerDatabase;
+  ProdDB : ProductDatabase;
+  TransDB : TransDatabase;  
+
+  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  begin
+  
+    SetTimer(iTimer, iDuration);
+    SetTimerMode(iTimer, itmMode);
+    StartTimer(iTimer);
+    
+  end; 
+
+  function GetCurrentUnitsString(s : integer) : string;  -- Gets current units string (lb/kg/etc). 
+    sUnit : Units;
+    sUnitString : string;  
+  begin          
+    
+    if GetUnits(s, sUnit) = SysOk then
+      GetUnitsString(s, sUnit, sUnitString);    
+    else
+      sUnitString := Blank;
+    end if; 
+    
+    return sUnitString; 
+    
+  end; 
+
+  function Pad15Spaces(s : string) : string;
+  begin
+
+    while Len(s) < 15
+    loop   
+      s := s + " "; 
+    end loop; 
+     
+    return s;   
+
+  end;
+
+  --convert pounds to tons
+  function PoundsToTons(p : real) : real;
+  begin
+
+    t := p / 2000;
+
+    return t;
+  
+  end;
+
+  
