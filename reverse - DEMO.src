@@ -1,4 +1,4 @@
-program Reverse; 
+program reverse; 
  
 #include reverse.iri 
   
@@ -134,4 +134,23 @@ program Reverse;
   
   end;
 
+
+
+  procedure Ready;  -- Initialization procedure
+  begin
+ 
+    UnLockMajorKeys;
+    setupScreen;
+    SetLabelText(lbSts1, Blank);     
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;              
+    Paused := No;
+    BatchMode := Complete;  
+    RefreshMainDisplay;
+    SelectScreen(g_ciMain); 
+    EntryMode := NoMode;
   
+  end;
