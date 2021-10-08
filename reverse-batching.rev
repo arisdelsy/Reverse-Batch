@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-  <Revision value="1.2.7.28548" />
+  <Revision value="1.2.7.31234" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
