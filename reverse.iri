@@ -19,12 +19,15 @@ DIO0_8    : constant integer := 8;
 
 -- Database Type Definitions and Field Aliases
 type TransDatabase is database ("Trans")
-    Consec: Integer;
+  BatchNum: Integer;
+  Customer: String;
+   Product: String;
     Target: Real;
-   Dribble: Real;
-    Preact: Real;
-    Actual: Real;
-  checksum: String;
+  TotalTon: Real;
+        M1: String;
+        T1: Real;
+        M2: String;
+        T2: Real;
         DT: DateTime;
 end database;
 type CustomerDatabase is database ("Customer")
@@ -33,7 +36,7 @@ type CustomerDatabase is database ("Customer")
   TownStat: String;
    ZipCode: Integer;
 end database;
-type BatchDatabase is database ("Batch")
+type ProductDatabase is database ("Product")
    Product: String;
       Mat1: String;
    Target1: Integer;
@@ -41,24 +44,27 @@ type BatchDatabase is database ("Batch")
    Target2: Integer;
 end database;
 
-Trans_Consec   : constant integer := 1;
-Trans_Target   : constant integer := 2;
-Trans_Dribble  : constant integer := 3;
-Trans_Preact   : constant integer := 4;
-Trans_Actual   : constant integer := 5;
-Trans_checksum : constant integer := 6;
-Trans_DT       : constant integer := 7;
+Trans_BatchNum : constant integer := 1;
+Trans_Customer : constant integer := 2;
+Trans_Product  : constant integer := 3;
+Trans_Target   : constant integer := 4;
+Trans_TotalTon : constant integer := 5;
+Trans_M1       : constant integer := 6;
+Trans_T1       : constant integer := 7;
+Trans_M2       : constant integer := 8;
+Trans_T2       : constant integer := 9;
+Trans_DT       : constant integer := 10;
 
 Customer_Name     : constant integer := 1;
 Customer_Street   : constant integer := 2;
 Customer_TownStat : constant integer := 3;
 Customer_ZipCode  : constant integer := 4;
 
-Batch_Product  : constant integer := 1;
-Batch_Mat1     : constant integer := 2;
-Batch_Target1  : constant integer := 3;
-Batch_Mat2     : constant integer := 4;
-Batch_Target2  : constant integer := 5;
+Product_Product  : constant integer := 1;
+Product_Mat1     : constant integer := 2;
+Product_Target1  : constant integer := 3;
+Product_Mat2     : constant integer := 4;
+Product_Target2  : constant integer := 5;
 
 
 

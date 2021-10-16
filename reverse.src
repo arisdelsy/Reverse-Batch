@@ -4,12 +4,12 @@
 
 ------------------------------------------------------------------------------
 
-program Recipe; 
+program Reverse; 
  
 #include reverse.iri 
 
   -- Constants and aliases definitions 
-  g_csProgName          : constant string  := "Recipe"; --Program Name 
+  g_csProgName          : constant string  := "Reverse"; --Program Name 
   g_csVersion           : constant string  := "1.02"; --Program Version   
   g_ciPrinter           : constant integer := 0;
   g_ciDigInOn           : constant integer := 0; --Digital Input is On 
@@ -29,7 +29,7 @@ program Recipe;
   g_coIngredient4   : constant integer := 6;
   g_coDischarge     : constant integer := 7;  
 
-  -- Screns
+  -- Screens
   g_ciMain    : constant integer := 1;
   g_ciSetup   : constant integer := 9; 
   g_ciIOTest  : constant integer := 4;    
