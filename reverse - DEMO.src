@@ -303,7 +303,7 @@ program reverse;
               DisplayStatus("DB Error: " + SysCodeToString(g_sysResult));
             end if;
           else
-            DisplayStatus("Ingredient NOT FOUND");
+            DisplayStatus("Material NOT FOUND");
           end if;
           EntryMode := Setup1Mode;
         end if;
