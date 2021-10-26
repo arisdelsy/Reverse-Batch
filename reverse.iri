@@ -29,6 +29,7 @@ type TransDatabase is database ("Trans")
         M2: String;
         T2: Real;
         DT: DateTime;
+  TonAccum: Real;
 end database;
 type CustomerDatabase is database ("Customer")
       Name: String;
@@ -39,9 +40,9 @@ end database;
 type ProductDatabase is database ("Product")
    Product: String;
       Mat1: String;
-   Target1: Integer;
+   Target1: Real;
       Mat2: String;
-   Target2: Integer;
+   Target2: Real;
 end database;
 
 Trans_BatchNum : constant integer := 1;
@@ -54,6 +55,7 @@ Trans_T1       : constant integer := 7;
 Trans_M2       : constant integer := 8;
 Trans_T2       : constant integer := 9;
 Trans_DT       : constant integer := 10;
+Trans_TonAccum : constant integer := 11;
 
 Customer_Name     : constant integer := 1;
 Customer_Street   : constant integer := 2;
