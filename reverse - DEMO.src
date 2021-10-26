@@ -126,6 +126,7 @@ program reverse;
 
   --convert pounds to tons
   function PoundsToTons(p : real) : real;
+    t : real;
   begin
 
     t := p / 2000;

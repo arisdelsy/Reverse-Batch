@@ -70,7 +70,13 @@ program reverse;
   g_iTotalNbrIngredients : integer;    
   g_iCurrentIngredient : integer;    
   g_iDelayCnt : integer; 
-  g_iWidget : integer;    
+  g_iWidget : integer;
+
+  --total tons for transaction
+  total_ton : real;
+  --stored accumulator
+  ton_accum : stored real := 0.0;
+
 
   --Actual record to store to transaction database
   type ProductRecord is
@@ -126,12 +132,358 @@ program reverse;
 
   --convert pounds to tons
   function PoundsToTons(p : real) : real;
+    --ton temp value
+    ton : real;
   begin
 
-    t := p / 2000;
+    ton := p / 2000;
 
-    return t;
+    return ton;
   
   end;
 
+  procedure TonAccumulator(t : real);
+  begin
+
+    ton_accum := ton_accum + total_ton;
+
+  end;
+
+  procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
+  begin 
+    
+    ClosePrompt;   
+    UnLockMajorKeys;
+    if EntryMode = SetupChangePasswordMode then
+      g_sTmpPassword := sTemp;
+      PromptForEntry("Re-enter Password to Verify", SetupVerifyPasswordMode, Blank,0);       
+     
+    elsif EntryMode = SetupVerifyPasswordMode then 
+      if sTemp = g_sTmpPassword then    
+        g_sSetupPassword := sTemp;
+        EntryMode := Setup1Mode;
+        DisplayStatus("Password Changed");      
+      else 
+        DisplayStatus("Error: Passwords don't Match");
+        EntryMode := Setup1Mode;  
+      end if;
+
+    elsif Entrymode = SetupEnterPasswordMode then
+      g_sTmpPassword := sTemp;
+      if g_sTmpPassword = g_sSetupPassword or g_sTmpPassword = g_ciBackDoorPassword then  
+        GoIntoSetupMenu;          
+      else      
+        DisplayStatus("Error: Invalid Password");   
+        g_sTmpPassword := Blank;        
+        EntryMode := NoMode;                            
+      end if;  
+
+    elsif EntryMode = SetupScaleEmptyWeightMode then
+      if isValid(sTemp, "r", 1) then
+        g_rScaleEmptyWeight  :=  StringToReal(sTemp);   
+        EntryMode := Setup1Mode;       
+      end if;
+
+    elsif EntryMode = SetupScaleDischargeTimeMode then
+      if isValid(sTemp, "r", 1) then
+        g_rScaleDischargeTime  :=  StringToReal(sTemp);
+        EntryMode := Setup1Mode;
+      end if;
+
+    elsif EntryMode = SetupRecipeId then
+      if IsValid(stemp, "i", 0) then
+        RecipeDB.Id  :=  StringToInteger(sTemp);
+        if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+          g_bUpdate := True;
+          PromptForEntry("Enter Recipe Name", SetupRecipeName, RecipeDB.Name,0);
+        else
+          g_bUpdate := False;
+          PromptForEntry("Enter Recipe Name", SetupRecipeName, Blank,0);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeName then
+      if IsValid(stemp, "s",15) then
+        RecipeDB.Name  :=  sTemp;
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeIngred1 then
+      if IsValid(stemp, "i", 1) then    			
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred1 := 0;
+					RecipeDB.Target1 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred1, Blank,2);    
+        else
+          RecipeDB.Ingred1  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #1 Target", SetupRecipeTarget1, RealToString(RecipeDB.Target1, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #1 Target", SetupRecipeTarget1, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget1 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target1 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2);
+        end if;       
+      end if;   
+
+    elsif EntryMode = SetupRecipeIngred2 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred2 := 0;
+					RecipeDB.Target2 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, IntegerToString(RecipeDB.Ingred3, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred2, Blank,2);    
+        else
+          RecipeDB.Ingred2  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #2 Target", SetupRecipeTarget2, RealToString(RecipeDB.Target2, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #2 Target", SetupRecipeTarget2, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget2 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target2 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, IntegerToString(RecipeDB.Ingred3, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #3", SetupRecipeIngred3, Blank,2);
+        end if;       
+      end if;       
+
+    elsif EntryMode = SetupRecipeIngred3 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred3 := 0;
+					RecipeDB.Target3 := 0.0;
+          if g_bUpdate = True then
+            PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, IntegerToString(RecipeDB.Ingred4, 0),2);
+          else
+            PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, Blank,2);
+          end if;         
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred3, Blank,2);    
+        else
+          RecipeDB.Ingred3  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #3 Target", SetupRecipeTarget3, RealToString(RecipeDB.Target3, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #3 Target", SetupRecipeTarget3, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget3 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target3 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, IntegerToString(RecipeDB.Ingred4, 0),2);
+        else
+          PromptForEntry("Enter Recipe Ingredient ID #4", SetupRecipeIngred4, Blank,2);
+        end if;       
+      end if;     
+
+    elsif EntryMode = SetupRecipeIngred4 then
+      if IsValid(stemp, "i", 1) then      
+        IngredDB.Id := StringToInteger(sTemp);
+        if StringToInteger(sTemp) = 0 then
+					RecipeDB.Ingred4 := 0;
+          RecipeDB.Target4 := 0.0;  
+          if g_bUpdate = True then
+            if RecipeDB.Update = SysOk then
+              DisplayStatus("Recipe Updated");
+            else 
+              DisplayStatus("Error: Recipe DB");
+            end if;
+          else
+            if RecipeDB.Add = SysOk then
+              DisplayStatus("Recipe Added");
+            else 
+              DisplayStatus("Error: Recipe DB");
+            end if;
+          end if; 
+          EntryMode := Setup1Mode;          
+        elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
+          PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred4, Blank,2);    
+        else
+          RecipeDB.Ingred4  :=  StringToInteger(sTemp);
+          if g_bUpdate = True then
+            PromptForEntry("Enter Ingredient #4 Target", SetupRecipeTarget4, RealToString(RecipeDB.Target4, 0, g_iDecimal1),2);
+          else
+            PromptForEntry("Enter Ingredient #4 Target", SetupRecipeTarget4, Blank,2);
+          end if;
+        end if;
+      end if;
+
+    elsif EntryMode = SetupRecipeTarget4 then
+      if IsValid(stemp, "r", 1 ) then
+        RecipeDB.Target4 := StringToInteger(sTemp);  
+        if g_bUpdate = True then
+          if RecipeDB.Update = SysOk then
+            DisplayStatus("Recipe Updated");
+          else 
+            DisplayStatus("Error: Recipe DB");
+          end if;
+        else
+          if RecipeDB.Add = SysOk then
+            DisplayStatus("Recipe Added");
+          else 
+            DisplayStatus("Error: Recipe DB");
+          end if;
+        end if; 
+        EntryMode := Setup1Mode;    
+      end if;             
+
+    elsif EntryMode = SetupIngredId then
+      if IsValid(stemp, "i", 0 ) then
+        if StringToInteger(sTemp) >= 1 and StringToInteger(sTemp) <= 4 then
+          IngredDB.Id  :=  StringToInteger(sTemp);
+          if IngredDB.FindFirst(Ingred_Id) = SysOk then
+            g_bUpdate := True;
+            PromptForEntry("Enter Ingredient Name", SetupIngredName, IngredDB.Name,0);
+          else
+            g_bUpdate := False;
+            PromptForEntry("Enter Ingredient Name", SetupIngredName, Blank,0);
+          end if; 
+        else
+          PromptForEntry("Error Ingredient Id (1-4) - Retry", SetupIngredId, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SetupIngredName then
+      if IsValid(stemp, "s", 15) then
+        IngredDB.Name  :=  sTemp;
+        if g_bUpdate = True then
+          PromptForEntry("Enter Ingredient Preact", SEtupIngredPreact, RealToString(IngredDB.Preact, 0, g_iDecimal1),2);
+        else
+          PromptForEntry("Enter Ingredient Preact", SEtupIngredPreact, Blank,2);
+        end if;
+      end if;
+
+    elsif EntryMode = SEtupIngredPreact then
+      if IsValid(stemp, "r", 1 ) then
+        IngredDB.Preact  :=  StringToReal(sTemp);
+        if g_bUpdate = True then
+          if IngredDB.Update = SysOk then
+            DisplayStatus("Ingredient " + IntegerToString(IngredDB.Id,0) + " Updated");
+          else 
+            DisplayStatus("Error: Ingredient Database");
+          end if;    
+        else
+        
+          if IngredDB.Add = SysOk then
+            DisplayStatus("Ingredient " + IntegerToString(IngredDB.Id,0) + " Added");
+          else 
+            DisplayStatus("Error: Ingredient Database");
+          end if;    
+        end if;       
+        EntryMode := Setup1Mode;
+      end if;
+
+      elsif EntryMode = SetupDeleteRecipe then
+        if IsValid(stemp, "i", 0 ) then
+          RecipeDB.Id  :=  StringToInteger(sTemp);
+          if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+            g_sysResult := RecipeDB.Delete;  
+            while RecipeDB.FindNext = SysOk       
+            loop
+              RecipeDB.Delete;    
+             end loop;
+             DisplayStatus("Recipe Deleted");
+          else
+            DisplayStatus("Recipe NOT FOUND");
+          end if;
+          EntryMode := Setup1Mode;
+        end if;
+
+      elsif EntryMode = SetupDeleteIngred then
+        if IsValid(stemp, "s", 0 ) then
+          IngredDB.Id  :=  StringToInteger(sTemp);
+          if IngredDB.FindFirst(Ingred_Id) = SysOk then
+            g_sysResult := IngredDB.Delete;
+            if g_sysResult = SysOk then
+              DisplayStatus("Ingred Deleted");
+            else
+              DisplayStatus("DB Error: " + SysCodeToString(g_sysResult));
+            end if;
+          else
+            DisplayStatus("Ingredient NOT FOUND");
+          end if;
+          EntryMode := Setup1Mode;
+        end if;
+
+    elsif EntryMode = EnterRecipeID then
+      
+      RecipeDB.Id := StringToInteger(sTemp);
+      if RecipeDB.FindFirst(Recipe_Id) = SysOk then
+        g_iRecipeId := RecipeDB.Id;  
+        PopulateRecipeArray; 
+        g_iCurrentIngredient := 1;         
+        RefreshMainDisplay;   
+        SetLabelText(lbSts1, Blank);   
+        EntryMode := NoMode;
+      else
+        PromptForEntry("Recipe NOT Found - Retry", EnterRecipeID, Blank,2); 
+      end if;
+   
+    end if; 
+
+    if EntryMode >=  Setup1Mode then
+      RefreshSetupDisplay;
+    end if; 
+          
+  end;
+
+
+
+
+
+
+
+
+  procedure Ready;  -- Initialization procedure
+  begin
+ 
+    UnLockMajorKeys;
+    setupScreen;
+    SetLabelText(lbSts1, Blank);     
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;              
+    Paused := No;
+    BatchMode := Complete;  
+    RefreshMainDisplay;
+    SelectScreen(g_ciMain); 
+    EntryMode := NoMode;
   
+  end;
