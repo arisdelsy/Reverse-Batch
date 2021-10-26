@@ -126,6 +126,7 @@ program Reverse;
     
   end;  
   
+  -- go through this later
   procedure DisableSetPoints;
   begin
     
@@ -164,6 +165,7 @@ program Reverse;
 
   end; 
 
+  --C/P
   procedure PrintTicket; 
     sUnitsString : string;   
     rTargetWgt : real := 0.0;
@@ -200,6 +202,7 @@ program Reverse;
 
   end;    
 
+  --C/P
   procedure LockMajorKeys;  -- Locks ZERO, GROSS/NET, TARE, UNITS and PRINT key
   begin
   
@@ -210,6 +213,7 @@ program Reverse;
     
   end; 
 
+  --C/P
   procedure UnLockMajorKeys;  -- UnLocks ZERO, GROSS/NET, TARE, UNITS and PRINT key
   begin
   
@@ -220,11 +224,13 @@ program Reverse;
     
   end;   
 
+  --C/P
   procedure LockAllKeys; -- Lock All Keys
   begin
     LockMajorKeys;
   end;
 
+  --C/P
   procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iType : integer);  -- Prompts operator for data
   begin
     
@@ -364,6 +370,7 @@ program Reverse;
      
   end; 
 
+  --C/P
   procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
   begin   
   
@@ -372,6 +379,7 @@ program Reverse;
     
   end; 
 
+  --C/P
   procedure TurnOffAllOutputs;  -- Turn off All Outputs
     i : integer;
   begin
@@ -383,6 +391,7 @@ program Reverse;
   
   end;     
 
+  --C/P
   procedure RefreshSetupDisplay;  -- Update display screen in setup menu 
     sUnits : string;    
 		sPassword : string;
@@ -414,6 +423,7 @@ program Reverse;
 
   end; 
   
+  --C/P
   procedure RefreshMainDisplay;       
     i : integer;      
     iStart : integer;
@@ -447,6 +457,7 @@ program Reverse;
   
   end;
 
+  --C/P
   procedure ToggleOutput(iOUtput : integer);
     iDigOutSts : integer;
   begin
@@ -460,6 +471,7 @@ program Reverse;
 
   end;  
   
+  --C/P
   procedure GoIntoSetupMenu;  -- Enters Setup Menu
   begin
 
@@ -470,6 +482,7 @@ program Reverse;
   
   end; 
 
+  --C/P
   procedure ClearStatus(iTime : integer);  -- Removes Display Status Message
   begin 
   
@@ -477,6 +490,7 @@ program Reverse;
     
   end;    
   
+  --Look Later
   procedure ClearRecipeArray;  
     i : integer;
   begin 
@@ -561,6 +575,7 @@ program Reverse;
 
   end;   
 
+  --C/P
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
   begin 
   
@@ -575,6 +590,7 @@ program Reverse;
     
   end;    
   
+  --Already working on this | ***SKIP!***
   procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
   begin 
     
@@ -888,6 +904,7 @@ program Reverse;
           
   end; 
 
+  --C/P
   procedure setupScreen;
   i : integer;
   begin
@@ -922,6 +939,7 @@ program Reverse;
 
   end;
 
+  --***Skip!***
   procedure Ready;  -- Initialization procedure
   begin
  
@@ -940,7 +958,9 @@ program Reverse;
     EntryMode := NoMode;
   
   end;                
-  
+  ---------------------STOP!---------------------
+
+
   procedure StartProcess;  -- Start Process
   begin
 

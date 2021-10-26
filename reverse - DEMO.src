@@ -135,6 +135,17 @@ program reverse;
   
   end;
 
+  --convert tons to pounds
+  function TonsToPounds(t : real) : real;
+    p : real;
+  begin
+
+    p :=  2000 * t;
+
+    return t;
+  
+  end;
+
 
   procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
   begin 
