@@ -70,7 +70,13 @@ program reverse;
   g_iTotalNbrIngredients : integer;    
   g_iCurrentIngredient : integer;    
   g_iDelayCnt : integer; 
-  g_iWidget : integer;    
+  g_iWidget : integer;
+
+  --total tons for transaction
+  total_ton : real;
+  --stored accumulator
+  ton_accum : stored real := 0.0;
+
 
   --Actual record to store to transaction database
   type ProductRecord is
@@ -126,14 +132,32 @@ program reverse;
 
   --convert pounds to tons
   function PoundsToTons(p : real) : real;
+    --ton temp value
+    ton : real;
   begin
 
-    t := p / 2000;
+    ton := p / 2000;
 
-    return t;
+    return ton;
   
   end;
 
+  procedure TonAccumulator(t : real);
+  begin
+
+    ton_accum := ton_accum + total_ton;
+
+  end;
+
+  procedure UnLockMajorKeys;  -- UnLocks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    UnlockKey(GrossNetKey);
+    UnlockKey(TareKey);
+    UnlockKey(UnitsKey);
+    UnlockKey(PrintKey);
+    
+  end;  
 
   procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
   begin 
