@@ -171,27 +171,9 @@ program reverse;
         EntryMode := Setup1Mode;       
       end if;
 
-    elsif EntryMode = SetupScaleDischargeTimeMode then
-      if isValid(sTemp, "r", 1) then
-        g_rScaleDischargeTime  :=  StringToReal(sTemp);
-        EntryMode := Setup1Mode;
-      end if;
-
-    elsif EntryMode = SetupRecipeId then
-      if IsValid(stemp, "i", 0) then
-        RecipeDB.Id  :=  StringToInteger(sTemp);
-        if RecipeDB.FindFirst(Recipe_Id) = SysOk then
-          g_bUpdate := True;
-          PromptForEntry("Enter Recipe Name", SetupRecipeName, RecipeDB.Name,0);
-        else
-          g_bUpdate := False;
-          PromptForEntry("Enter Recipe Name", SetupRecipeName, Blank,0);
-        end if;
-      end if;
-
-    elsif EntryMode = SetupRecipeName then
+    elsif EntryMode = SetupProductName then
       if IsValid(stemp, "s",15) then
-        RecipeDB.Name  :=  sTemp;
+        ProdDB.Product  :=  sTemp;
         if g_bUpdate = True then
           PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2);
         else
