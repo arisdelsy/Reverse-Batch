@@ -73,8 +73,9 @@ program reverse;
   g_iWidget : integer;    
 
   --Actual record to store to transaction database
-  type ProductRecord is
-    record 
+  type TransRecord is
+    record
+      
       sProductName : string;  
       rTargetWgt1 : real;    
       rTargetWgt2 : real;

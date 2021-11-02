@@ -22,13 +22,11 @@ type TransDatabase is database ("Trans")
   BatchNum: Integer;
   Customer: String;
    Product: String;
+        DT: DateTime;
+        T1: Real;
+        T2: Real;
     Target: Real;
   TotalTon: Real;
-        M1: String;
-        T1: Real;
-        M2: String;
-        T2: Real;
-        DT: DateTime;
   TonAccum: Real;
 end database;
 type CustomerDatabase is database ("Customer")
@@ -40,22 +38,20 @@ end database;
 type ProductDatabase is database ("Product")
    Product: String;
       Mat1: String;
-   Target1: Real;
+   Target1: Integer;
       Mat2: String;
-   Target2: Real;
+   Target2: Integer;
 end database;
 
 Trans_BatchNum : constant integer := 1;
 Trans_Customer : constant integer := 2;
 Trans_Product  : constant integer := 3;
-Trans_Target   : constant integer := 4;
-Trans_TotalTon : constant integer := 5;
-Trans_M1       : constant integer := 6;
-Trans_T1       : constant integer := 7;
-Trans_M2       : constant integer := 8;
-Trans_T2       : constant integer := 9;
-Trans_DT       : constant integer := 10;
-Trans_TonAccum : constant integer := 11;
+Trans_DT       : constant integer := 4;
+Trans_T1       : constant integer := 5;
+Trans_T2       : constant integer := 6;
+Trans_Target   : constant integer := 7;
+Trans_TotalTon : constant integer := 8;
+Trans_TonAccum : constant integer := 9;
 
 Customer_Name     : constant integer := 1;
 Customer_Street   : constant integer := 2;
@@ -86,8 +82,6 @@ TCPC2     : constant string := "TCPC2";
 SP1       : constant integer :=1;
 SP2       : constant integer :=2;
 SP3       : constant integer :=3;
-SP4       : constant integer :=4;
-SP5       : constant integer :=5;
 
 -- Widget Aliases
 bar1      : constant integer := 1;
