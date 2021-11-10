@@ -444,11 +444,6 @@ program reverse;
 
 
 
-
-
-
-
-
   procedure Ready;  -- Initialization procedure
   begin
  
