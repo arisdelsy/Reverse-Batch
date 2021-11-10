@@ -70,17 +70,12 @@ program reverse;
   g_iTotalNbrIngredients : integer;    
   g_iCurrentIngredient : integer;    
   g_iDelayCnt : integer; 
-  g_iWidget : integer;
-
-  --total tons for transaction
-  total_ton : real;
-  --stored accumulator
-  ton_accum : stored real := 0.0;
-
+  g_iWidget : integer;    
 
   --Actual record to store to transaction database
-  type ProductRecord is
-    record 
+  type TransRecord is
+    record
+      
       sProductName : string;  
       rTargetWgt1 : real;    
       rTargetWgt2 : real;
@@ -132,22 +127,246 @@ program reverse;
 
   --convert pounds to tons
   function PoundsToTons(p : real) : real;
-    --ton temp value
-    ton : real;
+    t : real;
   begin
 
-    ton := p / 2000;
+    t := p / 2000;
 
-    return ton;
+    return t;
   
   end;
 
-  procedure TonAccumulator(t : real);
+  --convert tons to pounds
+  function TonsToPounds(t : real) : real;
+    p : real;
   begin
 
-    ton_accum := ton_accum + total_ton;
+    p :=  2000 * t;
 
+    return t;
+  
   end;
+
+  procedure PrintTicket; 
+    sUnitsString : string;   
+    rTargetWgt : real := 0.0;
+    rActualWgt : real := 0.0;   
+    i : integer;
+  begin  
+
+    sUnitsString := GetCurrentUnitsString(1);    
+        
+    SetPrintText(1, IntegerToString(g_arRecipe[1].iRecipeId,0));
+    SetPrintText(2, g_arRecipe[1].sRecipeName);
+    Print(AuxFmt1);    
+    ProgramDelay(25);
+				
+    for i := 1 to g_ciMaxIngredients
+    loop
+      if g_arRecipe[i].rTargetWgt <> 0.0 then
+        SetPrintText(3, Pad15Spaces(g_arRecipe[i].sIngredientName));
+        SetPrintText(4, RealToString(g_arRecipe[i].rTargetWgt,6,g_iDecimal1) + " " + sUnitsString);    
+        SetPrintText(5, RealToString(g_arRecipe[i].rActualWgt,6,g_iDecimal1) + " " + sUnitsString);    
+        rTargetWgt := rTargetWgt + g_arRecipe[i].rTargetWgt;
+        rActualWgt := rActualWgt + g_arRecipe[i].rActualWgt; 
+        Print(AuxFmt2);                                                                   
+        ProgramDelay(25);          
+      end if; 
+    end loop;
+     
+    SetPrintText(6, RealToString(rTargetWgt,6,g_iDecimal1) + " " + sUnitsString);                                                                                                 
+    SetPrintText(7, RealToString(rActualWgt,6,g_iDecimal1) + " " + sUnitsString); 
+    Print(AuxFmt3); 
+    ProgramDelay(25);
+    
+    SetLabelText(lbSts1, Blank); 
+
+  end;    
+
+  procedure LockMajorKeys;  -- Locks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    LockKey(GrossNetKey);
+    LockKey(TareKey);
+    LockKey(UnitsKey);
+    LockKey(PrintKey);
+    
+  end; 
+
+  
+  procedure UnLockMajorKeys;  -- UnLocks ZERO, GROSS/NET, TARE, UNITS and PRINT key
+  begin
+  
+    UnlockKey(GrossNetKey);
+    UnlockKey(TareKey);
+    UnlockKey(UnitsKey);
+    UnlockKey(PrintKey);
+    
+  end;   
+  
+  procedure LockAllKeys; -- Lock All Keys
+  begin
+    LockMajorKeys;
+  end;
+
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iType : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+    
+    LockMajorKeys;
+ 
+		SetEntry(sDefault);
+    if iType = 0 then
+      PromptUser(sPrompt);
+    elsif iType = 1 then
+      Promptpassword(sPrompt);
+    elsif iType = 2 then
+      PromptNumeric(sPrompt);
+    end if;
+    EntryMode := iMode;
+    
+  end;  
+
+--C/P
+  procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
+  begin   
+  
+    DisplayStatus(g_csProgName + " " + g_csVersion); 
+    SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
+    
+  end; 
+
+  --C/P
+  procedure TurnOffAllOutputs;  -- Turn off All Outputs
+    i : integer;
+  begin
+    
+    for i := 3 to 7
+    loop
+      SetDigout(0, i, g_ciDigOutOff);
+    end loop;  
+  
+  end;     
+
+  --C/P
+  procedure RefreshSetupDisplay;  -- Update display screen in setup menu 
+    sUnits : string;    
+		sPassword : string;
+		i : integer;
+  begin          
+
+		for i := 1 to Len(g_sSetupPassword)
+		loop
+			sPassword := sPassword + "*";
+		end loop;  
+
+    sUnits := GetCurrentUnitsString(1);     
+
+    SetLabelText(lbSet1, "Setup Password");
+    setlabeltext(lbSet11, sPassword);          
+    SetLabelText(lbSet2, "Empty Weight");
+    Setlabeltext(lbSet22, RealToString(g_rScaleEmptyWeight,0,g_iDecimal1) + " " + sUnits); 
+    SetLabelText(lbSet3, "Discharge Time");
+    setlabeltext(lbSet33, RealToString(g_rScaleDischargeTime,0,1) + " Sec");  
+    SetLabelText(lbSet4, "Import / Export");
+		SetLabelText(lbSet5, "Add/Edit");
+    Setlabeltext(lbSet55,"Materials"); -- i am changing "Ingredients" to Materials
+    SetLabelText(lbSet6, "Delete");
+    Setlabeltext(lbSet66, "Materials");
+		SetLabelText(lbSet7, "Add/Edit");
+    setlabeltext(lbSet77, "Recipes");
+    SetLabelText(lbSet8, "Delete");
+    setlabeltext(lbSet88, "Recipes");
+
+  end; 
+  
+  --C/P
+  procedure RefreshMainDisplay;       
+    i : integer;      
+    iStart : integer;
+		sUnits : string;
+  begin
+		
+		sUnits := GetCurrentUnitsString(1); 
+    
+    if g_arRecipe[1].iRecipeId <> 0 then 
+      SetLabelText(lbRec, "Recipe " + IntegerToString(g_arRecipe[1].iRecipeId,0) + " - " + g_arRecipe[1].sRecipeName);
+    else
+      SetLabelText(lbRec, Blank);
+    end if; 
+    
+    iStart := lbSt - 3;
+    
+    for i := 1 to 4
+    loop  
+      
+      if g_arRecipe[i].sIngredientName <> Blank then
+        SetLabelText(iStart + (i * 3),  IntegerToString(g_arRecipe[i].iIngredientId,0) + " - " + g_arRecipe[i].sIngredientName);
+        SetLabelText(iStart + 1 + (i * 3),  RealToString(g_arRecipe[i].rTargetWgt,0,g_iDecimal1) + " " + sUnits);
+        SetLabelText(iStart + 2 + (i * 3),  RealToString(g_arRecipe[i].rActualWgt,0,g_iDecimal1) + " " + sUnits);
+      else
+        SetLabelText(iStart + (i * 3),  Blank);
+        SetLabelText(iStart + 1 + (i * 3),  Blank);
+        SetLabelText(iStart + 2 + (i * 3),  Blank);        
+      end if;
+      
+    end loop;
+  
+  end;
+
+  --C/P
+  procedure ToggleOutput(iOUtput : integer);
+    iDigOutSts : integer;
+  begin
+
+    GetDigout(0, iOutput, iDigOutSts);
+    if iDigOutSts = g_ciDigOutOn then
+      SetDigout(0, iOutput, g_ciDigOutOff);
+    else
+      SetDigout(0, iOutput, g_ciDigOutOn);
+    end if;
+
+  end;  
+  
+  --C/P
+  procedure GoIntoSetupMenu;  -- Enters Setup Menu
+  begin
+
+    DisplayStatus("Setup Menu");
+    EntryMode := Setup1Mode;    
+    SelectScreen(g_ciSetup);     
+    RefreshSetupDisplay;     
+  
+  end; 
+
+  --C/P
+  procedure ClearStatus(iTime : integer);  -- Removes Display Status Message
+  begin 
+  
+    SetupStartTimer(29, iTime, TimerOneShot);
+    
+  end;    
+
+  --C/P
+  procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
+  begin 
+  
+    ClosePrompt;  
+    UnLockMajorKeys;
+    if EntryMode >= Setup1Mode and EntryMode < Setup2Mode then   
+      EntryMode := Setup1Mode;  
+    else    
+      SetLabelText(lbSts1, Blank);  
+      EntryMode := NoMode; 
+    end if;
+    
+  end;    
+
+
 
   procedure ProcessDataEntry(sTemp : string);  -- Processing the entered data  
   begin 
@@ -184,27 +403,9 @@ program reverse;
         EntryMode := Setup1Mode;       
       end if;
 
-    elsif EntryMode = SetupScaleDischargeTimeMode then
-      if isValid(sTemp, "r", 1) then
-        g_rScaleDischargeTime  :=  StringToReal(sTemp);
-        EntryMode := Setup1Mode;
-      end if;
-
-    elsif EntryMode = SetupRecipeId then
-      if IsValid(stemp, "i", 0) then
-        RecipeDB.Id  :=  StringToInteger(sTemp);
-        if RecipeDB.FindFirst(Recipe_Id) = SysOk then
-          g_bUpdate := True;
-          PromptForEntry("Enter Recipe Name", SetupRecipeName, RecipeDB.Name,0);
-        else
-          g_bUpdate := False;
-          PromptForEntry("Enter Recipe Name", SetupRecipeName, Blank,0);
-        end if;
-      end if;
-
-    elsif EntryMode = SetupRecipeName then
+    elsif EntryMode = SetupProductName then
       if IsValid(stemp, "s",15) then
-        RecipeDB.Name  :=  sTemp;
+        ProdDB.Product  :=  sTemp;
         if g_bUpdate = True then
           PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2);
         else
@@ -462,12 +663,40 @@ program reverse;
           
   end;
 
+--C/P
+  procedure setupScreen;
+  i : integer;
+  begin
 
 
+    for i := 31 to 34
+    loop
+      Setbargraphlevel(i,100); 
+    end loop;
+    Setbargraphlevel(bar8,100);
+    Setbargraphlevel(bar44,100);
+    Setbargraphlevel(bar46,100);
+    Setbargraphlevel(bar45,100);
+    Setbargraphlevel(bar56,100);
+    Setbargraphlevel(bar64,100);
+    Setbargraphlevel(bar80,100);
+    Setbargraphlevel(bar81,100);
+    Setbargraphlevel(bar94,100);
+    Setbargraphlevel(bar41,100);
 
 
+    SetImageWidgetPath(Exit9, "local://9.png");
+    SetImageWidgetPath(Exit4, "local://9.png");
+    SetImageWidgetPath(lbZero, "local://8.png");
+    SetImageWidgetPath(lbTare, "local://6.png");
+    SetImageWidgetPath(lbKTare, "local://3.png");
+    SetImageWidgetPath(lbUnit, "local://7.png");
+    SetImageWidgetPath(lbGN, "local://2.png");
+    SetImageWidgetPath(LbPrint, "local://4.png");
+    SetImageWidgetPath(lbAuxP, "local://1.png");
+    SetImageWidgetPath(Setup, "local://11.png");
 
-
+  end;
 
   procedure Ready;  -- Initialization procedure
   begin
