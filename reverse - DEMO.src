@@ -231,7 +231,7 @@ program reverse;
     
   end;  
 
---C/P
+
   procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
   begin   
   
@@ -240,7 +240,7 @@ program reverse;
     
   end; 
 
-  --C/P
+  
   procedure TurnOffAllOutputs;  -- Turn off All Outputs
     i : integer;
   begin
@@ -252,7 +252,7 @@ program reverse;
   
   end;     
 
-  --C/P
+  
   procedure RefreshSetupDisplay;  -- Update display screen in setup menu 
     sUnits : string;    
 		sPassword : string;
@@ -284,7 +284,6 @@ program reverse;
 
   end; 
   
-  --C/P
   procedure RefreshMainDisplay;       
     i : integer;      
     iStart : integer;
@@ -318,7 +317,6 @@ program reverse;
   
   end;
 
-  --C/P
   procedure ToggleOutput(iOUtput : integer);
     iDigOutSts : integer;
   begin
@@ -332,7 +330,6 @@ program reverse;
 
   end;  
   
-  --C/P
   procedure GoIntoSetupMenu;  -- Enters Setup Menu
   begin
 
@@ -343,7 +340,6 @@ program reverse;
   
   end; 
 
-  --C/P
   procedure ClearStatus(iTime : integer);  -- Removes Display Status Message
   begin 
   
@@ -351,7 +347,6 @@ program reverse;
     
   end;    
 
-  --C/P
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
   begin 
   
@@ -662,8 +657,7 @@ program reverse;
     end if; 
           
   end;
-
---C/P
+  
   procedure setupScreen;
   i : integer;
   begin
