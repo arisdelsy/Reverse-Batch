@@ -97,6 +97,7 @@ program reverse;
     
   end; 
 
+-- 
   function GetCurrentUnitsString(s : integer) : string;  -- Gets current units string (lb/kg/etc). 
     sUnit : Units;
     sUnitString : string;  
@@ -111,7 +112,7 @@ program reverse;
     return sUnitString; 
     
   end; 
-
+-- Pad15Spaces  sets a pad 
   function Pad15Spaces(s : string) : string;
   begin
 
@@ -124,7 +125,9 @@ program reverse;
 
   end;
 
-  --convert pounds to tons
+  --convert pounds to tons takes in a real 
+  -- conversion takes pounds and divides by 2000
+  -- will return tons
   function PoundsToTons(p : real) : real;
     t : real;
   begin
@@ -135,18 +138,24 @@ program reverse;
   
   end;
 
-  --convert tons to pounds
+  -- convert tons to pounds 
+  -- takes in tons
+  -- sets back to pounds by multiplying tons by 2000
+  -- return tons
   function TonsToPounds(t : real) : real;
     p : real;
   begin
 
     p :=  2000 * t;
 
-    return t;
+    return p; 
   
   end;
 
   procedure PrintTicket; 
+
+  -- procedure prints ticket
+  -- takes in 
     sUnitsString : string;   
     rTargetWgt : real := 0.0;
     rActualWgt : real := 0.0;   
