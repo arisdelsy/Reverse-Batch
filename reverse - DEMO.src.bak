@@ -164,19 +164,19 @@ program reverse;
 
     sUnitsString := GetCurrentUnitsString(1);    
         
-    SetPrintText(1, IntegerToString(g_arRecipe[1].iRecipeId,0));
-    SetPrintText(2, g_arRecipe[1].sRecipeName);
+    SetPrintText(1, IntegerToString(g_arRecipe[1].iRecipeId,0)); --ERROR: Undefined Identifier (g_arRecipe)
+    SetPrintText(2, g_arRecipe[1].sRecipeName); -- ERROR: Undefined Identifier (g_arRecipe and sRecipeName)
     Print(AuxFmt1);    
     ProgramDelay(25);
 				
-    for i := 1 to g_ciMaxIngredients
+    for i := 1 to g_ciMaxIngredients -- ERROR: Undefined Identifier (g_ciMaxIngredients)
     loop
-      if g_arRecipe[i].rTargetWgt <> 0.0 then
-        SetPrintText(3, Pad15Spaces(g_arRecipe[i].sIngredientName));
-        SetPrintText(4, RealToString(g_arRecipe[i].rTargetWgt,6,g_iDecimal1) + " " + sUnitsString);    
-        SetPrintText(5, RealToString(g_arRecipe[i].rActualWgt,6,g_iDecimal1) + " " + sUnitsString);    
-        rTargetWgt := rTargetWgt + g_arRecipe[i].rTargetWgt;
-        rActualWgt := rActualWgt + g_arRecipe[i].rActualWgt; 
+      if g_arRecipe[i].rTargetWgt <> 0.0 then --ERROR: Undefined Identifier (g_arRecipe)
+        SetPrintText(3, Pad15Spaces(g_arRecipe[i].sIngredientName)); --ERROR: Undefined Identifier (g_arRecipe and sIngredientName)
+        SetPrintText(4, RealToString(g_arRecipe[i].rTargetWgt,6,g_iDecimal1) + " " + sUnitsString); --ERROR: Undefined Identifier (g_arRecipe)   
+        SetPrintText(5, RealToString(g_arRecipe[i].rActualWgt,6,g_iDecimal1) + " " + sUnitsString); --ERROR: Undefined Identifier (g_arRecipe)    
+        rTargetWgt := rTargetWgt + g_arRecipe[i].rTargetWgt; --ERROR: Undefined Identifier (g_arRecipe)  
+        rActualWgt := rActualWgt + g_arRecipe[i].rActualWgt; --ERROR: Undefined Identifier (g_arRecipe)  
         Print(AuxFmt2);                                                                   
         ProgramDelay(25);          
       end if; 
@@ -187,7 +187,7 @@ program reverse;
     Print(AuxFmt3); 
     ProgramDelay(25);
     
-    SetLabelText(lbSts1, Blank); 
+    SetLabelText(lbSts1, Blank); --ERROR: Undefined Identifier (lbSts1)
 
   end;    
 
@@ -243,8 +243,8 @@ program reverse;
   procedure DisplayVersion;    -- Displays Version Number and program name on startup or exiting config   
   begin   
   
-    DisplayStatus(g_csProgName + " " + g_csVersion); 
-    SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion);  
+    DisplayStatus(g_csProgName + " " + g_csVersion); --ERROR : Undefined Identifier (g_csProgName and g_csVersion)
+    SetLabelText(lbProg, "Program: " + g_csProgName + " " + g_csVersion); --ERROR: Undefined Identifier (g_csProgName and g_csVersion and lbProg)   
     
   end; 
 
@@ -274,9 +274,9 @@ program reverse;
 
     sUnits := GetCurrentUnitsString(1);     
 
-    SetLabelText(lbSet1, "Setup Password");
+    SetLabelText(lbSet1, "Setup Password"); 
     setlabeltext(lbSet11, sPassword);          
-    SetLabelText(lbSet2, "Empty Weight");
+    SetLabelText(lbSet2, "Empty Weight"); 
     Setlabeltext(lbSet22, RealToString(g_rScaleEmptyWeight,0,g_iDecimal1) + " " + sUnits); 
     SetLabelText(lbSet3, "Discharge Time");
     setlabeltext(lbSet33, RealToString(g_rScaleDischargeTime,0,1) + " Sec");  
@@ -289,7 +289,7 @@ program reverse;
     setlabeltext(lbSet77, "Recipes");
     SetLabelText(lbSet8, "Delete");
     setlabeltext(lbSet88, "Recipes");
-
+    --ERROR: Undefined Identifier (All lbSet# from lines 277-291 are not found in .iri or .src)
   end; 
   
   procedure RefreshMainDisplay;       
@@ -300,21 +300,21 @@ program reverse;
 		
 		sUnits := GetCurrentUnitsString(1); 
     
-    if g_arRecipe[1].iRecipeId <> 0 then 
-      SetLabelText(lbRec, "Recipe " + IntegerToString(g_arRecipe[1].iRecipeId,0) + " - " + g_arRecipe[1].sRecipeName);
+    if g_arRecipe[1].iRecipeId <> 0 then --ERROR: Undefined Identifier (g_arRecipe)
+      SetLabelText(lbRec, "Recipe " + IntegerToString(g_arRecipe[1].iRecipeId,0) + " - " + g_arRecipe[1].sRecipeName); --ERROR: Undefined Identifier (lbRec, g_arRecipe)
     else
-      SetLabelText(lbRec, Blank);
+      SetLabelText(lbRec, Blank); --ERROR: Undefined Identifier (lbRec)
     end if; 
     
-    iStart := lbSt - 3;
+    iStart := lbSt - 3; --ERROR: Undefined Identifier (lbSt) 
     
     for i := 1 to 4
     loop  
       
-      if g_arRecipe[i].sIngredientName <> Blank then
-        SetLabelText(iStart + (i * 3),  IntegerToString(g_arRecipe[i].iIngredientId,0) + " - " + g_arRecipe[i].sIngredientName);
-        SetLabelText(iStart + 1 + (i * 3),  RealToString(g_arRecipe[i].rTargetWgt,0,g_iDecimal1) + " " + sUnits);
-        SetLabelText(iStart + 2 + (i * 3),  RealToString(g_arRecipe[i].rActualWgt,0,g_iDecimal1) + " " + sUnits);
+      if g_arRecipe[i].sIngredientName <> Blank then --ERROR: Undefined Identifier (g_arRecipe)
+        SetLabelText(iStart + (i * 3),  IntegerToString(g_arRecipe[i].iIngredientId,0) + " - " + g_arRecipe[i].sIngredientName); --ERROR: Undefined Identifier (g_arRecipe)
+        SetLabelText(iStart + 1 + (i * 3),  RealToString(g_arRecipe[i].rTargetWgt,0,g_iDecimal1) + " " + sUnits); --ERROR: Undefined Identifier (g_arRecipe)
+        SetLabelText(iStart + 2 + (i * 3),  RealToString(g_arRecipe[i].rActualWgt,0,g_iDecimal1) + " " + sUnits); --ERROR: Undefined Identifier (g_arRecipe)
       else
         SetLabelText(iStart + (i * 3),  Blank);
         SetLabelText(iStart + 1 + (i * 3),  Blank);

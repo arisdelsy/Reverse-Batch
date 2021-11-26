@@ -363,8 +363,8 @@ program reverse;
     if EntryMode >= Setup1Mode and EntryMode < Setup2Mode then   
       EntryMode := Setup1Mode;  
     else    
-      SetLabelText(lbSts1, Blank);  
-      EntryMode := NoMode; 
+      SetLabelText(lbSts1, Blank); --ERROR: Undefined Identifier (lbSts1)  
+      EntryMode := NoMode; --ERROR: Undefined Identifier (NoMode)
     end if;
     
   end;    
@@ -397,35 +397,35 @@ program reverse;
       else      
         DisplayStatus("Error: Invalid Password");   
         g_sTmpPassword := Blank;        
-        EntryMode := NoMode;                            
+        EntryMode := NoMode; --ERROR: Undefined Identifier (NoMode)                           
       end if;  
 
     elsif EntryMode = SetupScaleEmptyWeightMode then
-      if isValid(sTemp, "r", 1) then
+      if isValid(sTemp, "r", 1) then --ERROR: Undefined Identifier (Function isValid not declared?)
         g_rScaleEmptyWeight  :=  StringToReal(sTemp);   
         EntryMode := Setup1Mode;       
       end if;
 
     elsif EntryMode = SetupProductName then
-      if IsValid(stemp, "s",15) then
+      if IsValid(sTemp, "s",15) then --ERROR: Undefined Identifier (Function isValid not declared)
         ProdDB.Product  :=  sTemp;
         if g_bUpdate = True then
-          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2);
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, IntegerToString(RecipeDB.Ingred1, 0),2); --ERROR: Undefined Identifier (SetupRecipeIngred1, RecipeDB, Ingred1)
         else
-          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, Blank,2);
+          PromptForEntry("Enter Recipe Ingredient ID #1", SetupRecipeIngred1, Blank,2); --ERROR: Undefined Identifier (SetupRecipeIngred1)
         end if;
       end if;
 
-    elsif EntryMode = SetupRecipeIngred1 then
-      if IsValid(stemp, "i", 1) then    			
-        IngredDB.Id := StringToInteger(sTemp);
+    elsif EntryMode = SetupRecipeIngred1 then --ERROR: Undefined Identifier (SetupRecipeIngred1)
+      if isValid(sTemp, "i", 1) then --ERROR: Undefined Identifier (function isValid not declared)   			
+        IngredDB.Id := StringToInteger(sTemp); --ERROR: Undefined Identifier (IngredDB including attribute Id)
         if StringToInteger(sTemp) = 0 then
-					RecipeDB.Ingred1 := 0;
-					RecipeDB.Target1 := 0.0;
-          if g_bUpdate = True then
-            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
-          else
-            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2);
+					RecipeDB.Ingred1 := 0; --ERROR: Undefined Identifier (RecipeDB and attributes)
+					RecipeDB.Target1 := 0.0; --ERROR: Undefined Identifier (RecipeDB and attributes)
+          if g_bUpdate = True then                                                         
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);--ERROR: Undefined Identifier (SetupRecipeIngred2, RecipeDB, Ingred2)
+          else                                       
+            PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, Blank,2); --ERROR: Undefined Identifier (SetupRecipeIngred2)
           end if;         
         elsif IngredDB.FindFirst(Ingred_Id) <> SysOk then
           PromptForEntry("Error Ingredient Not Found", SetupRecipeIngred1, Blank,2);    
@@ -440,7 +440,7 @@ program reverse;
       end if;
 
     elsif EntryMode = SetupRecipeTarget1 then
-      if IsValid(stemp, "r", 1 ) then
+      if IsValid(sTemp, "r", 1 ) then
         RecipeDB.Target1 := StringToInteger(sTemp);  
         if g_bUpdate = True then
           PromptForEntry("Enter Recipe Ingredient ID #2", SetupRecipeIngred2, IntegerToString(RecipeDB.Ingred2, 0),2);
