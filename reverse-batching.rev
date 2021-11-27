@@ -1,18 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-<<<<<<< Updated upstream
-  <Revision value="1.2.7.25933" />
+  <Revision value="1.2.7.28548" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="57 85 9 107 250 129 223 135 89 55 102 91 106 160 55 112 34 28 63 111 " />
-=======
-  <Revision value="1.2.7.31234" />
-  <IndicatorModel value="1280" />
-  <IndicatorVersion value="1.07+" />
-  <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="63 157 2 234 31 113 226 161 78 95 181 46 129 218 232 51 93 106 3 81 " />
->>>>>>> Stashed changes
+  <ConfigHash value="19 77 22 69 39 72 192 48 18 71 249 161 13 150 19 43 49 133 95 167 " />
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
@@ -13459,29 +13451,26 @@ WDGT#208=4,0,0,800,380,,1,1,2,#000000,lbl208,4,0,0,1,8
 WDGT#209=7,530,271,250,73,1,1,0,local://32.png,8,btnCont1
 WDGT#210=4,545,281,221,51,CONTINUE,1,3,28,White,btnCont2,4,0,0,1,8
 WDGT#211=4,33,28,135,45,Customer,1,1,18,Black,lbl211,4,0,0,1,8
-<<<<<<< Updated upstream
 WDGT#212=4,33,85,125,45,Location,1,1,18,Black,lbl212,4,0,0,1,8
 WDGT#213=4,33,146,137,45,Product,1,1,18,Black,lbl213,4,0,0,1,8
 WDGT#214=4,33,205,137,45,Target 1,1,1,18,Black,lbl214,4,0,0,1,8
 WDGT#215=4,33,255,137,45,Target 2,1,1,18,Black,lbl215,4,0,0,1,8
 WDGT#216=4,33,310,137,45,Total Tons,1,1,18,Black,lbl216,4,0,0,1,8
-=======
-WDGT#212=4,33,85,125,45,Street,1,1,18,Black,lbl212,4,0,0,1,8
-WDGT#213=4,33,146,137,45,Town/State,1,1,17,Black,lbl213,4,0,0,1,8
-WDGT#214=4,33,205,137,45,Zip Code,1,1,18,Black,lbl214,4,0,0,1,8
->>>>>>> Stashed changes
 WDGT#217=3,172,28,341,45,1,1,2,1,Gray,bar217,2,0,0,1,8
 WDGT#218=3,172,85,341,45,1,1,2,1,Gray,bar218,2,0,0,1,8
 WDGT#219=3,172,146,341,45,1,1,2,1,Gray,bar219,2,0,0,1,8
 WDGT#220=3,172,205,341,45,1,1,2,1,Gray,bar220,2,0,0,1,8
+WDGT#221=3,172,260,341,45,1,1,2,1,Gray,bar221,2,0,0,1,8
+WDGT#222=3,172,315,341,45,1,1,2,1,Gray,bar222,2,0,0,1,8
 WDGT#223=4,519,132,259,54,Touch field to edit answer,1,1,15,Black,lbl223,4,0,0,1,8
 WDGT#224=4,181,28,335,45,Caption 1,1,1,18,White,lbl224,2,0,0,1,8
 WDGT#225=4,181,85,335,45,Caption 2,1,1,18,White,lbl225,2,0,0,1,8
 WDGT#226=4,181,146,335,45,Caption 3,1,1,18,White,lbl226,2,0,0,1,8
 WDGT#227=4,181,205,335,45,Caption 4,1,1,18,White,lbl227,2,0,0,1,8
+WDGT#228=4,181,260,335,45,Caption 5,1,1,18,White,lbl228,2,0,0,1,8
+WDGT#229=4,181,315,335,45,Caption 6,1,1,18,White,lbl229,2,0,0,1,8
 WDGT#230=1,401,1,4,1,1,#393939,#F0EEEE
 WDGT#231=1,0,1,4,1,1,#393939,#F0EEEE
-WDGT#232=7,726,314,75,75,1,1,0,local://11.png,1,btnSetup
 WDGT#233=1,10,40,2,1,11,#393939,#F0EEEE
 WDGT#234=4,0,29,800,46,Are you sure you want to override all Setup settings?,1,3,22,Black,lbl234,4,0,0,1,98
 WDGT#235=7,715,10,75,75,1,1,0,local://9.png,11,btnExt11
@@ -13528,7 +13517,6 @@ WDGT#275=4,452,267,266,114,,2,1,12,Black,lbl275,4,0,0,1,1
 WDGT#276=4,536,269,109,20,Tons in Load,1,1,12,Black,lbl276,4,0,0,1,1
 WDGT#277=3,0,1,400,98,2,1,2,1,Black,bar277,2,0,0,2,1
 WDGT#278=3,401,1,400,98,2,1,2,1,Black,bar278,2,0,0,1,1
-<<<<<<< Updated upstream
 WDGT#279=3,49,101,297,174,1,1,2,4,#F3002E,bar279,2,0,0,1,9
 WDGT#280=3,450,102,297,174,1,1,2,4,#F3002E,bar280,2,0,0,1,9
 WDGT#281=1,0,0,4,1,9,#393939,#F0EEEE
@@ -13538,16 +13526,10 @@ WDGT#284=4,550,115,103,66,Caption,1,3,14,Black,lbl284,2,0,0,1,9
 WDGT#285=4,110,299,538,68,Total Tons: ,2,1,42,Black,lbl285,2,0,0,1,9
 WDGT#286=1,401,1,4,1,12,#393939,#F0EEEE
 WDGT#287=1,0,1,4,1,12,#393939,#F0EEEE
+WDGT#288=1,0,0,4,1,14,#393939,#F0EEEE
 WDGT#289=4,97,150,599,114,Print,2,3,72,Black,lbl289,4,0,0,1,12
 WDGT#290=4,218,277,372,88,Done,2,3,46,Black,lbl290,1,1,1,1,12
-=======
-WDGT#279=3,49,101,297,174,1,1,2,4,#F3002E,bar279,1,1,1,1,9
-WDGT#280=3,450,102,297,174,1,1,2,4,#F3002E,bar280,1,1,1,1,9
-WDGT#281=1,0,0,4,1,9,#393939,#F0EEEE
-WDGT#282=1,401,0,4,1,9,#393939,#F0EEEE
-WDGT#283=4,145,122,103,66,Caption,1,3,14,Black,lbl283,2,0,0,1,9
-WDGT#284=4,546,122,103,66,Caption,1,3,14,Black,lbl284,2,0,0,1,9
->>>>>>> Stashed changes
+WDGT#291=1,401,0,4,1,14,#393939,#F0EEEE
 WDGT#296=7,225,7,350,100,1,1,0,local://56.png,97,img296
 WDGT#297=4,0,109,800,37,Call Rice Lake Weighing Systems at,1,3,24,Gray,lbl297,4,0,0,1,97
 WDGT#298=4,0,150,800,55,1-800-472-6703,1,3,36,Gray,lbl298,4,0,0,1,97
@@ -13555,14 +13537,14 @@ WDGT#299=4,0,210,800,37,with the following number to obtain your password,1,3,24
 WDGT#300=4,0,250,800,55,123456789,1,3,36,#0080FF,PassCal,2,0,0,1,97
 WDGT#301=7,200,315,400,60,1,1,0,red.png,97,img301
 WDGT#302=4,200,315,400,60,Click Here to Enter Password,1,3,18,White,BtnPass,4,0,0,1,97
-<<<<<<< Updated upstream
 WDGT#305=4,7,107,184,20,Ingridient 1,1,1,12,Black,lbl305,2,0,0,1,12
 WDGT#306=4,401,107,184,20,Ingridient 2,1,1,12,Black,lbl306,2,0,0,1,12
 WDGT#309=4,606,107,184,20,Batch #,1,1,12,Black,lbl309,2,0,0,1,12
 WDGT#312=3,0,1,400,98,2,1,2,1,Black,bar312,2,0,0,1,12
 WDGT#313=3,401,1,400,98,2,1,2,1,Black,bar313,2,0,0,1,12
-=======
->>>>>>> Stashed changes
+WDGT#292=7,715,311,84,76,1,1,0,,14,btnSetup
+WDGT#293=7,343,309,84,76,1,1,0,,14,btnRPrnt
+WDGT#294=4,117,158,546,109,START BATCH,2,2,52,Black,lbl294,1,1,1,1,14
 AUTOBKLGHT=OFF
 BKLGHT=LOW
 GFMT=GROSS&lt;G&gt;&lt;NL2&gt;&lt;TD&gt;&lt;NL&gt;
