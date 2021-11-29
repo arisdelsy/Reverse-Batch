@@ -38,6 +38,15 @@ end database;
 type ReportsDatabase is database ("Reports")
      R_num: Integer;
 end database;
+type ProductDatabase is database ("Product")
+       PSI: Integer;
+  QTY_CONC: Real;
+  SAND_MIX: Integer;
+    CEMENT: Integer;
+  WAT_GALL: Real;
+   CALCIUM: Integer;
+   AIR_ENT: Integer;
+end database;
 
 Trans_BatchNum : constant integer := 1;
 Trans_Customer : constant integer := 2;
@@ -56,6 +65,14 @@ Customer_ZipCode  : constant integer := 4;
 
 Reports_R_num    : constant integer := 1;
 
+Product_PSI      : constant integer := 1;
+Product_QTY_CONC : constant integer := 2;
+Product_SAND_MIX : constant integer := 3;
+Product_CEMENT   : constant integer := 4;
+Product_WAT_GALL : constant integer := 5;
+Product_CALCIUM  : constant integer := 6;
+Product_AIR_ENT  : constant integer := 7;
+
 
 
 -- Serial Port Aliases
@@ -63,6 +80,8 @@ Port1     : constant integer := 1;
 Port2     : constant integer := 2;
 Port3     : constant integer := 3;
 Port4     : constant integer := 4;
+Port5     : constant integer := 5;
+Port6     : constant integer := 6;
 
 -- Ethernet Communication Aliases
 TCPS      : constant string := "TCPS";
