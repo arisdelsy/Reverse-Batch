@@ -73,8 +73,9 @@ program reverse;
   g_iWidget : integer;    
 
   --Actual record to store to transaction database
-  type ProductRecord is
-    record 
+  type TransRecord is
+    record
+      
       sProductName : string;  
       rTargetWgt1 : real;    
       rTargetWgt2 : real;
@@ -82,7 +83,7 @@ program reverse;
     end record;   
 
   -- Database display array !!LOOK HERE!!
-  --g_arRecipe : stored RecipeArrays;   
+  -- g_arRecipe : stored RecipeArrays;   
        
   CustDB : CustomerDatabase;
   ProdDB : ProductDatabase;

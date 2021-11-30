@@ -1,0 +1,164 @@
+program demo
+
+#include reverse.iri 
+
+--Screens
+  g_ciMain    : constant integer := 1;
+  g_ciList    : constant integer := 4;
+  g_ciYN      : constant integer := 5;
+  g_ciSetup   : constant integer := 10;
+
+  -- Global/Types variables definitions 
+  g_sSetupPassword : stored string;
+  g_iDownload : stored integer;
+  g_sTmpPassword : string;  
+  g_rCountby : real;    
+  g_bUpdate : boolean;
+  g_iDecimal1 : integer;  
+  g_uUnits : Units; 
+  g_sysResult : SysCode;   
+  g_iDebug : integer;
+  g_rScaleEmptyWeight : stored real;
+  g_rScaleDischargeTime : stored real;
+  g_iRecipeId : stored integer;  
+  g_iTotalNbrIngredients : integer;    
+  g_iCurrentIngredient : integer;    
+  g_iDelayCnt : integer; 
+  g_iWidget : integer;    
+
+
+procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  begin
+  
+    SetTimer(iTimer, iDuration);
+    SetTimerMode(iTimer, itmMode);
+    StartTimer(iTimer);
+    
+  end;  
+
+handler Timer4Trip;
+  begin
+
+    if g_iWidget = lbSet1 or g_iWidget = lbSet11 then
+			PromptForEntry("Enter New Password", SetupChangePasswordMode, Blank,0); 
+    elsif g_iWidget = lbSet2 or g_iWidget = lbSet22 then
+      PromptForEntry("Enter Empty Weight", SetupScaleEmptyWeightMode, RealToString(g_rScaleEmptyWeight, 0, g_iDecimal1),2); 
+    elsif g_iWidget = lbSet3 or g_iwidget = lbSet33 then
+      PromptForEntry("Enter Discharge Time (sec) ", SetupScaleDischargeTimeMode, RealToString(g_rScaleDischargeTime, 0, 1),2);     
+    elsif g_iWidget = lbSet4 then 
+      KeyPress(DatabaseKey);
+    elsif g_iWidget = lbSet5 or g_iWidget = lbSet55 then 
+      PromptForEntry("Enter Ingredient Id (1-4)", SetupIngredId, Blank,2);
+    elsif g_iWidget = lbSet6 or g_iWidget = lbSet66 then
+      PromptForEntry("Enter Ingredient Id (1-4)", SetupDeleteIngred, Blank,2);        
+    elsif g_iWidget = lbSet7 or g_iWidget = lbSet77 then 
+      PromptForEntry("Enter Recipe Id", SetupRecipeId, Blank,2);
+    elsif g_iWidget = lbSet8 or g_iWidget = lbSet88 then 	  
+      PromptForEntry("Enter Recipe Id", SetupDeleteRecipe, Blank,2);     
+    elsif g_iWidget = lbI1 then
+      ToggleOutput(g_coIngredient1);
+    elsif g_iWidget = lbI2 then
+      ToggleOutput(g_coIngredient2);
+    elsif g_iWidget = lbI3 then
+      ToggleOutput(g_coIngredient3);
+    elsif g_iWidget = lbI4 then
+      ToggleOutput(g_coIngredient4);   
+    elsif g_iWidget = lbD then
+      ToggleOutput(g_coDischarge);   
+    elsif g_iWidget = lbRec and EntryMode = NoMode and BatchMode = Complete then 
+      PromptForEntry("Enter Recipe Id", EnterRecipeID, Blank,2);
+    elsif g_iWidget = 1 then
+      SelectScreen(4);
+    elsif g_iWidget = Exit4 then 
+      SelectScreen(1);
+    elsif g_iWidget = lbZero then
+      KeyPress(ZeroKey);
+    elsif g_iWidget = lbTare then 
+      KeyPress(TareKey);
+    elsif g_iWidget = lbUnit then 
+      KeyPress(UnitsKey);
+    elsif g_iWidget = lbGN then
+      KeyPress(GrossNetKey);
+    elsif g_iWidget = LbPrint then
+      KeyPress(PrintKey);
+    elsif g_iWidget = lbKTare then
+      KeyPress(KeyedTareKey);
+    elsif g_iWidget = lbAuxP then
+      KeyPress(AuxPrintKey); 
+
+    elsif g_iWidget = Setup then 
+
+      if EntryMode = noMode and BatchMode = Complete then     
+        -- Bypassing password entry if zero or blank
+        if g_sSetupPassword = "0" or g_sSetupPassword = Blank then
+          GoIntoSetupMenu;           
+        else       
+          PromptForEntry("Enter Password", SetupEnterPasswordMode, Blank, 1);
+        end if; 
+      end if;
+
+    elsif g_iWidget = Exit9 then
+      SelectScreen(g_ciMain);
+      EntryMode := NoMode;
+			DisplayStatus(Blank);
+      TurnOffAllOutputs;
+
+    end if;
+
+    EnableHandler(WidgetClicked);
+
+  end;     
+
+
+  procedure setupScreen; -- populate the setup screen 
+  i : integer;
+  begin
+
+
+    for i := 31 to 34
+    loop
+      Setbargraphlevel(i,100); 
+    end loop;
+    Setbargraphlevel(bar8,100);
+    Setbargraphlevel(bar44,100);
+    Setbargraphlevel(bar46,100);
+    Setbargraphlevel(bar45,100);
+    Setbargraphlevel(bar56,100);
+    Setbargraphlevel(bar64,100);
+    Setbargraphlevel(bar80,100);
+    Setbargraphlevel(bar81,100);
+    Setbargraphlevel(bar94,100);
+    Setbargraphlevel(bar41,100);
+
+
+    SetImageWidgetPath(Exit9, "local://9.png");
+    SetImageWidgetPath(Exit4, "local://9.png");
+    SetImageWidgetPath(lbZero, "local://8.png");
+    SetImageWidgetPath(lbTare, "local://6.png");
+    SetImageWidgetPath(lbKTare, "local://3.png");
+    SetImageWidgetPath(lbUnit, "local://7.png");
+    SetImageWidgetPath(lbGN, "local://2.png");
+    SetImageWidgetPath(LbPrint, "local://4.png");
+    SetImageWidgetPath(lbAuxP, "local://1.png");
+    SetImageWidgetPath(Setup, "local://11.png");
+
+  end;
+
+  procedure Ready;  -- Initialization procedure
+  begin
+ 
+    UnLockMajorKeys;
+    setupScreen;
+    SetLabelText(lbSts1, Blank);     
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;              
+    Paused := No;
+    BatchMode := Complete;  
+    RefreshMainDisplay;
+    SelectScreen(g_ciMain); 
+    EntryMode := NoMode;
+    SetupStartTimer(1, 10, TimerContinuous)
+  end;

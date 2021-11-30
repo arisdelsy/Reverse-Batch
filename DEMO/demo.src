@@ -1,0 +1,103 @@
+program demo
+
+#include reverse.iri 
+
+--Screens
+  g_ciMain    : constant integer := 1;
+  g_ciList    : constant integer := 4;
+  g_ciYN      : constant integer := 5;
+  g_ciSetup   : constant integer := 10;
+
+  -- Global/Types variables definitions 
+  g_sSetupPassword : stored string;
+  g_iDownload : stored integer;
+  g_sTmpPassword : string;  
+  g_rCountby : real;    
+  g_bUpdate : boolean;
+  g_iDecimal1 : integer;  
+  g_uUnits : Units; 
+  g_sysResult : SysCode;   
+  g_iDebug : integer;
+  g_rScaleEmptyWeight : stored real;
+  g_rScaleDischargeTime : stored real;
+  g_iRecipeId : stored integer;  
+  g_iTotalNbrIngredients : integer;    
+  g_iCurrentIngredient : integer;    
+  g_iDelayCnt : integer; 
+  g_iWidget : integer;    
+
+procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  begin
+  
+    SetTimer(iTimer, iDuration);
+    SetTimerMode(iTimer, itmMode);
+    StartTimer(iTimer);
+    
+  end;  
+
+     
+
+  procedure setupScreen; -- populate the setup screen 
+  i : integer;
+  begin
+
+
+    for i := 31 to 34
+    loop
+      Setbargraphlevel(i,100); 
+    end loop;
+    Setbargraphlevel(bar8,100);
+    Setbargraphlevel(bar44,100);
+    Setbargraphlevel(bar46,100);
+    Setbargraphlevel(bar45,100);
+    Setbargraphlevel(bar56,100);
+    Setbargraphlevel(bar64,100);
+    Setbargraphlevel(bar80,100);
+    Setbargraphlevel(bar81,100);
+    Setbargraphlevel(bar94,100);
+    Setbargraphlevel(bar41,100);
+
+
+    SetImageWidgetPath(Exit9, "local://9.png");
+    SetImageWidgetPath(Exit4, "local://9.png");
+    SetImageWidgetPath(lbZero, "local://8.png");
+    SetImageWidgetPath(lbTare, "local://6.png");
+    SetImageWidgetPath(lbKTare, "local://3.png");
+    SetImageWidgetPath(lbUnit, "local://7.png");
+    SetImageWidgetPath(lbGN, "local://2.png");
+    SetImageWidgetPath(LbPrint, "local://4.png");
+    SetImageWidgetPath(lbAuxP, "local://1.png");
+    SetImageWidgetPath(Setup, "local://11.png");
+
+  end;
+
+handler Timer1Trip;
+  begin
+
+    --they are just going to change the screens no additional mode changes or actions
+    --if a button is clicked just change the screen
+    
+    
+
+    EnableHandler(WidgetClicked);
+
+  end;
+
+  procedure Ready;  -- Initialization procedure
+  begin
+ 
+    UnLockMajorKeys;
+    setupScreen;
+    SetLabelText(lbSts1, Blank);     
+    if GetUnits(1, g_uUnits) = SysOk then
+      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+        g_iDecimal1 := CalcDecimal(g_rCountby); 
+      end if;
+    end if;              
+    Paused := No;
+    BatchMode := Complete;  
+    RefreshMainDisplay;
+    SelectScreen(g_ciMain); 
+    EntryMode := NoMode;
+    SetupStartTimer(1,10,TimerContinuous)
+  end;
