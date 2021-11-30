@@ -83,7 +83,7 @@ program reverse;
     end record;   
 
   -- Database display array !!LOOK HERE!!
-  --g_arRecipe : stored RecipeArrays;   
+  -- g_arRecipe : stored RecipeArrays;   
        
   CustDB : CustomerDatabase;
   ProdDB : ProductDatabase;
