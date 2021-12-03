@@ -3,10 +3,13 @@ program demo
 #include reverse.iri 
 
 --Screens
-  g_ciMain    : constant integer := 1;
-  g_ciList    : constant integer := 4;
+  g_ciMain    : constant integer := 14;
+  g_ciCust    : constant integer := 2;
+  g_ciProduct : constant integer := 4;
   g_ciYN      : constant integer := 5;
   g_ciSetup   : constant integer := 10;
+  g_ciBatch   : constant integer := 1;
+  g_ciaddcust : constant integer := 8;
 
   -- Global/Types variables definitions 
   g_sSetupPassword : stored string;
@@ -26,6 +29,16 @@ program demo
   g_iDelayCnt : integer; 
   g_iWidget : integer;    
 
+  --Temp variables for entry for customer info
+  t_order     : integer;
+  t_customer  : string;
+  t_street    : string;
+  t_town      : string;
+  t_state     : string;
+  t_zip       : integer;
+
+
+  
 procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
   begin
   
@@ -76,9 +89,31 @@ handler Timer1Trip;
 
     --they are just going to change the screens no additional mode changes or actions
     --if a button is clicked just change the screen
+    if g_iWidget = btnStart then
+      SelectScreen(g_ciCust);
     
-    
+    -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
+    elsif g_iWidget >= MinL2 || g_iWidget <= MaxL2 then
+      SelectScreen(g_ciaddcust);
 
+    elsif g_iWidget = btnCont2 then
+      SelectScreen(g_ciProduct);
+
+    elsif g_iWidget >= MinL4 || g_iWidget <= MaxL4 then
+      SelectScreen(g_ciStartAbort);
+
+    elsif g_iWidget = Ext2 then
+      SelectScreen(g_ciMain);
+
+    elsif g_iWidget = Ext4 then
+      SelectScreen(g_ciMain);
+
+    elsif g_iWidget = 
+      SelectScreen()
+
+    elsif g_Widget = 
+      SelectScreen()
+      
     EnableHandler(WidgetClicked);
 
   end;
