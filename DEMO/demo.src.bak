@@ -30,9 +30,6 @@ program demo;
   g_iDelayCnt : integer; 
   g_iWidget : integer;    
 
-  --Entry Modes
-  
-
   --Temp variables for entry for customer info
   t_order     : integer;
   t_customer  : string;
