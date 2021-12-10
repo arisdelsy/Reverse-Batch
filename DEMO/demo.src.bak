@@ -87,7 +87,7 @@ program demo;
     loop
       Setbargraphlevel(i,100); 
     end loop;
-    SetImageWidgetPath(btnSetup, "local://11.png");
+    --SetImageWidgetPath(btnSetup, "local://11.png");
 
   end;
 
@@ -116,37 +116,35 @@ handler WidgetClicked;
   	DisableHandler(WidgetClicked);
 		g_iWidget := EventWidget;
 		DisplayStatus("");
-    SetupStartTimer(1, 5, TimerOneShot);  
-   
-  end;
 
-handler Timer1Trip;
-  begin
-
-    --they are just going to change the screens no additional mode changes or actions
-    --if a button is clicked just change the screen
     if g_iWidget = btnStrt then
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
+      if EntryMode = NoMode then
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      end if;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 or g_iWidget <= MaxL2 then
-      EntryMode :=  CustomerProcessMode;
+      EntryMode := CustomerProcessMode;
       SelectScreen(g_ciaddcust);
       
       --SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      EntryMode := ProductSelectMode;
-      SelectScreen(g_ciProduct);
+      if EntryMode = CustomerProcessMode then
+        EntryMode := ProductSelectMode;
+        SelectScreen(g_ciProduct);
+      end if;
 
     elsif g_iWidget >= MinL4 or g_iWidget <= MaxL4 then
       EntryMode := BatchMode;
       SelectScreen(g_ciScales);
 
     elsif g_iWidget = btnExt2 then
-      EntryMode := NoMode;
-      SelectScreen(g_ciMain);
+      if EntryMode = CustomerSelectMode then
+        EntryMode := NoMode;
+        SelectScreen(g_ciMain);
+      end if;
 
     elsif g_iWidget = btnExt4 then
       EntryMode := NoMode;
@@ -160,13 +158,12 @@ handler Timer1Trip;
       SelectScreen(g_ciMain);
     
     elsif g_iWidget = btnExt12 then
-      EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
     end if;
 
-    EnableHandler(WidgetClicked);
-
+    EnableHandler(WidgetClicked); 
+   
   end;
 
 
