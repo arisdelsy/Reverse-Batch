@@ -1,19 +1,23 @@
-program demo
+program demo;
 
 #include reverse.iri 
 
 --Screens
-  g_ciMain    : constant integer := 1;
-  g_ciList    : constant integer := 4;
+  g_ciMain    : constant integer := 14;
+  g_ciCust    : constant integer := 2;
+  g_ciProduct : constant integer := 4;
   g_ciYN      : constant integer := 5;
   g_ciSetup   : constant integer := 10;
+  g_ciBatch   : constant integer := 1;
+  g_ciaddcust : constant integer := 8;
+  g_ciScales  : constant integer := 9;
 
   -- Global/Types variables definitions 
   g_sSetupPassword : stored string;
   g_iDownload : stored integer;
   g_sTmpPassword : string;  
   g_rCountby : real;    
-  g_bUpdate : boolean;
+  --g_bUpdate : boolean;
   g_iDecimal1 : integer;  
   g_uUnits : Units; 
   g_sysResult : SysCode;   
@@ -26,7 +30,32 @@ program demo
   g_iDelayCnt : integer; 
   g_iWidget : integer;    
 
-procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  --Entry Modes
+  NoMode              : constant integer := 0;
+  CustomerSelectMode  : constant integer := 1000;
+  RecipeSelectMode    : constant integer := 1001;
+  SetupMenuMode       : constant integer := 1002;
+  BatchMode           : constant integer := 1003;
+  AutoPrintMode       : constant integer := 1004;
+  ManualPrintMode     : constant integer := 1005;
+  CustomerProcessMode : constant integer := 1006;
+  ProductSelectMode   : constant integer := 1007;
+
+
+  
+  EntryMode : integer;
+
+  --Temp variables for entry for customer info
+  t_order     : integer;
+  t_customer  : string;
+  t_street    : string;
+  t_town      : string;
+  t_state     : string;
+  t_zip       : integer;
+
+
+  
+  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
   begin
   
     SetTimer(iTimer, iDuration);
@@ -35,81 +64,56 @@ procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : Timer
     
   end;  
 
+  function CalcDecimal(rCountBy : real) : integer;  -- Calculates the amount of decimal positions  
+    iDecimal : integer := 0;    
+  begin   
+         
+    while rCountBy < 1.0
+    loop    
+      iDecimal := iDecimal + 1;
+      rCountBy := rCountBy * 10.0;  
+     end loop;
+
+     return iDecimal; 
      
+  end; 
 
   procedure setupScreen; -- populate the setup screen 
-    i : integer;
+  i : integer;
   begin
 
-
-    for i := 31 to 34
+    -- setting background bars for screens
+    for i := 1 to 16
     loop
       Setbargraphlevel(i,100); 
     end loop;
-    Setbargraphlevel(bar8,100);
-    Setbargraphlevel(bar44,100);
-    Setbargraphlevel(bar46,100);
-    Setbargraphlevel(bar45,100);
-    Setbargraphlevel(bar56,100);
-    Setbargraphlevel(bar64,100);
-    Setbargraphlevel(bar80,100);
-    Setbargraphlevel(bar81,100);
-    Setbargraphlevel(bar94,100);
-    Setbargraphlevel(bar41,100);
-
-
-    SetImageWidgetPath(Exit9, "local://9.png");
-    SetImageWidgetPath(Exit4, "local://9.png");
-    SetImageWidgetPath(lbZero, "local://8.png");
-    SetImageWidgetPath(lbTare, "local://6.png");
-    SetImageWidgetPath(lbKTare, "local://3.png");
-    SetImageWidgetPath(lbUnit, "local://7.png");
-    SetImageWidgetPath(lbGN, "local://2.png");
-    SetImageWidgetPath(LbPrint, "local://4.png");
-    SetImageWidgetPath(lbAuxP, "local://1.png");
-    SetImageWidgetPath(Setup, "local://11.png");
-
-  end;
-
-handler Timer1Trip;
-  begin
-
-    --they are just going to change the screens no additional mode changes or actions
-    --if a button is clicked just change the screen
-    
-    
-
-    EnableHandler(WidgetClicked);
+    --SetImageWidgetPath(btnSetup, "local://11.png");
 
   end;
 
   procedure Ready;  -- Initialization procedure
   begin
  
-    UnLockMajorKeys;
+    --UnLockMajorKeys;
     setupScreen;
-    SetLabelText(lbSts1, Blank);     
+    --SetLabelText(lbSts1, Blank);     
     if GetUnits(1, g_uUnits) = SysOk then
       if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
         g_iDecimal1 := CalcDecimal(g_rCountby); 
       end if;
     end if;              
-    Paused := No;
-    BatchMode := Complete;  
-    RefreshMainDisplay;
-    SelectScreen(g_ciMain); 
-<<<<<<< Updated upstream
+    --Paused := No;
+    --BatchMode := Complete;  
+    --RefreshMainDisplay;
     EntryMode := NoMode;
-    SetupStartTimer(1,10,TimerContinuous)
-  end;
-=======
+    SelectScreen(g_ciMain); 
     
   end;
 
 handler WidgetClicked;
   begin
 
-  	--DisableHandler(WidgetClicked); ARIS
+  	DisableHandler(WidgetClicked);
 		g_iWidget := EventWidget;
 		DisplayStatus("");
 
@@ -120,7 +124,7 @@ handler WidgetClicked;
       end if;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
-    elsif g_iWidget >= MinL2 or g_iWidget <= MaxL2 then
+    elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
       EntryMode := CustomerProcessMode;
       SelectScreen(g_ciaddcust);
       
@@ -132,7 +136,7 @@ handler WidgetClicked;
         SelectScreen(g_ciProduct);
       end if;
 
-    elsif g_iWidget >= MinL4 or g_iWidget <= MaxL4 then
+    elsif g_iWidget >= MinL4 and g_iWidget <= MaxL4 then
       EntryMode := BatchMode;
       SelectScreen(g_ciScales);
 
@@ -158,7 +162,7 @@ handler WidgetClicked;
     
     end if;
 
-    --EnableHandler(WidgetClicked); 
+    EnableHandler(WidgetClicked); 
    
   end;
 
@@ -167,16 +171,7 @@ begin
 
   --DisableSetPoints; 
   --DisplayVersion; 
-  setmenubarcolor("Black");
-
-  if g_iDownload = 0 then
-    g_iDownload := 1;
-    --g_sSetupPassword := Blank; 
-    g_rScaleEmptyWeight := 5;
-    g_rScaleDischargeTime := 3.0;
-  end if;    
-  
+  --setmenubarcolor("Black");
   Ready;       
 
 end demo; 
->>>>>>> Stashed changes

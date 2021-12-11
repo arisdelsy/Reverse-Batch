@@ -22,11 +22,9 @@ type TransDatabase is database ("Trans")
   BatchNum: Integer;
   Customer: String;
    Product: String;
-    Target: Real;
+   TargetT: Real;
   TotalTon: Real;
-        M1: String;
         T1: Real;
-        M2: String;
         T2: Real;
         DT: DateTime;
   TonAccum: Real;
@@ -37,36 +35,43 @@ type CustomerDatabase is database ("Customer")
   TownStat: String;
    ZipCode: Integer;
 end database;
+type ReportsDatabase is database ("Reports")
+     R_num: Integer;
+end database;
 type ProductDatabase is database ("Product")
-   Product: String;
-      Mat1: String;
-   Target1: Real;
-      Mat2: String;
-   Target2: Real;
+       PSI: Integer;
+  QTY_CONC: Real;
+  SAND_MIX: Integer;
+    CEMENT: Integer;
+  WAT_GALL: Real;
+   CALCIUM: Integer;
+   AIR_ENT: Integer;
 end database;
 
 Trans_BatchNum : constant integer := 1;
 Trans_Customer : constant integer := 2;
 Trans_Product  : constant integer := 3;
-Trans_Target   : constant integer := 4;
+Trans_TargetT  : constant integer := 4;
 Trans_TotalTon : constant integer := 5;
-Trans_M1       : constant integer := 6;
-Trans_T1       : constant integer := 7;
-Trans_M2       : constant integer := 8;
-Trans_T2       : constant integer := 9;
-Trans_DT       : constant integer := 10;
-Trans_TonAccum : constant integer := 11;
+Trans_T1       : constant integer := 6;
+Trans_T2       : constant integer := 7;
+Trans_DT       : constant integer := 8;
+Trans_TonAccum : constant integer := 9;
 
 Customer_Name     : constant integer := 1;
 Customer_Street   : constant integer := 2;
 Customer_TownStat : constant integer := 3;
 Customer_ZipCode  : constant integer := 4;
 
-Product_Product  : constant integer := 1;
-Product_Mat1     : constant integer := 2;
-Product_Target1  : constant integer := 3;
-Product_Mat2     : constant integer := 4;
-Product_Target2  : constant integer := 5;
+Reports_R_num    : constant integer := 1;
+
+Product_PSI      : constant integer := 1;
+Product_QTY_CONC : constant integer := 2;
+Product_SAND_MIX : constant integer := 3;
+Product_CEMENT   : constant integer := 4;
+Product_WAT_GALL : constant integer := 5;
+Product_CALCIUM  : constant integer := 6;
+Product_AIR_ENT  : constant integer := 7;
 
 
 
@@ -75,6 +80,8 @@ Port1     : constant integer := 1;
 Port2     : constant integer := 2;
 Port3     : constant integer := 3;
 Port4     : constant integer := 4;
+Port5     : constant integer := 5;
+Port6     : constant integer := 6;
 
 -- Ethernet Communication Aliases
 TCPS      : constant string := "TCPS";
@@ -318,7 +325,6 @@ lbl226    : constant integer := 226;
 lbl227    : constant integer := 227;
 lbl228    : constant integer := 228;
 lbl229    : constant integer := 229;
-btnSetup  : constant integer := 232;
 lbl234    : constant integer := 234;
 btnExt11  : constant integer := 235;
 lbProg2   : constant integer := 236;
@@ -357,13 +363,23 @@ lblShp2   : constant integer := 268;
 lblShp3   : constant integer := 269;
 lblIng1   : constant integer := 270;
 lblIng2   : constant integer := 271;
-btnStart  : constant integer := 272;
-btnStop   : constant integer := 273;
+btnPrint  : constant integer := 272;
+btnDone   : constant integer := 273;
 lblBatch  : constant integer := 274;
 lbl275    : constant integer := 275;
 lbl276    : constant integer := 276;
 bar277    : constant integer := 277;
 bar278    : constant integer := 278;
+bar279    : constant integer := 279;
+bar280    : constant integer := 280;
+lbl283    : constant integer := 283;
+lbl284    : constant integer := 284;
+lbl285    : constant integer := 285;
+lbl289    : constant integer := 289;
+lbl290    : constant integer := 290;
+btnSetup  : constant integer := 292;
+btnRPrnt  : constant integer := 293;
+btnStrt   : constant integer := 294;
 img296    : constant integer := 296;
 lbl297    : constant integer := 297;
 lbl298    : constant integer := 298;
@@ -371,6 +387,12 @@ lbl299    : constant integer := 299;
 PassCal   : constant integer := 300;
 img301    : constant integer := 301;
 BtnPass   : constant integer := 302;
+lbl305    : constant integer := 305;
+lbl306    : constant integer := 306;
+lbl309    : constant integer := 309;
+bar312    : constant integer := 312;
+bar313    : constant integer := 313;
+btnExt12  : constant integer := 232;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";

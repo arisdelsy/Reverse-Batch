@@ -79,7 +79,7 @@ program demo;
   end; 
 
   procedure setupScreen; -- populate the setup screen 
-    i : integer;
+  i : integer;
   begin
 
     -- setting background bars for screens
@@ -113,7 +113,7 @@ program demo;
 handler WidgetClicked;
   begin
 
-  	--DisableHandler(WidgetClicked); ARIS
+  	DisableHandler(WidgetClicked);
 		g_iWidget := EventWidget;
 		DisplayStatus("");
 
@@ -124,7 +124,7 @@ handler WidgetClicked;
       end if;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
-    elsif g_iWidget >= MinL2 or g_iWidget <= MaxL2 then
+    elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
       EntryMode := CustomerProcessMode;
       SelectScreen(g_ciaddcust);
       
@@ -136,7 +136,7 @@ handler WidgetClicked;
         SelectScreen(g_ciProduct);
       end if;
 
-    elsif g_iWidget >= MinL4 or g_iWidget <= MaxL4 then
+    elsif g_iWidget >= MinL4 and g_iWidget <= MaxL4 then
       EntryMode := BatchMode;
       SelectScreen(g_ciScales);
 
@@ -162,7 +162,7 @@ handler WidgetClicked;
     
     end if;
 
-    --EnableHandler(WidgetClicked); 
+    EnableHandler(WidgetClicked); 
    
   end;
 
@@ -171,15 +171,7 @@ begin
 
   --DisableSetPoints; 
   --DisplayVersion; 
-  setmenubarcolor("Black");
-
-  if g_iDownload = 0 then
-    g_iDownload := 1;
-    --g_sSetupPassword := Blank; 
-    g_rScaleEmptyWeight := 5;
-    g_rScaleDischargeTime := 3.0;
-  end if;    
-  
+  --setmenubarcolor("Black");
   Ready;       
 
 end demo; 
