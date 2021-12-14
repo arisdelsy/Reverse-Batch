@@ -111,6 +111,9 @@ program demo;
   end;
 
 handler WidgetClicked;
+
+  -- it is important to remember that when we want a widget to change the screen
+  -- we should set an entrymode  
   begin
 
   	DisableHandler(WidgetClicked);
@@ -158,6 +161,7 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
     
     elsif g_iWidget = btnExt12 then
+      EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
     end if;
