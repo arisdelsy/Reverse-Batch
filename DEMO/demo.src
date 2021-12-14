@@ -49,7 +49,7 @@ program demo;
 
   type DisplayRecord is
     record 
-      iID : integer; 
+      sID : string; 
       sName : string;
 			sInDT : string;
       rQty : Real;
@@ -97,16 +97,16 @@ program demo;
     i : integer;
   begin  
   
-    for i := MinLabel to maxLabel
+    for i := MinL2 to MaxL2
     loop
       SetLabelText(i, Chr$(08));
     end loop;
 
 
-    for i := minId to maxName
-    loop
-      SetLabelText(i, Chr$(08));
-    end loop;
+    --for i := minId to maxName
+    --loop
+      --SetLabelText(i, Chr$(08));
+    --end loop;
 
   end;
 
@@ -147,7 +147,7 @@ program demo;
     if ProductDB.GetFirst = SysOk then  
 
       g_arDisplay[i].sID := ProductDB.ID;  
-      g_arDisplay[i].sName := RealToString(ProductDB.InPWgt,0,g_iDecimal);  
+      --g_arDisplay[i].sName := RealToString(ProductDB.InPWgt,0,g_iDecimal);  
 			g_arDisplay[i].sInDT := Time$(InboundDB.DT) + " " + Date$(InboundDB.DT);
       i := 2;            
  
@@ -155,7 +155,7 @@ program demo;
       loop         
         if i <= g_ciMaxRecords then             
           g_arDisplay[i].sID := InboundDB.ID;  
-      		g_arDisplay[i].sName := RealToString(InboundDB.InPWgt,0,g_iDecimal);  
+      		--g_arDisplay[i].sName := RealToString(InboundDB.InPWgt,0,g_iDecimal);  
 					g_arDisplay[i].sInDT :=Time$(InboundDB.DT) + " " + Date$(InboundDB.DT);                                                      
           i := i + 1;                          
         end if;       
