@@ -262,6 +262,7 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
     
     elsif g_iWidget = btnExt12 then
+      EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
     end if;
