@@ -172,7 +172,6 @@ handler WidgetClicked;
     elsif g_iWidget = btnExt12 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
-      SetWidgetVisibility(btnRPrnt, Von);
 
     elsif g_iWidget = btnExt10 then
       EntryMode := NoMode;
