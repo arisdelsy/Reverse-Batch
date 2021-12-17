@@ -40,25 +40,11 @@ program demo;
   ManualPrintMode     : constant integer := 1005;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
-
+  BatchCompleteMode   : constant integer := 1008;
+  
   g_ciMaxRecords            : constant integer := 1000;
 
   EntryMode : integer;
-
-  type boolean is (False,True); 
-
-  type DisplayRecord is
-    record 
-      sID : string; 
-      sName : string;
-			sInDT : string;
-      rQty : Real;
-    end record;    
-  
-  type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord;
-  g_arDisplay : DisplayArrays;
-
-  ProductDB : ProductDatabase;
 
   --Temp variables for entry for customer info
   t_order     : integer;
@@ -93,95 +79,6 @@ program demo;
      
   end; 
 
-  procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
-    i : integer;
-  begin  
-  
-    for i := MinL2 to MaxL2
-    loop
-      SetLabelText(i, Chr$(08));
-    end loop;
-
-
-    --for i := minId to maxName
-    --loop
-      --SetLabelText(i, Chr$(08));
-    --end loop;
-
-  end;
-
-  procedure ClearDisplayListArray;  -- Clear Display List Array
-    i : integer;
-  begin 
-  
-    for i := 1 to g_ciMaxRecords 
-    loop
-      if g_arDisplay[i].sID = Blank then  
-        return;
-      end if;
-
-      g_arDisplay[i].sID := Blank;
-      g_arDisplay[i].sName := Blank; 
-			g_arDisplay[i].sInDT := Blank;
-
-    end loop;
-         
-  end;
-
-  procedure DisplayProductDB; 
-    i : integer;
-    j : integer;
-  begin 
-
-    -- Clear Text Boxes & Widgets
-    ClearWidgetsData;
-    
-    -- Clear Array
-    ClearDisplayListArray; 
-    
-    -- Sort DB or Get Based of Criteria                                       
-    ProductDB.Sort(1);                                    
-    i := 1; 
-    
-    -- FillArray
-    if ProductDB.GetFirst = SysOk then  
-
-      g_arDisplay[i].sID := ProductDB.ID;  
-      --g_arDisplay[i].sName := RealToString(ProductDB.InPWgt,0,g_iDecimal);  
-			g_arDisplay[i].sInDT := Time$(InboundDB.DT) + " " + Date$(InboundDB.DT);
-      i := 2;            
- 
-      while InboundDB.GetNext = SysOk  
-      loop         
-        if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sID := InboundDB.ID;  
-      		--g_arDisplay[i].sName := RealToString(InboundDB.InPWgt,0,g_iDecimal);  
-					g_arDisplay[i].sInDT :=Time$(InboundDB.DT) + " " + Date$(InboundDB.DT);                                                      
-          i := i + 1;                          
-        end if;       
-      end loop; 
-      
-    end if; 
-    
-    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
-    SelectScreen(g_ciDList);                                       
-    i := minLabel;  
-    SetSymbolState(g_iWidgetNum, 1);
-    g_iPage := 1;          
-    j := 1;   
-    
-    -- Populate Screen
-    while g_arDisplay[j].sID <> Blank and j <= g_ciMaxPerScreen   
-    loop    
-      SetLabelText(i, g_arDisplay[j].sID);
-      SetLabelText(i + 1, g_arDisplay[j].sName); 
-			SetLabelText(i + 2, g_arDisplay[j].sInDT); 
-      i := i + 3;
-      j := j + 1;   
-    end loop;                            
-
-  end;
-
   procedure setupScreen; -- populate the setup screen 
   i : integer;
   begin
@@ -209,10 +106,19 @@ program demo;
     --Paused := No;
     --BatchMode := Complete;  
     --RefreshMainDisplay;
+    SetWidgetVisibility(btnRPrnt, Voff);
     EntryMode := NoMode;
     SelectScreen(g_ciMain); 
     
   end;
+
+handler timer5Trip;
+begin
+
+  EntryMode := BatchCompleteMode;
+  SelectScreen(g_ciBatch);
+
+end;
 
 handler WidgetClicked;
   begin
@@ -237,12 +143,14 @@ handler WidgetClicked;
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if EntryMode = CustomerProcessMode then
         EntryMode := ProductSelectMode;
+        if FileExists("/sdimages/next.png", SDCard) = SysOk then
+          SetImageWidgetPath(btnNxt, "/next.png");
+        else
+          SetImageWidgetPath(btnNxt, "local://10.png");
+        end if;
+        --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
         SelectScreen(g_ciProduct);
       end if;
-
-    elsif g_iWidget >= MinL4 and g_iWidget <= MaxL4 then
-      EntryMode := BatchMode;
-      SelectScreen(g_ciScales);
 
     elsif g_iWidget = btnExt2 then
       if EntryMode = CustomerSelectMode then
@@ -264,7 +172,22 @@ handler WidgetClicked;
     elsif g_iWidget = btnExt12 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
+      SetWidgetVisibility(btnRPrnt, Von);
+
+    elsif g_iWidget = btnExt10 then
+      EntryMode := NoMode;
+      SelectScreen(g_ciMain);
     
+    elsif g_iWidget = btnSetup then
+      EntryMode:= SetupMenuMode;
+      setupScreen;
+      SelectScreen(g_ciSetup);
+
+    elsif g_iWidget = btnNxt then
+      EntryMode := BatchMode;
+      SelectScreen(g_ciScales);
+      SetupStartTimer(5, 500, TimerOneShot);
+
     end if;
 
     EnableHandler(WidgetClicked); 
@@ -276,7 +199,7 @@ begin
 
   --DisableSetPoints; 
   --DisplayVersion; 
-  --setmenubarcolor("Black");
+  setmenubarcolor("Black");
   Ready;       
 
 end demo; 
