@@ -1,4 +1,4 @@
-program reverse;
+program demo;
 
 #include reverse.iri 
 
@@ -78,35 +78,6 @@ program reverse;
      return iDecimal; 
      
   end; 
-
-  procedure SelectIngredient1;
-    iTouch : integer;
-    i : integer;
-  begin
-
-    iTouch := g_iWidget;
-    for i := minLabel to maxLabel 
-    loop
-      SetwidgetColor(i, "Black");
-    end loop;
-
-    if iTouch = 2 then
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget + 1, "#BB0000");
-      SetwidgetColor(g_iWidget + 2, "#BB0000");
-    elsif iTouch = 0 then
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget + 1, "#BB0000");
-      SetwidgetColor(g_iWidget - 1, "#BB0000");
-    elsif iTouch = 1 then
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget - 1, "#BB0000");
-      SetwidgetColor(g_iWidget - 2, "#BB0000");
-    end if;
-    g_iDelete := g_iWidget;
-
-  end;
-
 
   procedure setupScreen; -- populate the setup screen 
   i : integer;
