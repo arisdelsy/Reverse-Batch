@@ -28,7 +28,8 @@ program reverse;
   g_iTotalNbrIngredients : integer;    
   g_iCurrentIngredient : integer;    
   g_iDelayCnt : integer; 
-  g_iWidget : integer;    
+  g_iWidget : integer;
+  Select1   : integer;    
 
   --Entry Modes
   NoMode              : constant integer := 0;
@@ -103,7 +104,7 @@ program reverse;
       SetwidgetColor(g_iWidget - 1, "#BB0000");
       SetwidgetColor(g_iWidget - 2, "#BB0000");
     end if;
-    g_iDelete := g_iWidget;
+    Select1 := g_iWidget;
 
   end;
 
