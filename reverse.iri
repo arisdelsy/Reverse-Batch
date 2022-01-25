@@ -32,7 +32,8 @@ end database;
 type CustomerDatabase is database ("Customer")
       Name: String;
     Street: String;
-  TownStat: String;
+      Town: String;
+     State: String;
    ZipCode: Integer;
 end database;
 type ReportsDatabase is database ("Reports")
@@ -62,8 +63,9 @@ Trans_TonAccum : constant integer := 9;
 
 Customer_Name     : constant integer := 1;
 Customer_Street   : constant integer := 2;
-Customer_TownStat : constant integer := 3;
-Customer_ZipCode  : constant integer := 4;
+Customer_Town     : constant integer := 3;
+Customer_State    : constant integer := 4;
+Customer_ZipCode  : constant integer := 5;
 
 Reports_R_num    : constant integer := 1;
 
@@ -207,7 +209,7 @@ btnExt3   : constant integer := 104;
 btnPgUp3  : constant integer := 105;
 btnPgDn3  : constant integer := 106;
 Page3     : constant integer := 107;
-lbl108    : constant integer := 108;
+minL4     : constant integer := 108;
 lbl109    : constant integer := 109;
 lbl110    : constant integer := 110;
 lbl111    : constant integer := 111;
@@ -215,13 +217,13 @@ lbl112    : constant integer := 112;
 lbl113    : constant integer := 113;
 lbl114    : constant integer := 114;
 lbl115    : constant integer := 115;
-lbl116    : constant integer := 116;
+maxL4     : constant integer := 116;
 lbl117    : constant integer := 117;
 lbl118    : constant integer := 118;
 lbl119    : constant integer := 119;
-btnExt13  : constant integer := 122;
-btnNxt13  : constant integer := 121;
 img120    : constant integer := 120;
+btnNxt13  : constant integer := 121;
+btnExt13  : constant integer := 122;
 lbl126    : constant integer := 126;
 lbl127    : constant integer := 127;
 lbl128    : constant integer := 128;

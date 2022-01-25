@@ -1,9 +1,0 @@
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:123:9:: Name is not a valid handler name
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:126:19:: Argument is not a handler name
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:127:16:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:146:12:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:146:45:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:147:11:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:149:11:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:192:19:: Argument is not a handler name
-C:\Users\Aris\Documents\GitHub\cavalier\DEMO\demo.src:201:3:: Undefined identifier
