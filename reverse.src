@@ -32,9 +32,7 @@ program reverse;
   g_iWidget : integer;
   Select1   : integer;
   --iPrompt   : integer;
-  --sPrompt   : string;
-  minLabel  : integer;
-  maxLabel  : integer;    
+  --sPrompt   : string;    
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -75,6 +73,19 @@ program reverse;
   t_zip       : integer;
   Blank : constant string := ""; 
 
+  type DisplayRecord is
+    record 
+      sID : string; 
+      sName : string;
+			sInDT : string;
+    end record;     
+
+-- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
+-- amount of information which is a part of the DisplayRecord type (declared above)
+ type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
+  g_arDisplay : DisplayArrays; 
+
+  CustomersDB : CustomerDatabase
   
   procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
   begin
@@ -105,7 +116,89 @@ program reverse;
 
      return iDecimal; 
      
+  end;
+
+  procedure ClearDisplayListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciMaxRecords 
+    loop
+      if g_arDisplay[i].sOrderNum = Blank then  
+        return;
+      end if;
+
+      g_arDisplay[i].sOrderNum := Blank;
+      g_arDisplay[i].sName := Blank; 
+
+    end loop;
+         
+  end;
+
+  procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
+    i : integer;
+  begin  
+  
+    for i := MinL2 to MaxL2 
+    loop
+      SetLabelText(i, Chr$(08)); -- 
+    end loop;
+
+
+
   end; 
+  
+  procedure DisplayCustomersDB; 
+    i : integer;
+    j : integer;
+  begin 
+
+    -- Clear Text Boxes & Widgets
+    ClearWidgetsData;
+    
+    -- Clear Array
+    ClearDisplayListArray; 
+    
+    -- Sort DB or Get Based of Criteria                                       
+    CustomersDB.Sort(1);                                    
+    i := 1; 
+    
+    -- FillArray
+    if CustomersDB.GetFirst = SysOk then  
+
+      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item 
+      g_arDisplay[i].sName := CustomersDB.Name;  
+      i := 2;            
+ 
+      while CustomersDB.GetNext = SysOk  
+      loop         
+        if i <= g_ciMaxRecords then             
+          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
+      		g_arDisplay[i].sName := CustomersDB.Name;                                               
+          i := i + 1;                          
+        end if;       
+      end loop; 
+      
+    end if; 
+    
+    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
+    SelectScreen(g_ciCust);                                       
+    i := MinL2;  
+    SetSymbolState(g_iWidgetNum, 1);
+    g_iPage := 1;          
+    j := 1;   
+    
+    -- Populate Screen
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen   
+    loop    
+      SetLabelText(i, g_arDisplay[j].sOrderNum);
+      SetLabelText(i + 1, g_arDisplay[j].sName);  
+      i := i + 3;
+      j := j + 1;   
+    end loop;                            
+
+  end;   
+
 
   --For Aris hehe :)
   procedure SelectCustomer;
@@ -168,7 +261,7 @@ program reverse;
     else
       PromptUser(sPrompt);  
     end if;
-    EntryMode := iMode;
+    g_EntryMode := iMode;
     
   end;  
 
@@ -182,52 +275,52 @@ begin
   if g_Entrymode = EnterNameMode then 
     SetLabelText(lbl225, sTemp);
     SetPrintText(1, sTemp);
-    Customer.Name := sTemp;
-    if Customer.FindFirst(Customer_Name) = Sysok then
+    CustomersDB.Name := sTemp;
+    if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
-      SetEntry(Customer.Name);
+      SetEntry(CustomersDB.Name);
     else
       g_iUpdate := 0;
     end if;
     --this is for blank
-  elsif g_Entrymode = EnterStreet then 
+  elsif g_Entrymode = EnterStreetMode then 
     SetLabelText(lbl226, sTemp);
     SetPrintText(2,sTemp);
-    Customer.Street := sTemp;
-    if Customer.FindFirst(Customer_Street) = Sysok then
+    CustomersDB.Street := sTemp;
+    if CustomersDB.FindFirst(Customer_Street) = Sysok then
       g_iUpdate := 1;
-      SetEntry(Customer.Street);
+      SetEntry(CustomersDB.Street);
     else
       g_iUpdate := 0;
       end if;
       --this is for blank
-  elsif g_Entrymode = EnterTown then 
+  elsif g_Entrymode = EnterTownMode then 
     SetLabelText(lbl227, sTemp);
     SetPrintText(3,sTemp);
-    Customer.Town := sTemp;
-    if Customer.FindFirst(Customer_Town) = Sysok then
+    CustomersDB.Town := sTemp;
+    if CustomersDB.FindFirst(Customer_Town) = Sysok then
       g_iUpdate := 1;
-      SetEntry(Customer.TownStat);
+      SetEntry(CustomersDB.TownStat);
     else
       g_iUpdate := 0;
       end if;
-  elsif g_Entrymode = EnterState then 
+  elsif g_Entrymode = EnterStateMode then 
     SetLabelText(lbl228, sTemp);
     SetPrintText(4,sTemp);
-    Customer.State := sTemp;
-    if Customer.FindFirst(Customer_State) = Sysok then
+    CustomersDB.State := sTemp;
+    if CustomersDB.FindFirst(Customer_State) = Sysok then
       g_iUpdate := 1;
-      SetEntry(Customer.TownStat);
+      SetEntry(CustomersDB.State);
     else
       g_iUpdate := 0;
     end if;
-  elsif g_Entrymode = EnterZip then 
+  elsif g_Entrymode = EnterZipMode then 
     SetLabelText(lbl229, sTemp);
     SetPrintText(5,sTemp);
-    Customer.ZipCode := sTemp;
-    if Customer.FindFirst(Customer_ZipCode) = Sysok then
+    CustomersDB.ZipCode := sTemp;
+    if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
-      SetEntry(IntegertoString(Customer.ZipCode));
+      SetEntry(IntegertoString(CustomersDB.ZipCode));
     else
       g_iUpdate := 0;
     
@@ -355,6 +448,8 @@ handler WidgetClicked;
     EnableHandler(WidgetClicked); 
    
   end;
+
+
 
 begin
 

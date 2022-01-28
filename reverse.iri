@@ -29,8 +29,8 @@ type TransDatabase is database ("Trans")
         DT: DateTime;
   TonAccum: Real;
 end database;
--- use these once all of the customer information has been entered into the temporary values 
 type CustomerDatabase is database ("Customer")
+     Order: Integer;
       Name: String;
     Street: String;
       Town: String;
@@ -52,7 +52,6 @@ type ProductDatabase is database ("Product")
   RETARDER: Real;
 end database;
 
---Used to reference the columns in the trasaction database 
 Trans_BatchNum : constant integer := 1;
 Trans_Customer : constant integer := 2;
 Trans_Product  : constant integer := 3;
@@ -63,17 +62,15 @@ Trans_T2       : constant integer := 7;
 Trans_DT       : constant integer := 8;
 Trans_TonAccum : constant integer := 9;
 
---Used to reference the columns in the customer database 
-Customer_Name     : constant integer := 1;
-Customer_Street   : constant integer := 2;
-Customer_Town     : constant integer := 3;
-Customer_State    : constant integer := 4;
-Customer_ZipCode  : constant integer := 5;
+Customer_Order    : constant integer := 1;
+Customer_Name     : constant integer := 2;
+Customer_Street   : constant integer := 3;
+Customer_Town     : constant integer := 4;
+Customer_State    : constant integer := 5;
+Customer_ZipCode  : constant integer := 6;
 
---Used to reference the columns in the reports database 
 Reports_R_num    : constant integer := 1;
 
---Used to reference the columns in the products database 
 Product_PSI      : constant integer := 1;
 Product_QTY_CONC : constant integer := 2;
 Product_SAND_MIX : constant integer := 3;
