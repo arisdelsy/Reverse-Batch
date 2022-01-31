@@ -1,27 +1,23 @@
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:297:5:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:298:8:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:299:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:300:16:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:302:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:307:5:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:308:8:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:309:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:310:16:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:312:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:317:5:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:318:8:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:319:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:320:16:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:322:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:327:5:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:328:8:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:329:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:330:16:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:332:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:337:5:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:338:8:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:339:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:340:32:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:340:48:: Wrong number of parameters
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:342:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:344:5:: syntax error
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:101:5:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:126:25:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:130:22:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:168:22:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:175:26:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:186:20:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:187:5:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:191:26:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:193:38:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:279:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:282:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:290:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:293:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:301:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:302:28:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:304:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:311:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:314:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:319:28:: Type mismatch in assignment
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:321:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:322:51:: Wrong number of parameters
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:324:7:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:326:5:: syntax error

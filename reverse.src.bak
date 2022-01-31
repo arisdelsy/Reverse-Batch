@@ -31,12 +31,10 @@ program reverse;
   g_iDelayCnt : integer; 
   g_iWidget : integer;
   Select1   : integer;
-  --iPrompt   : integer;
-  --sPrompt   : string;
-  minLabel  : integer;
-  maxLabel  : integer;    
+  g_ciMaxPerScreen :integer;    
 
-  --Entry Modes
+  --Entry Modes are made to prevent deadlock 
+  -- If you dont have them the program is vulnerable and could lock up
   NoMode              : constant integer := 0;
   CustomerSelectMode  : constant integer := 1000;
   RecipeSelectMode    : constant integer := 1001;
@@ -49,12 +47,16 @@ program reverse;
   BatchCompleteMode   : constant integer := 1008;
 
 -- Aris added new modes
-  EnterName           : constant integer := 1009;
-  EnterStreet         : constant integer := 1010;
-  EnterTown           : constant integer := 1011;
-  EnterState          : constant integer := 1012;
-  EnterZip            : constant integer := 1013;
- -- 
+-- Entry Modes for customer entry
+  EnterOrderMode          : constant integer := 1009;
+  EnterNameMode           : constant integer := 1010;
+  EnterStreetMode         : constant integer := 1011;
+  EnterTownMode           : constant integer := 1012;
+  EnterStateMode          : constant integer := 1013;
+  EnterZipMode            : constant integer := 1014;
+ 
+ 
+ -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
 
 
@@ -70,15 +72,36 @@ program reverse;
   t_zip       : integer;
   Blank : constant string := ""; 
 
+  type DisplayRecord is
+    record 
+      sID : string; 
+      sName : string;
+			sInDT : string;
+    end record;     
+
+-- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
+-- amount of information which is a part of the DisplayRecord type (declared above)
+ type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
+  g_arDisplay : DisplayArrays; 
+
+  CustomersDB : CustomerDatabase;
   
-  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode);  -- Setup a Timer and Start                                
+  procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode); -- Setup a Timer and Start                                
   begin
   
     SetTimer(iTimer, iDuration);
     SetTimerMode(iTimer, itmMode);
     StartTimer(iTimer);
     
-  end;  
+  end; 
+
+  procedure WaitSS(iScale : integer);
+  begin
+    
+    g_iWaitSSScale := iScale;
+    SetupStartTimer(25, 10, TimerContinuous);
+  
+  end;   
 
   function CalcDecimal(rCountBy : real) : integer;  -- Calculates the amount of decimal positions  
     iDecimal : integer := 0;    
@@ -92,15 +115,98 @@ program reverse;
 
      return iDecimal; 
      
-  end; 
+  end;
 
-  procedure SelectIngredient1;
+  procedure ClearDisplayListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciMaxRecords 
+    loop
+      if g_arDisplay[i].sOrderNum = Blank then  
+        return;
+      end if;
+
+      g_arDisplay[i].sOrderNum := Blank;
+      g_arDisplay[i].sName := Blank; 
+
+    end loop;
+         
+  end;
+
+  procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
+    i : integer;
+  begin  
+  
+    for i := MinL2 to MaxL2 
+    loop
+      SetLabelText(i, Chr$(08)); -- 
+    end loop;
+
+
+
+  end; 
+  
+  procedure DisplayCustomersDB; 
+    i : integer;
+    j : integer;
+  begin 
+
+    -- Clear Text Boxes & Widgets
+    ClearWidgetsData;
+    
+    -- Clear Array
+    ClearDisplayListArray; 
+    
+    -- Sort DB or Get Based of Criteria                                       
+    CustomersDB.Sort(1);                                    
+    i := 1; 
+    
+    -- FillArray
+    if CustomersDB.GetFirst = SysOk then  
+
+      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item 
+      g_arDisplay[i].sName := CustomersDB.Name;  
+      i := 2;            
+ 
+      while CustomersDB.GetNext = SysOk  
+      loop         
+        if i <= g_ciMaxRecords then             
+          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
+      		g_arDisplay[i].sName := CustomersDB.Name;                                               
+          i := i + 1;                          
+        end if;       
+      end loop; 
+      
+    end if; 
+    
+    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
+    SelectScreen(g_ciCust);                                       
+    i := MinL2;  
+    SetSymbolState(g_iWidgetNum, 1);
+    g_iPage := 1;          
+    j := 1;   
+    
+    -- Populate Screen
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen   
+    loop    
+      SetLabelText(i, g_arDisplay[j].sOrderNum);
+      SetLabelText(i + 1, g_arDisplay[j].sName);  
+      i := i + 3;
+      j := j + 1;   
+    end loop;                            
+
+  end;   
+
+
+  --For Aris hehe :)
+  procedure SelectCustomer;
     iTouch : integer;
     i : integer;
   begin
 
     iTouch := g_iWidget;
-    for i := minL4 to maxL4
+    for i := minL2 to maxL2
     loop
       SetwidgetColor(i, "Black");
     end loop;
@@ -154,29 +260,90 @@ program reverse;
     else
       PromptUser(sPrompt);  
     end if;
-    EntryMode := iMode;
+    g_EntryMode := iMode;
     
   end;  
 
-  procedure Ready;  -- Initialization procedure
-  begin
- 
-    --UnLockMajorKeys;
-    setupScreen;
-    --SetLabelText(lbSts1, Blank);     
-    if GetUnits(1, g_uUnits) = SysOk then
-      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
-        g_iDecimal1 := CalcDecimal(g_rCountby); 
+--new changes Aris 
+handler UserEntry; -- Built in and 
+  sTemp : string;
+begin
+  sTemp := GetEntry;
+  ClosePrompt;
+
+  if g_Entrymode = EnterNameMode then 
+    SetLabelText(lbl225, sTemp);
+    SetPrintText(1, sTemp);
+    CustomersDB.Name := sTemp;
+    if CustomersDB.FindFirst(Customer_Name) = Sysok then
+      g_iUpdate := 1;
+      SetEntry(CustomersDB.Name);
+    else
+      g_iUpdate := 0;
+    end if;
+    --this is for blank
+  elsif g_Entrymode = EnterStreetMode then 
+    SetLabelText(lbl226, sTemp);
+    SetPrintText(2,sTemp);
+    CustomersDB.Street := sTemp;
+    if CustomersDB.FindFirst(Customer_Street) = Sysok then
+      g_iUpdate := 1;
+      SetEntry(CustomersDB.Street);
+    else
+      g_iUpdate := 0;
       end if;
-    end if;              
-    --Paused := No;
-    --BatchMode := Complete;  
-    --RefreshMainDisplay;
-    --SetWidgetVisibility(btnRPrnt, Voff);
-    EntryMode := NoMode;
-    SelectScreen(g_ciMain); 
+      --this is for blank
+  elsif g_Entrymode = EnterTownMode then 
+    SetLabelText(lbl227, sTemp);
+    SetPrintText(3,sTemp);
+    CustomersDB.Town := sTemp;
+    if CustomersDB.FindFirst(Customer_Town) = Sysok then
+      g_iUpdate := 1;
+      SetEntry(CustomersDB.TownStat);
+    else
+      g_iUpdate := 0;
+      end if;
+  elsif g_Entrymode = EnterStateMode then 
+    SetLabelText(lbl228, sTemp);
+    SetPrintText(4,sTemp);
+    CustomersDB.State := sTemp;
+    if CustomersDB.FindFirst(Customer_State) = Sysok then
+      g_iUpdate := 1;
+      SetEntry(CustomersDB.State);
+    else
+      g_iUpdate := 0;
+    end if;
+  elsif g_Entrymode = EnterZipMode then 
+    SetLabelText(lbl229, sTemp);
+    SetPrintText(5,sTemp);
+    CustomersDB.ZipCode := sTemp;
+    if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
+      g_iUpdate := 1;
+      SetEntry(IntegertoString(CustomersDB.ZipCode));
+    else
+      g_iUpdate := 0;
     
-  end;
+end;
+
+procedure Ready;  -- Initialization procedure
+begin
+
+  --UnLockMajorKeys;
+  setupScreen;
+  --SetLabelText(lbSts1, Blank);     
+  if GetUnits(1, g_uUnits) = SysOk then
+    if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+      g_iDecimal1 := CalcDecimal(g_rCountby); 
+    end if;
+  end if;              
+  --Paused := No;
+  --BatchMode := Complete;  
+  --RefreshMainDisplay;
+  --SetWidgetVisibility(btnRPrnt, Voff);
+  EntryMode := NoMode;
+  SelectScreen(g_ciMain); 
+  
+end;
 
 handler timer5Trip;
 begin
@@ -258,90 +425,29 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
 
     elsif g_iWidget = lbl224 then
-      PromptForEntry("Enter Order Number", CustomerProcessMode, Blank,2);
+      PromptForEntry("Enter Order Number", EnterOrderMode, Blank,1);
 
     elsif g_iWidget = lbl225 then
-      PromptForEntry("Enter Customer Name", EnterName, Blank,1);
+      PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
     
     elsif g_iWidget = lbl226 then
-      PromptForEntry("Enter Street", EnterStreet, Blank,1);
+      PromptForEntry("Enter Street", EnterStreetMode, Blank,1);
 
     elsif g_iWidget = lbl227 then
-      --EntryMode := NoMode;
-      PromptForEntry("Enter Town", EnterTown, Blank,1);
+      PromptForEntry("Enter Town", EnterTownMode, Blank,1);
 
     elsif g_iWidget = lbl228 then
-      --EntryMode := NoMode;
-      PromptForEntry("Enter State", EnterState, Blank,1);
+      PromptForEntry("Enter State", EnterStateMode, Blank,1);
 
     elsif g_iWidget = lbl229 then
-      --EntryMode := NoMode;
-      PromptForEntry("Enter Zipcode", EnterZip, Blank,2);
-
+      PromptForEntry("Enter Zipcode", EnterZipMode, Blank,2);
 
     end if;
 
     EnableHandler(WidgetClicked); 
    
   end;
---new changes Aris 
-handler UserEntry;
-  sTemp : string;
-begin
-  sTemp := GetEntry;
-  ClosePrompt;
 
-  if g_Entrymode = EnterName then 
-    SetLabelText(lbl225, sTemp);
-    SetPrintText(1, sTemp);
-    Customer.Name := sTemp;
-    if Customer.FindFirst(Customer_Name) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(Customer.Name);
-    else
-      g_iUpdate := 0;
-    end if;
-  elsif g_Entrymode = EnterStreet then 
-    SetLabelText(lbl226, sTemp);
-    SetPrintText(2,sTemp);
-    Customer.Street := sTemp;
-    if Customer.FindFirst(Customer_Street) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(Customer.Street);
-    else
-      g_iUpdate := 0;
-      end if;
-  elsif g_Entrymode = EnterTown then 
-    SetLabelText(lbl227, sTemp);
-    SetPrintText(3,sTemp);
-    Customer.Town := sTemp;
-    if Customer.FindFirst(Customer_Town) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(Customer.TownStat);
-    else
-      g_iUpdate := 0;
-      end if;
-  elsif g_Entrymode = EnterState then 
-    SetLabelText(lbl228, sTemp);
-    SetPrintText(4,sTemp);
-    Customer.State := sTemp;
-    if Customer.FindFirst(Customer_State) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(Customer.TownStat);
-    else
-      g_iUpdate := 0;
-    end if;
-  elsif g_Entrymode = EnterZip then 
-    SetLabelText(lbl229, sTemp);
-    SetPrintText(5,sTemp);
-    Customer.ZipCode := sTemp;
-    if Customer.FindFirst(Customer_ZipCode) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(IntegertoString(Customer.ZipCode));
-    else
-      g_iUpdate := 0;
-    
-end;
 
 
 begin
