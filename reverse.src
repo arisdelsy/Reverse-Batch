@@ -326,25 +326,25 @@ begin
     
 end;
 
-  procedure Ready;  -- Initialization procedure
-  begin
- 
-    --UnLockMajorKeys;
-    setupScreen;
-    --SetLabelText(lbSts1, Blank);     
-    if GetUnits(1, g_uUnits) = SysOk then
-      if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
-        g_iDecimal1 := CalcDecimal(g_rCountby); 
-      end if;
-    end if;              
-    --Paused := No;
-    --BatchMode := Complete;  
-    --RefreshMainDisplay;
-    --SetWidgetVisibility(btnRPrnt, Voff);
-    EntryMode := NoMode;
-    SelectScreen(g_ciMain); 
-    
-  end;
+procedure Ready;  -- Initialization procedure
+begin
+
+  --UnLockMajorKeys;
+  setupScreen;
+  --SetLabelText(lbSts1, Blank);     
+  if GetUnits(1, g_uUnits) = SysOk then
+    if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
+      g_iDecimal1 := CalcDecimal(g_rCountby); 
+    end if;
+  end if;              
+  --Paused := No;
+  --BatchMode := Complete;  
+  --RefreshMainDisplay;
+  --SetWidgetVisibility(btnRPrnt, Voff);
+  EntryMode := NoMode;
+  SelectScreen(g_ciMain); 
+  
+end;
 
 handler timer5Trip;
 begin
