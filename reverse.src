@@ -147,8 +147,6 @@ program reverse;
       SetLabelText(i, Chr$(08)); -- 
     end loop;
 
-
-
   end; 
   
   procedure DisplayCustomersDB; 
