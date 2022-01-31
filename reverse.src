@@ -285,7 +285,7 @@ begin
 
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    CustomersDB.Order := sTemp;
+    IntegerToString(CustomersDB.Order, 2) := sTemp;
     if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Name);
@@ -332,13 +332,14 @@ begin
     end if;
   elsif g_Entrymode = EnterZipCodeMode then 
     SetLabelText(lbl229, sTemp);
-    IntegertoString(CustomersDB.ZipCode) := sTemp;
+    IntegertoString(CustomersDB.ZipCode,2) := sTemp;
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
       SetEntry(IntegerToString(CustomersDB.ZipCode, 2));
     else
       g_iUpdate := 0;
-    end if;  
+    end if;
+  end if;  
 end;
 
 procedure Ready;  -- Initialization procedure
