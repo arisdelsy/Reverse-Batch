@@ -14,8 +14,14 @@ based on the recipe that is chosen, it will determine the target values for ceme
 -------------------------------------------------------------
 
 <h2>Then the batch starts</h2>
+<br>
 
--------------------------------------------------------------
-Data still missing from actual company for recipes: percentage amount of cement for each mix, whether the amount of water changes per recipe
-Note: separate customer info from batch type into two separate databases (this way customer is not tied to a specific recipe or product)  
--------------------------------------------------------------
+<h2>Info for us about the program</h2>
+<ul>
+  <li>Scale 1 = Cement</li>
+  <li>Scale 2 = Agregate</li>
+  <li>Customer name is the only required entry</li>
+  <li>Printed value needs to be the weight at the time of print</li>
+  <li>Target weight = Initial weight - Target Value</li>
+  <li>Printed value = initial weight - weight @ time of print</li>
+</ul>
