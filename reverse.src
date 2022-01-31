@@ -279,13 +279,16 @@ program reverse;
 --new changes Aris 
 handler UserEntry; -- Built in and 
   sTemp : string;
+  iTemp : integer;
 begin
   sTemp := GetEntry;
   ClosePrompt;
 
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    IntegerToString(CustomersDB.Order, 2) := sTemp;
+    iTemp := CustomersDB.Order;
+    IntegertoString(CustomersDB.Order, 2) := sTemp;
+    --IntegerToString(CustomersDB.Order, 2) := sTemp; this is the original line
     if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Name);
@@ -457,7 +460,7 @@ handler WidgetClicked;
       PromptForEntry("Enter State", EnterStateMode, Blank,1);
 
     elsif g_iWidget = lbl229 then
-      PromptForEntry("Enter Zipcode", EnterZipMode, Blank,2);
+      PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
     end if;
 
