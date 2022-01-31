@@ -29,11 +29,13 @@ program reverse;
   g_iTotalNbrIngredients : integer;    
   g_iCurrentIngredient : integer;    
   g_iDelayCnt : integer; 
-  g_iWidget : integer;
+  g_iWidget : integer; -- this is for widget alias 
+  g_iWidgetNum : integer; -- this is for columns
   Select1   : integer;
   g_ciMaxPerScreen :integer;
   g_iWaitSSScale : integer;
-  g_iUpdate : integer;    
+  g_iUpdate : integer;
+  g_iPage : integer;    
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -330,13 +332,13 @@ begin
     end if;
   elsif g_Entrymode = EnterZipCodeMode then 
     SetLabelText(lbl229, sTemp);
-    CustomersDB.ZipCode := sTemp;
+    IntegertoString(CustomersDB.ZipCode) := sTemp;
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
       SetEntry(IntegertoString(CustomersDB.ZipCode, 2));
     else
       g_iUpdate := 0;
-    
+    end if;  
 end;
 
 procedure Ready;  -- Initialization procedure
