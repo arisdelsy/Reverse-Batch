@@ -1,12 +1,7 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:101:5:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:126:25:: Not a member of qualified type
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:130:22:: Not a member of qualified type
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:168:22:: Not a member of qualified type
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:175:26:: Not a member of qualified type
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:168:46:: Type mismatch in assignment
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:175:50:: Type mismatch in assignment
 C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:186:20:: Undefined identifier
 C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:187:5:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:191:26:: Not a member of qualified type
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:193:38:: Not a member of qualified type
 C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:279:7:: Undefined identifier
 C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:282:7:: Undefined identifier
 C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:290:7:: Undefined identifier
