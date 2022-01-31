@@ -31,7 +31,8 @@ program reverse;
   g_iDelayCnt : integer; 
   g_iWidget : integer;
   Select1   : integer;
-  g_ciMaxPerScreen :integer;    
+  g_ciMaxPerScreen :integer;
+  g_iWaitSSScale : integer;    
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -74,9 +75,8 @@ program reverse;
 
   type DisplayRecord is
     record 
-      sID : string; 
+      sOrderNum : string; 
       sName : string;
-			sInDT : string;
     end record;     
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
