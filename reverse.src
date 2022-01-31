@@ -31,8 +31,7 @@ program reverse;
   g_iDelayCnt : integer; 
   g_iWidget : integer;
   Select1   : integer;
-  --iPrompt   : integer;
-  --sPrompt   : string;    
+  g_ciMaxPerScreen :integer;    
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -207,7 +206,7 @@ program reverse;
   begin
 
     iTouch := g_iWidget;
-    for i := minL4 to maxL4
+    for i := minL2 to maxL2
     loop
       SetwidgetColor(i, "Black");
     end loop;
