@@ -333,7 +333,7 @@ begin
     CustomersDB.ZipCode := sTemp;
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
-      SetEntry(IntegertoString(CustomersDB.ZipCode));
+      SetEntry(IntegertoString(CustomersDB.ZipCode, 2));
     else
       g_iUpdate := 0;
     
