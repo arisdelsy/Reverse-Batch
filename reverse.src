@@ -81,7 +81,7 @@ program reverse;
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
- type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
+  type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
   g_arDisplay : DisplayArrays; 
 
   CustomersDB : CustomerDatabase;
