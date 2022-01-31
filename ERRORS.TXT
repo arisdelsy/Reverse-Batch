@@ -1,18 +1,6 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:168:46:: Type mismatch in assignment
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:175:50:: Type mismatch in assignment
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:186:20:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:187:5:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:279:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:282:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:290:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:293:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:301:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:302:28:: Not a member of qualified type
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:304:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:311:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:314:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:319:28:: Type mismatch in assignment
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:321:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:322:51:: Wrong number of parameters
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:324:7:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:326:5:: syntax error
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:188:20:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:189:5:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:286:26:: Type mismatch in assignment
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:333:28:: Type mismatch in assignment
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:336:51:: Wrong number of parameters
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:340:5:: syntax error

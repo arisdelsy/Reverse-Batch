@@ -167,14 +167,14 @@ program reverse;
     -- FillArray
     if CustomersDB.GetFirst = SysOk then  
 
-      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item 
+      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item 
       g_arDisplay[i].sName := CustomersDB.Name;  
       i := 2;            
  
       while CustomersDB.GetNext = SysOk  
       loop         
         if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
+          g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  
       		g_arDisplay[i].sName := CustomersDB.Name;                                               
           i := i + 1;                          
         end if;       
@@ -333,7 +333,7 @@ begin
     CustomersDB.ZipCode := sTemp;
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
-      SetEntry(IntegertoString(CustomersDB.ZipCode));
+      SetEntry(IntegerToString(CustomersDB.ZipCode, 2));
     else
       g_iUpdate := 0;
     
