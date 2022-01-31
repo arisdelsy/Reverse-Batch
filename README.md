@@ -22,4 +22,6 @@ based on the recipe that is chosen, it will determine the target values for ceme
   <li>Scale 2 = Agregate</li>
   <li>Customer name is the only required entry</li>
   <li>Printed value needs to be the weight at the time of print</li>
+  <li>Target weight = Initial weight - Target Value</li>
+  <li>Printed value = initial weight - weight @ time of print</li>
 </ul>
