@@ -286,9 +286,7 @@ begin
 
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    iTemp := CustomersDB.Order;
-    IntegertoString(iTemp, 2) := sTemp;
-    --IntegerToString(CustomersDB.Order, 2) := sTemp; this is the original line
+    CustomersDB.Order := StringToInteger(sTemp); --NEEDS FIX 
     if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Name);
@@ -335,10 +333,10 @@ begin
     end if;
   elsif g_Entrymode = EnterZipCodeMode then 
     SetLabelText(lbl229, sTemp);
-    IntegertoString(CustomersDB.ZipCode,2) := sTemp;
+    CustomersDB.ZipCode := StringToInteger(sTemp); 
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
-      SetEntry(IntegerToString(CustomersDB.ZipCode, 2));
+      SetEntry(IntegerToString(CustomersDB.ZipCode,5));
     else
       g_iUpdate := 0;
     end if;
