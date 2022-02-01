@@ -120,6 +120,19 @@ program reverse;
      return iDecimal; 
      
   end;
+  -- FOR STEVEN
+  -- r1 = BTN 108-111
+  -- r2 = BTN 112-116
+  -- if g_iwidget >= 108 and g_iwidget <= 111 then 
+  --  if r1_select = true and r1currrect_select= g_iwidget then 
+  --    r1_select = False;
+  --  else 
+  --    r1_select = True;
+  --    r1currect_select := g_iwidget;
+  --  end if;
+  -- end if;
+  -- this is pseudocode
+
 
   procedure ClearDisplayListArray;  -- Clear Display List Array
     i : integer;
