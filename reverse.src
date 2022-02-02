@@ -18,7 +18,7 @@ program reverse;
   g_iDownload : stored integer;
   g_sTmpPassword : string;  
   g_rCountby : real;    
-  --g_bUpdate : boolean;
+  --g_ibUpdate : boolean;
   g_iDecimal1 : integer;  
   g_uUnits : Units; 
   g_sysResult : SysCode;   
@@ -36,6 +36,7 @@ program reverse;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
+  g_sysResult : SysCode;
   r1currrect_select : integer;   
   r2currrect_select : integer; 
 
@@ -165,6 +166,18 @@ program reverse;
     end loop;
 
   end; 
+
+  procedure ClearCustomerTemp;
+  begin
+
+    t_order     := 0;
+    t_customer  := Blank;
+    t_street    := Blank;
+    t_town      := Blank;
+    t_state     := Blank;
+    t_zip       := 0;
+
+  end;
   
   procedure DisplayCustomersDB; 
     i : integer;
@@ -221,7 +234,7 @@ program reverse;
     i : integer;
   begin
 
-    for i := minL2 to maxL2
+    for i := minL4 to maxL4
     loop
       SetwidgetColor(i, "Black");
     end loop;
@@ -256,7 +269,7 @@ program reverse;
   begin
 
     if r1currect_select = 108 and r2currect_select = 112 then
-      
+      t_psi := ProductDB.PSI;
 
   end;
 
@@ -328,76 +341,84 @@ begin
   sTemp := GetEntry;
   ClosePrompt;
 
+  --This is only going to show up for new customer entries
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    CustomersDB.Order := StringToInteger(sTemp);
-    t_order := CustomersDB.Order; 
-    if CustomersDB.FindFirst(Customer_Name) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(CustomersDB.Name);
-      DisplayBatchComplete; -- might need change
-    else
-      g_iUpdate := 0;
-    end if;
+    t_order := sTemp; 
+    --CustomersDB.Order := StringToInteger(sTemp);
+    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
+      --g_iUpdate := 1; --boolean
+      --SetEntry(CustomersDB.Name);
+    --else
+      --g_iUpdate := 0;
+    --end if;
   elsif g_Entrymode = EnterNameMode then 
-    SetLabelText(lbl225, sTemp);
-    CustomersDB.Name := sTemp;
-    t_customer := CustomersDB.Name;
-    if CustomersDB.FindFirst(Customer_Name) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(CustomersDB.Name);
-    else
-      g_iUpdate := 0;
-    end if;
+    SetLabelText(lbl225, sTemp);-
+    t_customer := sTemp;
+    --CustomersDB.Name := sTemp;
+    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Name);
+    --else
+      --g_iUpdate := 0;
+    --end if;
     --this is for blank
   elsif g_Entrymode = EnterStreetMode then 
     SetLabelText(lbl226, sTemp);
-    CustomersDB.Street := sTemp;
-    t_street := CustomersDB.Street;
-    if CustomersDB.FindFirst(Customer_Street) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(CustomersDB.Street);
-      DisplayBatchComplete;
-    else
-      g_iUpdate := 0;
-      DisplayBatchComplete;
-      end if;
+    t_street := sTemp;
+    --CustomersDB.Street := sTemp;
+    --if CustomersDB.FindFirst(Customer_Street) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Street);
+    --else
+      --g_iUpdate := 0;
+      --end if;
       --this is for blank
   elsif g_Entrymode = EnterTownMode then 
     SetLabelText(lbl227, sTemp);
-    CustomersDB.Town := sTemp;
-    t_town := CustomersDB.Town;
-    if CustomersDB.FindFirst(Customer_Town) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(CustomersDB.Town);
-      DisplayBatchComplete;
-    else
-      g_iUpdate := 0;
-      DisplayBatchComplete;
-      end if;
+    t_town := sTemp;
+    --CustomersDB.Town := sTemp;
+    --if CustomersDB.FindFirst(Customer_Town) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Town);
+    --else
+      --g_iUpdate := 0;
+      --end if;
   elsif g_Entrymode = EnterStateMode then 
     SetLabelText(lbl228, sTemp);
-    CustomersDB.State := sTemp;
-    t_state := CustomersDB.State;
-    if CustomersDB.FindFirst(Customer_State) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(CustomersDB.State);
-      DisplayBatchComplete;
-    else
-      g_iUpdate := 0;
-      DisplayBatchComplete;
-    end if;
+    t_state := sTemp;
+    --CustomersDB.State := sTemp;
+    --if CustomersDB.FindFirst(Customer_State) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.State);
+    --else
+      --g_iUpdate := 0;
+    --end if;
   elsif g_Entrymode = EnterZipCodeMode then 
     SetLabelText(lbl229, sTemp);
-    CustomersDB.ZipCode := StringToInteger(sTemp);
-    t_zip := CustomersDB.ZipCode; 
-    if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
-      g_iUpdate := 1;
-      SetEntry(IntegerToString(CustomersDB.ZipCode,5));
-    else
-      g_iUpdate := 0;
-    end if;
+    t_zip := sTemp;
+    --CustomersDB.ZipCode := StringToInteger(sTemp);
+    --if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(IntegerToString(CustomersDB.ZipCode,5));
+    --else
+      --g_iUpdate := 0;
+    --end if;
   end if;  
+end;
+
+procedure ProcessingCustomerEntry;
+begin
+  CustomersDB.Order := t_order;
+  if CustomersDB.FindFirst(Customer_Name) = Sysok then
+    g_iUpdate := 1; 
+    SetEntry(CustomersDB.Name);
+  else
+    g_iUpdate := 0;
+  end if;
+
+
+
 end;
 
 procedure Ready;  -- Initialization procedure
@@ -516,6 +537,11 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+
+    elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
+      ProcessingCustomerEntry;
+      ClearCustomerTemp;
+      EntryMode := ProductSelectMode;
 
     end if;
 
