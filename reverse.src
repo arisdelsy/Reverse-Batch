@@ -36,8 +36,12 @@ program reverse;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
+<<<<<<< HEAD
   r1currrect_select : integer;   
   r2currrect_select : integer; 
+=======
+  sTemp : string;    
+>>>>>>> 4e6682ecb1cf6d78e68931a29802e862243420df
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -323,23 +327,26 @@ program reverse;
 
 --new changes Aris 
 handler UserEntry; -- Built in and 
-  sTemp : string;
+  --sTemp : string;
 begin
   sTemp := GetEntry;
   ClosePrompt;
 
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    IntegerToString(CustomersDB.Order, 2) := sTemp;
+    CustomersDB.Order := StringToInteger(sTemp);
+    t_order := CustomersDB.Order; 
     if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Name);
+      DisplayBatchComplete; -- might need change
     else
       g_iUpdate := 0;
     end if;
   elsif g_Entrymode = EnterNameMode then 
     SetLabelText(lbl225, sTemp);
     CustomersDB.Name := sTemp;
+    t_customer := CustomersDB.Name;
     if CustomersDB.FindFirst(Customer_Name) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Name);
@@ -350,37 +357,47 @@ begin
   elsif g_Entrymode = EnterStreetMode then 
     SetLabelText(lbl226, sTemp);
     CustomersDB.Street := sTemp;
+    t_street := CustomersDB.Street;
     if CustomersDB.FindFirst(Customer_Street) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Street);
+      DisplayBatchComplete;
     else
       g_iUpdate := 0;
+      DisplayBatchComplete;
       end if;
       --this is for blank
   elsif g_Entrymode = EnterTownMode then 
     SetLabelText(lbl227, sTemp);
     CustomersDB.Town := sTemp;
+    t_town := CustomersDB.Town;
     if CustomersDB.FindFirst(Customer_Town) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.Town);
+      DisplayBatchComplete;
     else
       g_iUpdate := 0;
+      DisplayBatchComplete;
       end if;
   elsif g_Entrymode = EnterStateMode then 
     SetLabelText(lbl228, sTemp);
     CustomersDB.State := sTemp;
+    t_state := CustomersDB.State;
     if CustomersDB.FindFirst(Customer_State) = Sysok then
       g_iUpdate := 1;
       SetEntry(CustomersDB.State);
+      DisplayBatchComplete;
     else
       g_iUpdate := 0;
+      DisplayBatchComplete;
     end if;
   elsif g_Entrymode = EnterZipCodeMode then 
     SetLabelText(lbl229, sTemp);
-    IntegertoString(CustomersDB.ZipCode,2) := sTemp;
+    CustomersDB.ZipCode := StringToInteger(sTemp);
+    t_zip := CustomersDB.ZipCode; 
     if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
       g_iUpdate := 1;
-      SetEntry(IntegerToString(CustomersDB.ZipCode, 2));
+      SetEntry(IntegerToString(CustomersDB.ZipCode,5));
     else
       g_iUpdate := 0;
     end if;
@@ -502,13 +519,25 @@ handler WidgetClicked;
       PromptForEntry("Enter State", EnterStateMode, Blank,1);
 
     elsif g_iWidget = lbl229 then
-      PromptForEntry("Enter Zipcode", EnterZipMode, Blank,2);
+      PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
     end if;
 
     EnableHandler(WidgetClicked); 
    
   end;
+
+procedure DisplayBatchComplete;
+begin
+  if g_EntryMode = BatchCompleteMode;
+    SetLabelText(lblCust, t_customer);
+    SetLabelText(lblShp1, t_street);
+    SetLabelText(lblShp2, t_town);
+    SetLabelText(lblShp3, t_state);
+    --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
+    --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
+    end if;
+end;
 
 
 
