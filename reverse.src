@@ -35,7 +35,9 @@ program reverse;
   g_ciMaxPerScreen :integer;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
-  g_iPage : integer;    
+  g_iPage : integer;
+  r1currrect_select : integer;   
+  r2currrect_select : integer; 
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -74,7 +76,22 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : integer;
-  Blank : constant string := ""; 
+  Blank : constant string := "";
+
+  --Temp variables for product information
+  t_psi       : integer;
+  t_qtyconc   : real;
+  t_sand      : real;
+  t_cement    : real;
+  t_wat_gal   : real;
+  t_calcium   : integer;
+  t_air_ent   : real;
+  t_antihydr  : real;
+  t_retard    : real;
+
+  type boolean is (False,True);
+  r1_select : boolean;
+  r2_select : boolean;
 
   type DisplayRecord is
     record 
@@ -120,19 +137,6 @@ program reverse;
      return iDecimal; 
      
   end;
-  -- FOR STEVEN
-  -- r1 = BTN 108-111
-  -- r2 = BTN 112-116
-  -- if g_iwidget >= 108 and g_iwidget <= 111 then 
-  --  if r1_select = true and r1currrect_select= g_iwidget then 
-  --    r1_select = False;
-  --  else 
-  --    r1_select = True;
-  --    r1currect_select := g_iwidget;
-  --  end if;
-  -- end if;
-  -- this is pseudocode
-
 
   procedure ClearDisplayListArray;  -- Clear Display List Array
     i : integer;
@@ -221,8 +225,38 @@ program reverse;
     loop
       SetwidgetColor(i, "Black");
     end loop;
-    
-    
+
+   --r1 = BTN 108-111
+   --r2 = BTN 112-116
+    if g_iwidget >= 108 and g_iwidget <= 111 then 
+      if r1_select = true and r1currrect_select= g_iwidget then 
+        r1_select = False;
+      else 
+        r1_select = True;
+        r1currect_select := g_iwidget;
+      end if;
+    end if;
+
+    if g_iwidget >= 112 and g_iwidget <= 116 then 
+      if r2_select = true and r2currrect_select= g_iwidget then 
+        r2_select = False;
+      else 
+        r2_select = True;
+        r2currect_select := g_iwidget;
+      end if;
+    end if;
+
+    if r1_select = true and r2_select = true then
+      SetWidgetVisibility(btnNxt, Von);
+    end if; 
+
+  end;
+
+  procedure LoadProduct;
+  begin
+
+    if r1currect_select = 108 and r2currect_select = 112 then
+      ProductDB
 
   end;
 
