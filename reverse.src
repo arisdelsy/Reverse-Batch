@@ -36,12 +36,8 @@ program reverse;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
-<<<<<<< HEAD
   r1currrect_select : integer;   
   r2currrect_select : integer; 
-=======
-  sTemp : string;    
->>>>>>> 4e6682ecb1cf6d78e68931a29802e862243420df
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -260,7 +256,7 @@ program reverse;
   begin
 
     if r1currect_select = 108 and r2currect_select = 112 then
-      ProductDB
+      
 
   end;
 
@@ -327,7 +323,7 @@ program reverse;
 
 --new changes Aris 
 handler UserEntry; -- Built in and 
-  --sTemp : string;
+  sTemp : string;
 begin
   sTemp := GetEntry;
   ClosePrompt;
