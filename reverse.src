@@ -279,7 +279,7 @@ program reverse;
     i : integer;
   begin
 
-    iTouch := g_iWidget mod 2; --there is two columns in the page so we are dividing by 2  
+    iTouch := g_iWidget mod 2; --there is two columns on the screen so we are dividing by 2  
     for i := minL2 to maxL2
     loop
       SetwidgetColor(i, "Black");
@@ -342,16 +342,18 @@ begin
   ClosePrompt;
 
   --This is only going to show up for new customer entries
-  if g_Entrymode = EnterOrderMode then
-    if sTemp = Blank then 
-    GetEntry 
+  if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    t_order := sTemp;
-    if sTemp <> Blank then
-          PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-        else
-          g_arDisplay[i] := Blank;
-          g_arDisplay[i] := Blank; -- check this NEEDS REVISION
+    t_order := sTemp; -- will this be used for printing, variable t_order?
+    CustomersDB := sTemp;
+    if CustomersDB.FindFirst(Customer_Order) = SysOk then
+      g_iUpdate := 1; 
+    elsif sTemp = Blank then
+    
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      
+
+      
     --CustomersDB.Order := StringToInteger(sTemp);
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
       --g_iUpdate := 1; --boolean
@@ -360,14 +362,8 @@ begin
       --g_iUpdate := 0;
     --end if;
   elsif g_Entrymode = EnterNameMode then 
-    SetLabelText(lbl225, sTemp);-
+    SetLabelText(lbl225, sTemp);
     t_customer := sTemp;
-    if sTemp <> Blank then
-      PromptForEntry("Invalid Customer Entry - Retry", EnterOrderMode, Blank, 1);
-      else
-      g_arDisplay  
-    
-    end if;
     --CustomersDB.Name := sTemp;
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
       --g_iUpdate := 1;
@@ -442,6 +438,7 @@ begin
   else
     g_iUpdate := 0;
   end if;
+  if CustomersDB.
 
 
 
