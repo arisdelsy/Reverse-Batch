@@ -338,13 +338,20 @@ program reverse;
 handler UserEntry; -- Built in and 
   sTemp : string;
 begin
-  sTemp := GetEntry;
+  sTemp := GetEntry; -- is the action of getting user entry
   ClosePrompt;
 
   --This is only going to show up for new customer entries
-  if g_Entrymode = EnterOrderMode then 
+  if g_Entrymode = EnterOrderMode then
+    if sTemp = Blank then 
+    GetEntry 
     SetLabelText(lbl224, sTemp);
-    t_order := sTemp; 
+    t_order := sTemp;
+    if sTemp <> Blank then
+          PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+        else
+          g_arDisplay[i] := Blank;
+          g_arDisplay[i] := Blank; -- check this NEEDS REVISION
     --CustomersDB.Order := StringToInteger(sTemp);
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
       --g_iUpdate := 1; --boolean
@@ -355,6 +362,12 @@ begin
   elsif g_Entrymode = EnterNameMode then 
     SetLabelText(lbl225, sTemp);-
     t_customer := sTemp;
+    if sTemp <> Blank then
+      PromptForEntry("Invalid Customer Entry - Retry", EnterOrderMode, Blank, 1);
+      else
+      g_arDisplay  
+    
+    end if;
     --CustomersDB.Name := sTemp;
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
       --g_iUpdate := 1;
@@ -410,12 +423,26 @@ end;
 procedure ProcessingCustomerEntry;
 begin
   CustomersDB.Order := t_order;
-  if CustomersDB.FindFirst(Customer_Name) = Sysok then
+  if CustomersDB.FindFirst(Customer_Order) = Sysok then
     g_iUpdate := 1; 
+    SetEntry(CustomersDB.Order);
+  else
+    g_iUpdate := 0; 
+  end if;
+  CustomersDB.Name := sTemp;
+  if CustomersDB.FindFirst(Customer_Name) = Sysok then
+    g_iUpdate := 1;
     SetEntry(CustomersDB.Name);
   else
     g_iUpdate := 0;
   end if;
+  if CustomersDB.FindFirst(Customer_Name) = Sysok then
+    g_iUpdate := 1;
+    SetEntry(CustomersDB.Name);
+  else
+    g_iUpdate := 0;
+  end if;
+
 
 
 
