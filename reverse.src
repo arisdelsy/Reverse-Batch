@@ -422,7 +422,6 @@ begin
   CustomersDB.Order := t_order;
   if CustomersDB.FindFirst(Customer_Order) = Sysok then
     g_iUpdate := 1;
-    CustomersDB.Add 
     --SetEntry(CustomersDB.Order); 
   else
     g_iUpdate := 0; 
@@ -430,6 +429,7 @@ begin
   CustomersDB.Name := t_customer;
   if CustomersDB.FindFirst(Customer_Name) = Sysok then
     g_iUpdate := 1;
+    CustomersDB.Add; 
 
     --SetEntry(CustomersDB.Name);
   elsif 
@@ -439,6 +439,7 @@ begin
   CustomersDB.Street := t_street;
   if CustomersDB.FindFirst(Customer_Street) = Sysok then
     g_iUpdate := 1;
+    CustomersDB.Add; 
     --SetEntry(CustomersDB.Name);
   else
     g_iUpdate := 0;
@@ -447,6 +448,7 @@ begin
   CustomersDB.Town := t_town;
   if CustomersDB.FindFirst(Customer_Town) = Sysok then 
     g_iUpdate := 1;
+    CustomersDB.Add; 
   else 
     g_iUpdate := 0;
   end if;
@@ -454,12 +456,14 @@ begin
   CustomersDB.State := t_state;
   if CustomersDB.FindFirst(Customer_State) = Sysok then 
     g_iUpdate := 1;
+    CustomersDB.Add; 
   else
     g_iUpdate := 0; 
   end if;
   CustomersDB.ZipCode := t_zip;
   if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
     g_iUpdate := 1;
+    CustomersDB.Add; 
   else 
     g_iUpdate := 0;
   end if;
