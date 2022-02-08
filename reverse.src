@@ -39,6 +39,7 @@ program reverse;
   g_sysResult : SysCode;
   r1currrect_select : integer;   
   r2currrect_select : integer; 
+  
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -279,7 +280,7 @@ program reverse;
     i : integer;
   begin
 
-    iTouch := g_iWidget mod 2; --there is two columns in the page so we are dividing by 2  
+    iTouch := g_iWidget mod 2; --there is two columns on the screen so we are dividing by 2  
     for i := minL2 to maxL2
     loop
       SetwidgetColor(i, "Black");
@@ -338,13 +339,22 @@ program reverse;
 handler UserEntry; -- Built in and 
   sTemp : string;
 begin
-  sTemp := GetEntry;
+  sTemp := GetEntry; -- is the action of getting user entry
   ClosePrompt;
 
   --This is only going to show up for new customer entries
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
-    t_order := sTemp; 
+    t_order := sTemp; -- will this be used for printing, variable t_order?
+    CustomersDB := sTemp;
+    if CustomersDB.FindFirst(Customer_Order) = SysOk then
+      g_iUpdate := 1; 
+    elsif sTemp = Blank then
+    
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      
+
+      
     --CustomersDB.Order := StringToInteger(sTemp);
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
       --g_iUpdate := 1; --boolean
@@ -407,17 +417,56 @@ begin
   end if;  
 end;
 
-procedure ProcessingCustomerEntry;
+procedure ProcessingCustomerEntry(sTemp :string);
 begin
   CustomersDB.Order := t_order;
+  if CustomersDB.FindFirst(Customer_Order) = Sysok then
+    g_iUpdate := 1;
+    CustomersDB.Add 
+    --SetEntry(CustomersDB.Order); 
+  else
+    g_iUpdate := 0; 
+  end if;
+  CustomersDB.Name := t_customer;
   if CustomersDB.FindFirst(Customer_Name) = Sysok then
-    g_iUpdate := 1; 
-    SetEntry(CustomersDB.Name);
+    g_iUpdate := 1;
+
+    --SetEntry(CustomersDB.Name);
+  elsif 
+    g_iUpdate := 0;
+  end if;
+
+  CustomersDB.Street := t_street;
+  if CustomersDB.FindFirst(Customer_Street) = Sysok then
+    g_iUpdate := 1;
+    --SetEntry(CustomersDB.Name);
   else
     g_iUpdate := 0;
   end if;
 
+  CustomersDB.Town := t_town;
+  if CustomersDB.FindFirst(Customer_Town) = Sysok then 
+    g_iUpdate := 1;
+  else 
+    g_iUpdate := 0;
+  end if;
 
+  CustomersDB.State := t_state;
+  if CustomersDB.FindFirst(Customer_State) = Sysok then 
+    g_iUpdate := 1;
+  else
+    g_iUpdate := 0; 
+  end if;
+  CustomersDB.ZipCode := t_zip;
+  if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
+    g_iUpdate := 1;
+  else 
+    g_iUpdate := 0;
+  end if;
+end;
+procedure RetrieveEntry;
+begin 
+  if CustomersDB.FindNext(Customer)
 
 end;
 
