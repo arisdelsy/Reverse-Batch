@@ -353,7 +353,7 @@ begin
       --g_iUpdate := 0;
     --end if;
   elsif g_Entrymode = EnterNameMode then 
-    SetLabelText(lbl225, sTemp);-
+    SetLabelText(lbl225, sTemp);
     t_customer := sTemp;
     --CustomersDB.Name := sTemp;
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
