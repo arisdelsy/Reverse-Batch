@@ -342,18 +342,22 @@ begin
   sTemp := GetEntry; -- is the action of getting user entry
   ClosePrompt;
 
+
+  --Processcustomerentry? in each individual elif condition?
+
   --This is only going to show up for new customer entries
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
     t_order := sTemp; -- will this be used for printing, variable t_order?
-    CustomersDB := sTemp;
-    if CustomersDB.FindFirst(Customer_Order) = SysOk then
-      g_iUpdate := 1; 
-    elsif sTemp = Blank then
+    --CustomersDB := sTemp;
     
-        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-      
-
+    -----------------------------------------------------
+    --if CustomersDB.FindFirst(Customer_Order) = SysOk then
+      --g_iUpdate := 1; 
+    --elsif sTemp = Blank then
+        --PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+    -- THIS WAS AN ATTEMPT TO VERIFY IF STEMP IS BLANK  
+    ------------------------
       
     --CustomersDB.Order := StringToInteger(sTemp);
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
@@ -415,11 +419,21 @@ begin
       --g_iUpdate := 0;
     --end if;
   end if;  
+
 end;
+
 
 procedure ProcessingCustomerEntry(sTemp :string);
 begin
+
   CustomersDB.Order := t_order;
+  CustomersDB.Name := t_customer;
+  CustomersDB.Street := t_street;
+  CustomersDB.Town := t_town;
+  CustomersDB.State := t_state;
+  CustomersDB.Zip := t_zip;
+  g_sysReslut := CustomersDB.Add;
+
   if CustomersDB.FindFirst(Customer_Order) = Sysok then
     g_iUpdate := 1;
     --SetEntry(CustomersDB.Order); 
@@ -429,8 +443,8 @@ begin
   CustomersDB.Name := t_customer;
   if CustomersDB.FindFirst(Customer_Name) = Sysok then
     g_iUpdate := 1;
-    CustomersDB.Add; 
-
+  
+--this should be appended
     --SetEntry(CustomersDB.Name);
   elsif 
     g_iUpdate := 0;
@@ -438,8 +452,7 @@ begin
 
   CustomersDB.Street := t_street;
   if CustomersDB.FindFirst(Customer_Street) = Sysok then
-    g_iUpdate := 1;
-    CustomersDB.Add; 
+    g_iUpdate := 1; 
     --SetEntry(CustomersDB.Name);
   else
     g_iUpdate := 0;
@@ -448,7 +461,6 @@ begin
   CustomersDB.Town := t_town;
   if CustomersDB.FindFirst(Customer_Town) = Sysok then 
     g_iUpdate := 1;
-    CustomersDB.Add; 
   else 
     g_iUpdate := 0;
   end if;
@@ -456,14 +468,14 @@ begin
   CustomersDB.State := t_state;
   if CustomersDB.FindFirst(Customer_State) = Sysok then 
     g_iUpdate := 1;
-    CustomersDB.Add; 
+
   else
     g_iUpdate := 0; 
   end if;
   CustomersDB.ZipCode := t_zip;
   if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
     g_iUpdate := 1;
-    CustomersDB.Add; 
+
   else 
     g_iUpdate := 0;
   end if;
