@@ -36,9 +36,8 @@ program reverse;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
-  g_sysResult : SysCode;
-  r1currrect_select : integer;   
-  r2currrect_select : integer; 
+  r1current_select : integer;   
+  r2current_select : integer; 
   
 
   --Entry Modes are made to prevent deadlock 
@@ -242,21 +241,21 @@ program reverse;
 
    --r1 = BTN 108-111
    --r2 = BTN 112-116
-    if g_iwidget >= 108 and g_iwidget <= 111 then 
-      if r1_select = true and r1currrect_select= g_iwidget then 
-        r1_select = False;
+    if g_iWidget >= 108 and g_iWidget <= 111 then 
+      if r1_select = True and r1current_select = g_iWidget then 
+        r1_select := False;
       else 
-        r1_select = True;
-        r1currect_select := g_iwidget;
+        r1_select := True;
+        r1current_select := g_iWidget;
       end if;
     end if;
 
-    if g_iwidget >= 112 and g_iwidget <= 116 then 
-      if r2_select = true and r2currrect_select= g_iwidget then 
-        r2_select = False;
+    if g_iWidget >= 112 and g_iWidget <= 116 then 
+      if r2_select = true and r2current_select= g_iWidget then 
+        r2_select := False;
       else 
-        r2_select = True;
-        r2currect_select := g_iwidget;
+        r2_select := True;
+        r2current_select := g_iWidget;
       end if;
     end if;
 
@@ -269,9 +268,9 @@ program reverse;
   procedure LoadProduct;
   begin
 
-    if r1currect_select = 108 and r2currect_select = 112 then
+    if r1current_select = 108 and r2current_select = 112 then
       t_psi := ProductDB.PSI;
-
+    end if;
   end;
 
   --For Aris hehe :)
@@ -342,22 +341,18 @@ begin
   sTemp := GetEntry; -- is the action of getting user entry
   ClosePrompt;
 
-
-  --Processcustomerentry? in each individual elif condition?
-
   --This is only going to show up for new customer entries
   if g_Entrymode = EnterOrderMode then 
     SetLabelText(lbl224, sTemp);
     t_order := sTemp; -- will this be used for printing, variable t_order?
-    --CustomersDB := sTemp;
+    CustomersDB := sTemp;
+    if CustomersDB.FindFirst(Customer_Order) = SysOk then
+      g_iUpdate := 1; 
+    elsif sTemp = Blank then
     
-    -----------------------------------------------------
-    --if CustomersDB.FindFirst(Customer_Order) = SysOk then
-      --g_iUpdate := 1; 
-    --elsif sTemp = Blank then
-        --PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-    -- THIS WAS AN ATTEMPT TO VERIFY IF STEMP IS BLANK  
-    ------------------------
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      
+
       
     --CustomersDB.Order := StringToInteger(sTemp);
     --if CustomersDB.FindFirst(Customer_Name) = Sysok then
@@ -419,67 +414,42 @@ begin
       --g_iUpdate := 0;
     --end if;
   end if;  
-
 end;
-
 
 procedure ProcessingCustomerEntry(sTemp :string);
 begin
 
-  CustomersDB.Order := t_order;
+  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
   CustomersDB.Name := t_customer;
   CustomersDB.Street := t_street;
   CustomersDB.Town := t_town;
   CustomersDB.State := t_state;
   CustomersDB.Zip := t_zip;
-  g_sysResult := CustomersDB.Add;
 
-  if CustomersDB.FindFirst(Customer_Order) = Sysok then
-    g_iUpdate := 1;
-    --SetEntry(CustomersDB.Order); 
-  else
-    g_iUpdate := 0; 
-  end if;
-  CustomersDB.Name := t_customer;
-  if CustomersDB.FindFirst(Customer_Name) = Sysok then
-    g_iUpdate := 1;
+  g_sysResult := CustomersDB.FindFirst(Customer_Order)
   
---this should be appended
-    --SetEntry(CustomersDB.Name);
-  elsif 
-    g_iUpdate := 0;
-  end if;
+  CustomersDB.Add;
+  if t_customer <> Blank then
+    if t_order <> 0 and g_sysResult <> Sysok then 
+      Customer_Order := t_order; 
+    else  
+      if t_order = 0 then 
+        Customer_Order := t_order; 
+      else
+        DisplayStatus("Invalid number: Already in Database");
+      end if;
+    end if;
+  else  
+    SelectScreen(g_ciaddcust)
+    DisplayStatus("Please put a Customer Name");
+    --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
 
-  CustomersDB.Street := t_street;
-  if CustomersDB.FindFirst(Customer_Street) = Sysok then
-    g_iUpdate := 1; 
-    --SetEntry(CustomersDB.Name);
-  else
-    g_iUpdate := 0;
-  end if;
 
-  CustomersDB.Town := t_town;
-  if CustomersDB.FindFirst(Customer_Town) = Sysok then 
-    g_iUpdate := 1;
-  else 
-    g_iUpdate := 0;
-  end if;
+  end;
 
-  CustomersDB.State := t_state;
-  if CustomersDB.FindFirst(Customer_State) = Sysok then 
-    g_iUpdate := 1;
-
-  else
-    g_iUpdate := 0; 
-  end if;
-  CustomersDB.ZipCode := t_zip;
-  if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
-    g_iUpdate := 1;
-
-  else 
-    g_iUpdate := 0;
-  end if;
+  
 end;
+
 procedure RetrieveEntry;
 begin 
   if CustomersDB.FindNext(Customer)
@@ -496,7 +466,9 @@ begin
     if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
       g_iDecimal1 := CalcDecimal(g_rCountby); 
     end if;
-  end if;              
+  end if;    
+  r1_select := False;
+  r2_select := False;          
   --Paused := No;
   --BatchMode := Complete;  
   --RefreshMainDisplay;
