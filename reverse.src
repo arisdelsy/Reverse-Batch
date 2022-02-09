@@ -432,7 +432,7 @@ begin
   CustomersDB.Town := t_town;
   CustomersDB.State := t_state;
   CustomersDB.Zip := t_zip;
-  g_sysReslut := CustomersDB.Add;
+  g_sysResult := CustomersDB.Add;
 
   if CustomersDB.FindFirst(Customer_Order) = Sysok then
     g_iUpdate := 1;
