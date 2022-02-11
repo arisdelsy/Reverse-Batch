@@ -434,51 +434,7 @@ begin
   CustomersDB.Zip := t_zip;
   g_sysResult := CustomersDB.Add;
 
-  if CustomersDB.FindFirst(Customer_Order) = Sysok then
-    g_iUpdate := 1;
-    --SetEntry(CustomersDB.Order); 
-  else
-    g_iUpdate := 0; 
-  end if;
-  CustomersDB.Name := t_customer;
-  if CustomersDB.FindFirst(Customer_Name) = Sysok then
-    g_iUpdate := 1;
   
---this should be appended
-    --SetEntry(CustomersDB.Name);
-  elsif 
-    g_iUpdate := 0;
-  end if;
-
-  CustomersDB.Street := t_street;
-  if CustomersDB.FindFirst(Customer_Street) = Sysok then
-    g_iUpdate := 1; 
-    --SetEntry(CustomersDB.Name);
-  else
-    g_iUpdate := 0;
-  end if;
-
-  CustomersDB.Town := t_town;
-  if CustomersDB.FindFirst(Customer_Town) = Sysok then 
-    g_iUpdate := 1;
-  else 
-    g_iUpdate := 0;
-  end if;
-
-  CustomersDB.State := t_state;
-  if CustomersDB.FindFirst(Customer_State) = Sysok then 
-    g_iUpdate := 1;
-
-  else
-    g_iUpdate := 0; 
-  end if;
-  CustomersDB.ZipCode := t_zip;
-  if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
-    g_iUpdate := 1;
-
-  else 
-    g_iUpdate := 0;
-  end if;
 end;
 procedure RetrieveEntry;
 begin 
