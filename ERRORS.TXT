@@ -1,3 +1,4 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:288:26:: Type mismatch in assignment
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:335:40:: Wrong number of parameters
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:342:5:: syntax error
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:347:16:: Type mismatch in assignment
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:348:20:: Type mismatch in assignment
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:408:14:: Type mismatch in assignment
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:417:5:: syntax error
