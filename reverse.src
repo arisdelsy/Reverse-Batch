@@ -102,6 +102,7 @@ program reverse;
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
+-- format is "type NameofVariable is array [size of array] of other_type"
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
   g_arDisplay : DisplayArrays; 
 
@@ -143,13 +144,13 @@ program reverse;
     i : integer;
   begin 
   
-    for i := 1 to g_ciMaxRecords 
+    for i := 1 to g_ciMaxRecords  -- in the range from 1 to 1000
     loop
       if g_arDisplay[i].sOrderNum = Blank then  
         return;
       end if;
 
-      g_arDisplay[i].sOrderNum := Blank;
+      g_arDisplay[i].sOrderNum := Blank; 
       g_arDisplay[i].sName := Blank; 
 
     end loop;
@@ -162,7 +163,7 @@ program reverse;
   
     for i := MinL2 to MaxL2 
     loop
-      SetLabelText(i, Chr$(08)); -- 
+      SetLabelText(i, Chr$(08)); -- returns an ASCII character of the integer value (in this case 08) which means BACKSPACE
     end loop;
 
   end; 
@@ -182,6 +183,7 @@ program reverse;
   procedure DisplayCustomersDB; 
     i : integer;
     j : integer;
+
   begin 
 
     -- Clear Text Boxes & Widgets
@@ -195,13 +197,13 @@ program reverse;
     i := 1; 
     
     -- FillArray
-    if CustomersDB.GetFirst = SysOk then  
+    if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
 
-      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item 
-      g_arDisplay[i].sName := CustomersDB.Name;  
+      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item we are 
+      g_arDisplay[i].sName := CustomersDB.Name;  -- 
       i := 2;            
  
-      while CustomersDB.GetNext = SysOk  
+      while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
       loop         
         if i <= g_ciMaxRecords then             
           g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  
@@ -391,10 +393,10 @@ program reverse;
     	t_zip := StringToInteger(sTemp);
     
   	end if;
-	end if;
+
 end;
 
-procedure ProcessingCustomerEntry(sTemp :string);
+procedure ProcessingCustomerEntry;
 begin
 
   g_sysResult := CustomersDB.FindFirst(Customer_Order);
@@ -566,14 +568,14 @@ handler WidgetClicked;
 
 procedure DisplayBatchComplete;
 begin
-  if g_EntryMode = BatchCompleteMode;
+  	EntryMode := BatchCompleteMode;
     SetLabelText(lblCust, t_customer);
     SetLabelText(lblShp1, t_street);
     SetLabelText(lblShp2, t_town);
     SetLabelText(lblShp3, t_state);
     --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
     --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
-    end if;
+ 
 end;
 
 

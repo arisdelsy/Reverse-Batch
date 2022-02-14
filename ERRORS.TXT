@@ -1,3 +1,0 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:460:27:: Undefined identifier
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:460:35:: Wrong number of parameters
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:460:37:: syntax error
