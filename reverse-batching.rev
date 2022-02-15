@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-  <Revision value="1.2.7.28548" />
+  <Revision value="1.2.7.31234" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="222 38 23 10 78 109 118 188 222 195 80 69 255 199 76 229 138 53 174 153 " />
+  <ConfigHash value="113 21 206 186 189 102 105 63 48 56 83 41 115 118 63 241 149 226 89 110 " />
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
@@ -13484,12 +13484,12 @@ WDGT#220=3,172,205,341,45,1,1,2,1,Gray,bar220,2,0,0,1,8
 WDGT#221=3,172,260,341,45,1,1,2,1,Gray,bar221,2,0,0,1,8
 WDGT#222=3,172,315,341,45,1,1,2,1,Gray,bar222,2,0,0,1,8
 WDGT#223=4,519,132,259,54,Touch field to edit answer,1,1,15,Black,lbl223,4,0,0,1,8
-WDGT#224=4,181,28,335,45,Caption,1,1,18,Black,lbl224,4,0,0,1,8
-WDGT#225=4,181,85,335,45,Caption,1,1,18,Black,lbl225,4,0,0,1,8
-WDGT#226=4,181,146,335,45,Caption,1,1,18,Black,lbl226,4,0,0,1,8
-WDGT#227=4,181,205,335,45,Caption,1,1,18,Black,lbl227,4,0,0,1,8
-WDGT#228=4,181,260,335,45,Caption,1,1,18,Black,lbl228,4,0,0,1,8
-WDGT#229=4,181,315,335,45,Caption,1,1,18,Black,lbl229,4,0,0,1,8
+WDGT#224=4,181,28,335,45,Caption,2,1,18,Black,lbl224,2,0,0,1,8
+WDGT#225=4,181,85,335,45,Caption,2,1,18,Black,lbl225,2,0,0,1,8
+WDGT#226=4,181,146,335,45,Caption,2,1,18,Black,lbl226,2,0,0,1,8
+WDGT#227=4,181,205,335,45,Caption,2,1,18,Black,lbl227,2,0,0,1,8
+WDGT#228=4,181,260,335,45,Caption,2,1,18,Black,lbl228,2,0,0,1,8
+WDGT#229=4,181,315,335,45,Caption,2,1,18,Black,lbl229,2,0,0,1,8
 WDGT#230=1,401,1,4,1,1,#393939,#F0EEEE
 WDGT#231=1,0,1,4,1,1,#393939,#F0EEEE
 WDGT#232=7,703,0,100,100,1,1,0,local://9.png,8,btnExt12

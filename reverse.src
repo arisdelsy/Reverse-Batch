@@ -226,7 +226,7 @@ program reverse;
     loop    
       SetLabelText(i, g_arDisplay[j].sOrderNum);
       SetLabelText(i + 1, g_arDisplay[j].sName);  
-      i := i + 3;
+      i := i + 2;
       j := j + 1;   
     end loop;                            
 
@@ -336,6 +336,44 @@ program reverse;
     
   end;  
 
+procedure ProcessingCustomerEntry;
+begin
+  EntryMode := CustomerProcessMode;
+  g_sysResult := CustomersDB.FindFirst(Customer_Order);
+  
+
+  if t_customer <> Blank then
+    if t_order <> 0 and g_sysResult <> Sysok then 
+      CustomersDB.Order := t_order; 
+      CustomersDB.Name := t_customer;
+      CustomersDB.Street := t_street;
+      CustomersDB.Town := t_town;
+      CustomersDB.State := t_state;
+      CustomersDB.ZipCode := t_zip;
+      CustomersDB.Add;
+    else  
+      if t_order = 0 then 
+      	CustomersDB.Order := t_order; 
+      	CustomersDB.Name := t_customer;
+      	CustomersDB.Street := t_street;
+      	CustomersDB.Town := t_town;
+      	CustomersDB.State := t_state;
+      	CustomersDB.ZipCode := t_zip;
+      	CustomersDB.Add;
+      else
+        DisplayStatus("Invalid number: Already in Database");
+      end if;
+    end if;
+  else  
+    SelectScreen(g_ciaddcust);
+    DisplayStatus("Please put a Customer Name");
+    --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
+  end if;
+
+  
+end;
+
+
 --new changes Aris 
 	handler UserEntry; -- Built in and 
   	sTemp : string;
@@ -394,46 +432,9 @@ program reverse;
     
   	end if;
 
+  --ProcessingCustomerEntry;
 end;
 
-procedure ProcessingCustomerEntry;
-begin
-
-  g_sysResult := CustomersDB.FindFirst(Customer_Order);
-  
-
-  if t_customer <> Blank then
-    if t_order <> 0 and g_sysResult <> Sysok then 
-      CustomersDB.Order := t_order; 
-      CustomersDB.Name := t_customer;
-      CustomersDB.Street := t_street;
-      CustomersDB.Town := t_town;
-      CustomersDB.State := t_state;
-      CustomersDB.ZipCode := t_zip;
-      CustomersDB.Add;
-    else  
-      if t_order = 0 then 
-      	CustomersDB.Order := t_order; 
-      	CustomersDB.Name := t_customer;
-      	CustomersDB.Street := t_street;
-      	CustomersDB.Town := t_town;
-      	CustomersDB.State := t_state;
-      	CustomersDB.ZipCode := t_zip;
-      	CustomersDB.Add;
-      else
-        DisplayStatus("Invalid number: Already in Database");
-      end if;
-    end if;
-  else  
-    SelectScreen(g_ciaddcust);
-    DisplayStatus("Please put a Customer Name");
-    --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
-
-
-  end if;
-
-  
-end;
 
 
 procedure Ready;  -- Initialization procedure
@@ -488,7 +489,11 @@ handler WidgetClicked;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if EntryMode = CustomerProcessMode then
+        ProcessingCustomerEntry;
+        DisplayCustomersDB;
+        ClearCustomerTemp;
         EntryMode := ProductSelectMode;
+        -- Note 2/15: should we do an elsif for btnNxt because this is not
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
           SetImageWidgetPath(btnNxt, "/next.png");
         else
@@ -555,10 +560,10 @@ handler WidgetClicked;
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
-    elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
-      ProcessingCustomerEntry;
-      ClearCustomerTemp;
-      EntryMode := ProductSelectMode;
+   -- elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
+     -- ProcessingCustomerEntry;
+      --ClearCustomerTemp;
+      --EntryMode := ProductSelectMode;
 
     end if;
 
