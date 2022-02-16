@@ -1,4 +1,0 @@
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:347:16:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:348:20:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:408:14:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:417:5:: syntax error
