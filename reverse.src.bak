@@ -197,22 +197,22 @@ program reverse;
     i := 1; 
     
     -- FillArray
-    if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+    --if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
 
-      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item we are 
-      g_arDisplay[i].sName := CustomersDB.Name;  -- 
-      i := 2;            
- 
-      while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
-      loop         
-        if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
-      		g_arDisplay[i].sName := CustomersDB.Name;                                               
-          i := i + 1;                          
-        end if;       
-      end loop; 
-      
-    end if; 
+    g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item we are 
+    g_arDisplay[i].sName := CustomersDB.Name;  -- 
+    i := 2;            
+
+    while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+    loop         
+      if i <= g_ciMaxRecords then             
+        g_arDisplay[i].sOrderNum := CustomersDB.Order;  
+        g_arDisplay[i].sName := CustomersDB.Name;                                               
+        i := i + 1;                          
+      end if;       
+    end loop; 
+    
+    --end if; 
     
     -- Select Screen, Enable Handlers, Clear Screen and initialize variables
     SelectScreen(g_ciCust);                                       
@@ -232,6 +232,51 @@ program reverse;
     end loop;                            
 
   end;   
+
+  procedure DisplayCustomersDBtest; 
+    i : integer;
+    j : integer;
+
+  begin 
+
+    -- Clear Text Boxes & Widgets
+    ClearWidgetsData;
+    
+    -- Clear Array
+    ClearDisplayListArray; 
+    
+    -- Sort DB or Get Based of Criteria                                       
+    CustomersDB.Sort(1);                                    
+    i := 1; 
+    
+    -- FillArray
+   -- if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+
+    g_arDisplay[1].sOrderNum := CustomersDB.Order;  -- for item we are 
+    g_arDisplay[1].sName := CustomersDB.Name;  --  
+      
+    --end if; 
+    
+    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
+    SelectScreen(g_ciCust);                                       
+    i := MinL2;  
+    SetSymbolState(g_iWidgetNum, 1);
+    g_iPage := 1;          
+    j := 1;   
+    
+    -- Populate Screen
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen
+    loop    
+      SetLabelText(i, g_arDisplay[j].sOrderNum);
+      SetLabelText(i + 1, g_arDisplay[j].sName);  
+      i := i + 2;
+      j := j + 1;   
+    end loop;  
+
+    --SetLabelText(i, g_arDisplay[j].sOrderNum);
+    --SetLabelText(i + 1, g_arDisplay[j].sName);                        
+
+  end;  
 
   procedure SelectProduct;
     i : integer;
@@ -396,7 +441,6 @@ end;
       if sTemp = Blank then
         PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
       end if;
-
     	SetLabelText(lbl225, sTemp);
     	t_customer := sTemp;
 
@@ -479,7 +523,7 @@ handler WidgetClicked;
     if g_iWidget = btnStrt then
       if EntryMode = NoMode then
         EntryMode := CustomerSelectMode;
-        DisplayCustomersDB;
+        DisplayCustomersDBtest;
         SelectScreen(g_ciCust);
       end if;
 
