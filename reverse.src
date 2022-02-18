@@ -71,7 +71,7 @@ program reverse;
   g_Entrymode : integer;
 
   --Temp variables for entry for customer info
-  t_order     : integer;
+  t_order     : string;
   t_customer  : string;
   t_street    : string;
   t_town      : string;
@@ -171,7 +171,7 @@ program reverse;
   procedure ClearCustomerTemp;
   begin
 
-    t_order     := 0;
+    t_order     := Blank;
     t_customer  := Blank;
     t_street    := Blank;
     t_town      := Blank;
@@ -199,14 +199,14 @@ program reverse;
     -- FillArray
     if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
 
-      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item we are 
+      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item we are 
       g_arDisplay[i].sName := CustomersDB.Name;  -- 
       i := 2;            
  
       while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
       loop         
         if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  
+          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
       		g_arDisplay[i].sName := CustomersDB.Name;                                               
           i := i + 1;                          
         end if;       
@@ -222,7 +222,8 @@ program reverse;
     j := 1;   
     
     -- Populate Screen
-    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen   
+    --while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen
+    while j <= g_ciMaxPerScreen
     loop    
       SetLabelText(i, g_arDisplay[j].sOrderNum);
       SetLabelText(i + 1, g_arDisplay[j].sName);  
@@ -338,37 +339,37 @@ program reverse;
 
 procedure ProcessingCustomerEntry;
 begin
-  EntryMode := CustomerProcessMode;
-  g_sysResult := CustomersDB.FindFirst(Customer_Order);
+  --EntryMode := CustomerProcessMode;
+  --g_sysResult := CustomersDB.FindFirst(Customer_Order);
   
 
-  if t_customer <> Blank then
-    if t_order <> 0 and g_sysResult <> Sysok then 
-      CustomersDB.Order := t_order; 
-      CustomersDB.Name := t_customer;
-      CustomersDB.Street := t_street;
-      CustomersDB.Town := t_town;
-      CustomersDB.State := t_state;
-      CustomersDB.ZipCode := t_zip;
-      CustomersDB.Add;
-    else  
-      if t_order = 0 then 
-      	CustomersDB.Order := t_order; 
-      	CustomersDB.Name := t_customer;
-      	CustomersDB.Street := t_street;
-      	CustomersDB.Town := t_town;
-      	CustomersDB.State := t_state;
-      	CustomersDB.ZipCode := t_zip;
-      	CustomersDB.Add;
-      else
-        DisplayStatus("Invalid number: Already in Database");
-      end if;
-    end if;
-  else  
-    SelectScreen(g_ciaddcust);
-    DisplayStatus("Please put a Customer Name");
+  --if t_customer <> Blank then
+    --if t_order <> 0 and g_sysResult <> Sysok then 
+  CustomersDB.Order := t_order; 
+  CustomersDB.Name := t_customer;
+  CustomersDB.Street := t_street;
+  CustomersDB.Town := t_town;
+  CustomersDB.State := t_state;
+  CustomersDB.ZipCode := t_zip;
+  CustomersDB.Add;
+    --else  
+      --if t_order = 0 then 
+      	--CustomersDB.Order := t_order; 
+      	--CustomersDB.Name := t_customer;
+      	--CustomersDB.Street := t_street;
+      	--CustomersDB.Town := t_town;
+      	--CustomersDB.State := t_state;
+      	--CustomersDB.ZipCode := t_zip;
+      	--CustomersDB.Add;
+      --else
+        --DisplayStatus("Invalid number: Already in Database");
+      --end if;
+    --end if;
+  --else  
+    --SelectScreen(g_ciaddcust);
+    --DisplayStatus("Please put a Customer Name");
     --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
-  end if;
+  --end if;
 
   
 end;
@@ -386,15 +387,15 @@ end;
     	if sTemp = Blank then
         PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
       end if;
-
-      SetLabelText(lbl224, sTemp);
-    	t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
+      t_order := sTemp;
+      SetLabelText(lbl224, t_order);
+      --SetLabelText(lbl224, sTemp);
+    	--t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
       	
   	elsif g_Entrymode = EnterNameMode then 
       if sTemp = Blank then
         PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
       end if;
-
     	SetLabelText(lbl225, sTemp);
     	t_customer := sTemp;
 
@@ -477,6 +478,7 @@ handler WidgetClicked;
     if g_iWidget = btnStrt then
       if EntryMode = NoMode then
         EntryMode := CustomerSelectMode;
+        DisplayCustomersDB;
         SelectScreen(g_ciCust);
       end if;
 
@@ -490,7 +492,7 @@ handler WidgetClicked;
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if EntryMode = CustomerProcessMode then
         ProcessingCustomerEntry;
-        DisplayCustomersDB;
+        --DisplayCustomersDB;
         ClearCustomerTemp;
         EntryMode := ProductSelectMode;
         -- Note 2/15: should we do an elsif for btnNxt because this is not
