@@ -276,7 +276,7 @@ program reverse;
     end if;
   end;
 
-  --For Aris hehe :)
+  --
   procedure SelectCustomer;
     iTouch : integer;
     i : integer;
