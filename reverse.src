@@ -280,7 +280,7 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
   begin 
     
     -- Clear display
-    for i := minLabel to maxLabel
+    for i := MinL2 to MaxL2
     loop
       SetLabelText(i, Blank);
     end loop;
@@ -288,31 +288,30 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     -- Find out where we are in the array
     if tmpPage = 1 then
       i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
-    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerScreen) then
-      i := (tmpPage * g_ciMaxPerScreen) - 7;      
+    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerScreen) then    -- tmpPage ( 1000/ 8)
+      i := (tmpPage * g_ciMaxPerScreen) - 7; --      
     else
       i := 1;
       g_iPage := 1;              
     end if;
 
-    b := minLabel;
+    b := MinL2;
     j := i + 7; 
     
     -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sID = Blank then -- and EntryMode <> SetupSelectTruck then
+    if g_arDisplay[i].sOrderNum = Blank then -- and EntryMode <> SetupSelectTruck then
  
-      DisplayInboundDB;  
+      DisplayCustomersDB;  
 
     else  
       
       -- Populate display with new data
       for a := i to j
       loop  
-        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sID <> Blank then
-          SetLabelText(b, g_arDisplay[a].sID);
+        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sOrderNum <> Blank then
+          SetLabelText(b, g_arDisplay[a].sOrderNum);
           SetLabelText(b + 1, g_arDisplay[a].sName);  
-					SetLabelText(b + 2, g_arDisplay[a].sInDT);
-          b := b + 3; 
+          b := b + 2; 
         end if; 
       end loop;
        
@@ -618,6 +617,16 @@ handler WidgetClicked;
     elsif g_iWidget = btnExt10 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
+    
+    elsif g_iWidget = btnPgUp2 then
+      g_iPage := g_iPage - 1;   
+      SetSymbolState(g_iWidgetNum, 2);      
+      PageUporDownCustomerList(g_iPage);  
+
+    elsif g_iWidget = btnPgDn2 then
+      g_iPage := g_iPage + 1;   
+      SetSymbolState(g_iWidgetNum, 2);       
+      PageUporDownCustomerList(g_iPage); 
     
     elsif g_iWidget = btnSetup then
       EntryMode:= SetupMenuMode;
