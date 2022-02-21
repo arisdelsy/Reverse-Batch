@@ -4,7 +4,11 @@
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
+<<<<<<< Updated upstream
   <ConfigHash value="222 38 23 10 78 109 118 188 222 195 80 69 255 199 76 229 138 53 174 153 " />
+=======
+  <ConfigHash value="240 13 229 39 3 149 44 71 153 153 69 47 156 99 64 74 31 71 82 114 " />
+>>>>>>> Stashed changes
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
@@ -766,7 +770,7 @@ EDP.TERMIN#4=CR/LF
 EDP.TYPE#4=232
 EDP.ADDRESS#5=0
 EDP.ALIAS#5=Port5
-EDP.BAUD#5=9600
+EDP.BAUD#5=38400
 EDP.BITS#5=8NONE
 EDP.DUPLEX#5=HALF
 EDP.ECHO#5=ON
@@ -779,7 +783,7 @@ EDP.TERMIN#5=CR/LF
 EDP.TYPE#5=232
 EDP.ADDRESS#6=0
 EDP.ALIAS#6=Port6
-EDP.BAUD#6=9600
+EDP.BAUD#6=38400
 EDP.BITS#6=8NONE
 EDP.DUPLEX#6=HALF
 EDP.ECHO#6=ON
@@ -13565,6 +13569,15 @@ WDGT#306=4,401,107,184,20,Ingridient 2,1,1,12,Black,lbl306,2,0,0,1,12
 WDGT#309=4,606,107,184,20,Batch #,1,1,12,Black,lbl309,2,0,0,1,12
 WDGT#312=3,0,1,400,98,2,1,2,1,Black,bar312,2,0,0,1,12
 WDGT#313=3,401,1,400,98,2,1,2,1,Black,bar313,2,0,0,1,12
+WDGT#314=4,173,3,436,48,Caption,2,1,12,Black,testpsi,2,0,0,1,99
+WDGT#315=4,173,54,436,51,Caption,2,1,12,Black,testcon,2,0,0,1,99
+WDGT#316=4,173,105,436,46,Caption,2,1,12,Black,testmix,2,0,0,1,99
+WDGT#317=4,173,152,436,39,Caption,2,1,12,Black,testcem,2,0,0,1,99
+WDGT#318=4,173,191,436,43,Caption,2,1,12,Black,testwat,2,0,0,1,99
+WDGT#319=4,173,234,436,41,Caption,2,1,12,Black,testcal,2,0,0,1,99
+WDGT#320=4,173,276,436,39,Caption,2,1,12,Black,testair,2,0,0,1,99
+WDGT#321=4,173,317,436,33,Caption,2,1,12,Black,testanti,2,0,0,1,99
+WDGT#322=4,173,351,436,35,Caption,2,1,12,Black,testret,2,0,0,1,99
 AUTOBKLGHT=OFF
 BKLGHT=LOW
 GFMT=GROSS&lt;G&gt;&lt;NL2&gt;&lt;TD&gt;&lt;NL&gt;
