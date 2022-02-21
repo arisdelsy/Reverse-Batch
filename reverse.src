@@ -12,6 +12,7 @@ program reverse;
   g_ciaddcust : constant integer := 8;
   g_ciScales  : constant integer := 9;
   g_ciAddOns  : constant integer := 13;
+  g_ciTest    : constant integer := 99;
 
   -- Global/Types variables definitions 
   g_sSetupPassword : stored string;
@@ -32,7 +33,7 @@ program reverse;
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
   Select1   : integer;
-  g_ciMaxPerScreen : constant integer := 8;
+  g_ciMaxPerScreen :integer;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
@@ -60,19 +61,19 @@ program reverse;
   EnterStreetMode         : constant integer := 1011;
   EnterTownMode           : constant integer := 1012;
   EnterStateMode          : constant integer := 1013;
-  EnterZipCodeMode        : constant integer := 1014;
+  EnterZipCodeMode            : constant integer := 1014;
  
  
  -- Number of Max record
-  g_ciMaxRecords           : constant integer := 1000;
-  g_ciMaxProducts          : constant integer := 20;
+  g_ciMaxRecords            : constant integer := 1000;
+	g_ciMaxProducts						: constant integer := 20;	
 
 
   EntryMode : integer;
   g_Entrymode : integer;
 
   --Temp variables for entry for customer info
-  t_order     : string;
+  t_order     : integer;
   t_customer  : string;
   t_street    : string;
   t_town      : string;
@@ -92,14 +93,14 @@ program reverse;
   t_retard    : real;
 
   type boolean is (False,True);
-  r1_select : boolean;
-  r2_select : boolean;
+  r1_select : boolean := False;
+  r2_select : boolean := False;
 
   type DisplayRecord is
     record 
       sOrderNum : string; 
       sName : string;
-    end record;
+    end record;     
 
   type ProductRecord is
     record
@@ -116,13 +117,11 @@ program reverse;
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
--- format is "type NameofVariable is array [size of array] of other_type"
-
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
   g_arDisplay : DisplayArrays;
   
   type ProductArrays is array [g_ciMaxProducts] of ProductRecord;
-  g_arProduct : DisplayArrays; --to make a selection from the product database
+	g_arProduct : ProductArrays; --to make a selection from the product database
 
   CustomersDB : CustomerDatabase;
   ProductDB   : ProductDatabase;
@@ -158,56 +157,39 @@ program reverse;
      
   end;
 
-procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
-  begin 
-  
-    ClosePrompt;  
-    --UnLockMajorKeys;
-    
-    --if EntryMode >= Setup1Mode and EntryMode < Setup2Mode then      
-      --EntryMode := Setup1Mode;   
-    if Entrymode = EnterOrderMode then 
-      EntryMode := CustomerSelectMode;
-      t_order := Blank;
-      SelectScreen(g_ciCust);
-    elsif Entrymode = EnterNameMode then 
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
-    elsif Entrymode = EnterStreetMode then 
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
-     elsif Entrymode = EnterTownMode then 
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
-     elsif Entrymode = EnterStateMode then 
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
-     elsif Entrymode = EnterZipCodeMode then 
-      EntryMode := CustomerSelectMode;
-      SelectScreen(g_ciCust);
-    --elsif Entrymode = SetupEnterTPasswordMode then
-      --EntryMode := LastEntryMode; 
-    else   
-      DisplayStatus(Blank); 
-      EntryMode := NoMode;  
-      --SetLabelText(lbSts1, Blank); 
-      --EntryMode := WeighMode;
-    end if;
-    
-  end;    
-
   procedure ClearDisplayListArray;  -- Clear Display List Array
     i : integer;
   begin 
   
-    for i := 1 to g_ciMaxRecords  -- in the range from 1 to 1000
+    for i := 1 to g_ciMaxRecords 
     loop
       if g_arDisplay[i].sOrderNum = Blank then  
         return;
       end if;
 
-      g_arDisplay[i].sOrderNum := Blank; 
+      g_arDisplay[i].sOrderNum := Blank;
       g_arDisplay[i].sName := Blank; 
+
+    end loop;
+         
+  end;
+
+  procedure ClearProductListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciProduct  -- in the range from 1 to 1000
+    loop
+
+      g_arProduct[i].sPSI := Blank;
+      g_arProduct[i].sQTY_CONC := Blank;  
+      g_arProduct[i].sSAND_MIX := Blank;
+      g_arProduct[i].sCEMENT := Blank;
+      g_arProduct[i].sWAT_GALL := Blank;
+      g_arProduct[i].sCALCIUM := Blank;
+      g_arProduct[i].sAIR_ENT := Blank;
+      g_arProduct[i].sANTIHYDR := Blank;
+      g_arProduct[i].sRETARDER := Blank; 
 
     end loop;
          
@@ -219,7 +201,7 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
   
     for i := MinL2 to MaxL2 
     loop
-      SetLabelText(i, Chr$(08)); -- returns an ASCII character of the integer value (in this case 08) which means BACKSPACE
+      SetLabelText(i, Chr$(08)); -- 
     end loop;
 
   end; 
@@ -227,7 +209,7 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
   procedure ClearCustomerTemp;
   begin
 
-    t_order     := Blank;
+    t_order     := 0;
     t_customer  := Blank;
     t_street    := Blank;
     t_town      := Blank;
@@ -239,7 +221,6 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
   procedure DisplayCustomersDB; 
     i : integer;
     j : integer;
-
   begin 
 
     -- Clear Text Boxes & Widgets
@@ -253,89 +234,40 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     i := 1; 
     
     -- FillArray
-    if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+    if CustomersDB.GetFirst = SysOk then  
 
-      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item we are 
-      g_arDisplay[i].sName := CustomersDB.Name;  -- 
+      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item 
+      g_arDisplay[i].sName := CustomersDB.Name;  
       i := 2;            
-
-      while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+ 
+      while CustomersDB.GetNext = SysOk  
       loop         
         if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
-          g_arDisplay[i].sName := CustomersDB.Name;                                               
+          g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  
+      		g_arDisplay[i].sName := CustomersDB.Name;                                               
           i := i + 1;                          
         end if;       
       end loop; 
-    
+      
     end if; 
     
     -- Select Screen, Enable Handlers, Clear Screen and initialize variables
-    --SelectScreen(g_ciCust);                                       
+    SelectScreen(g_ciCust);                                       
     i := MinL2;  
     SetSymbolState(g_iWidgetNum, 1);
     g_iPage := 1;          
     j := 1;   
     
     -- Populate Screen
-    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen
-    --while j <= g_ciMaxPerScreen
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen   
     loop    
       SetLabelText(i, g_arDisplay[j].sOrderNum);
       SetLabelText(i + 1, g_arDisplay[j].sName);  
-      i := i + 2;
+      i := i + 3;
       j := j + 1;   
-    end loop;  
+    end loop;                            
 
-    SelectScreen(g_ciCust);                          
   end;   
-
-  procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
-    a : integer;
-    i : integer;
-    j : integer;
-    b : integer;
-  begin 
-    
-    -- Clear display
-    for i := MinL2 to MaxL2
-    loop
-      SetLabelText(i, Blank);
-    end loop;
-    
-    -- Find out where we are in the array
-    if tmpPage = 1 then
-      i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
-    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerScreen) then    -- tmpPage ( 1000/ 8)
-      i := (tmpPage * g_ciMaxPerScreen) - 7; --      
-    else
-      i := 1;
-      g_iPage := 1;              
-    end if;
-
-    b := MinL2;
-    j := i + 7; 
-    
-    -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sOrderNum = Blank then -- and EntryMode <> SetupSelectTruck then
- 
-      DisplayCustomersDB;  
-
-    else  
-      
-      -- Populate display with new data
-      for a := i to j
-      loop  
-        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sOrderNum <> Blank then
-          SetLabelText(b, g_arDisplay[a].sOrderNum);
-          SetLabelText(b + 1, g_arDisplay[a].sName);  
-          b := b + 2; 
-        end if; 
-      end loop;
-       
-    end if;
-
-  end; 
 
   procedure SelectProduct;
     i : integer;
@@ -351,10 +283,9 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
-        SetWidgetColor(g_iWidget, "Black");
-        r1current_select := 0;
       else 
         r1_select := True;
+        SetWidgetColor(g_iWidget, "#BB0000");
         r1current_select := g_iWidget;
       end if;
     end if;
@@ -362,36 +293,73 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     if g_iWidget >= 112 and g_iWidget <= 116 then 
       if r2_select = true and r2current_select= g_iWidget then 
         r2_select := False;
-        SetwidgetColor(g_iWidget, "Black");
-        r2current_select := 0;
       else 
         r2_select := True;
+        SetWidgetColor(g_iWidget, "#BB0000");
         r2current_select := g_iWidget;
       end if;
     end if;
 
     if r1_select = true and r2_select = true then
       SetWidgetVisibility(btnNxt, Von);
+    else
+      SetWidgetVisibility(btnNxt, Voff);
     end if; 
 
   end;
 
   procedure LoadProduct;
-  i : integer;
   begin
   
-    for i in 
+    ClearProductListArray;
+
+    -- FillArray
+    if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+
+      g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
+      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
+      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
+      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
+      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+      g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
+      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
+      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
+      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1); 
+      i := 2;            
+    end if; 
+    while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+    loop         
+      if i <= g_ciMaxRecords then             
+        g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
+        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
+        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
+        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
+        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+        g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
+        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
+        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
+        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1);                                             
+        i := i + 1;                          
+      end if;       
+    end loop; 
+    
+
 
 
     if r1current_select = 108 and r2current_select = 112 then
-      t_psi := ProductDB.PSI;
-
-    
+      t_psi := StringToInteger(g_arProduct[1].sPSI);
+      t_qtyconc := StringToReal(g_arProduct[1].sQTY_CONC);
+      t_sand := StringToReal(g_arProduct[1].sSAND_MIX);
+      t_cement := StringToReal(g_arProduct[1].sCEMENT);
+      t_wat_gal := StringToReal(g_arProduct[1].sWAT_GALL);
+      t_calcium := StringToInteger(g_arProduct[1].sCALCIUM);
+      t_air_ent := StringToReal(g_arProduct[1].sAIR_ENT);
+      t_antihydr := StringToReal(g_arProduct[1].sANTIHYDR);
+      t_retard := StringToReal(g_arProduct[1].sRETARDER);
     end if;
-
   end;
 
-  --
+  --For Aris hehe :)
   procedure SelectCustomer;
     iTouch : integer;
     i : integer;
@@ -452,111 +420,121 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     
   end;  
 
-procedure ProcessingCustomerEntry;
+--new changes Aris 
+handler UserEntry; -- Built in and 
+  sTemp : string;
 begin
-  --EntryMode := CustomerProcessMode;
-  --g_sysResult := CustomersDB.FindFirst(Customer_Order);
-  
+  sTemp := GetEntry; -- is the action of getting user entry
+  ClosePrompt;
 
-  --if t_customer <> Blank then
-    --if t_order <> 0 and g_sysResult <> Sysok then 
-  CustomersDB.Order := t_order; 
+  --This is only going to show up for new customer entries
+  if g_Entrymode = EnterOrderMode then 
+    SetLabelText(lbl224, sTemp);
+    t_order := sTemp; -- will this be used for printing, variable t_order?
+    CustomersDB := sTemp;
+    if CustomersDB.FindFirst(Customer_Order) = SysOk then
+      g_iUpdate := 1; 
+    elsif sTemp = Blank then
+    
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      
+
+      
+    --CustomersDB.Order := StringToInteger(sTemp);
+    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
+      --g_iUpdate := 1; --boolean
+      --SetEntry(CustomersDB.Name);
+    --else
+      --g_iUpdate := 0;
+    --end if;
+  elsif g_Entrymode = EnterNameMode then 
+    SetLabelText(lbl225, sTemp);
+    t_customer := sTemp;
+    --CustomersDB.Name := sTemp;
+    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Name);
+    --else
+      --g_iUpdate := 0;
+    --end if;
+    --this is for blank
+  elsif g_Entrymode = EnterStreetMode then 
+    SetLabelText(lbl226, sTemp);
+    t_street := sTemp;
+    --CustomersDB.Street := sTemp;
+    --if CustomersDB.FindFirst(Customer_Street) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Street);
+    --else
+      --g_iUpdate := 0;
+      --end if;
+      --this is for blank
+  elsif g_Entrymode = EnterTownMode then 
+    SetLabelText(lbl227, sTemp);
+    t_town := sTemp;
+    --CustomersDB.Town := sTemp;
+    --if CustomersDB.FindFirst(Customer_Town) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.Town);
+    --else
+      --g_iUpdate := 0;
+      --end if;
+  elsif g_Entrymode = EnterStateMode then 
+    SetLabelText(lbl228, sTemp);
+    t_state := sTemp;
+    --CustomersDB.State := sTemp;
+    --if CustomersDB.FindFirst(Customer_State) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(CustomersDB.State);
+    --else
+      --g_iUpdate := 0;
+    --end if;
+  elsif g_Entrymode = EnterZipCodeMode then 
+    SetLabelText(lbl229, sTemp);
+    t_zip := sTemp;
+    --CustomersDB.ZipCode := StringToInteger(sTemp);
+    --if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
+      --g_iUpdate := 1;
+      --SetEntry(IntegerToString(CustomersDB.ZipCode,5));
+    --else
+      --g_iUpdate := 0;
+    --end if;
+  end if;  
+end;
+
+procedure ProcessingCustomerEntry(sTemp :string);
+begin
+
+  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
   CustomersDB.Name := t_customer;
   CustomersDB.Street := t_street;
   CustomersDB.Town := t_town;
   CustomersDB.State := t_state;
-  CustomersDB.ZipCode := t_zip;
+  CustomersDB.Zip := t_zip;
+
+  g_sysResult := CustomersDB.FindFirst(Customer_Order)
+  
   CustomersDB.Add;
-    --else  
-      --if t_order = 0 then 
-      	--CustomersDB.Order := t_order; 
-      	--CustomersDB.Name := t_customer;
-      	--CustomersDB.Street := t_street;
-      	--CustomersDB.Town := t_town;
-      	--CustomersDB.State := t_state;
-      	--CustomersDB.ZipCode := t_zip;
-      	--CustomersDB.Add;
-      --else
-        --DisplayStatus("Invalid number: Already in Database");
-      --end if;
-    --end if;
-  --else  
-    --SelectScreen(g_ciaddcust);
-    --DisplayStatus("Please put a Customer Name");
+  if t_customer <> Blank then
+    if t_order <> 0 and g_sysResult <> Sysok then 
+      Customer_Order := t_order; 
+    else  
+      if t_order = 0 then 
+        Customer_Order := t_order; 
+      else
+        DisplayStatus("Invalid number: Already in Database");
+      end if;
+    end if;
+  else  
+    SelectScreen(g_ciaddcust)
+    DisplayStatus("Please put a Customer Name");
     --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
-  --end if;
+
+
+  end;
 
   
 end;
-
-
---new changes Aris 
-	handler UserEntry; -- Built in and 
-  	sTemp : string;
-	begin
-  	sTemp := GetEntry; -- is the action of getting user entry
-  	ClosePrompt;
-
-  	--This is only going to show up for new customer entries
-  	if g_Entrymode = EnterOrderMode then 
-    	if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 2);
-      else
-        t_order := sTemp;
-        SetLabelText(lbl224, t_order);
-      end if;
-      
-      --SetLabelText(lbl224, sTemp);
-    	--t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
-      	
-  	elsif g_Entrymode = EnterNameMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
-      else
-        SetLabelText(lbl225, sTemp);
-    	  t_customer := sTemp;
-      end if;
-
-  	elsif g_Entrymode = EnterStreetMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
-      else
-        SetLabelText(lbl226, sTemp);
-    	  t_street := sTemp;
-      end if;
-      
- 
-  	elsif g_Entrymode = EnterTownMode then
-      if sTemp = Blank then
-        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
-      else
-        SetLabelText(lbl227, sTemp);
-    	  t_town := sTemp;
-      end if; 
-    	
-    
-  	elsif g_Entrymode = EnterStateMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
-      else  
-        SetLabelText(lbl228, sTemp);
-    	  t_state := sTemp;
-      end if;
-    	
-    
-  	elsif g_Entrymode = EnterZipCodeMode then
-      if sTemp = Blank then
-        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 2); 
-      else
-        SetLabelText(lbl229, sTemp);
-    	  t_zip := StringToInteger(sTemp);
-      end if;
-    	
-  	end if;
-
-end;
-
-
 
 procedure Ready;  -- Initialization procedure
 begin
@@ -596,23 +574,24 @@ handler WidgetClicked;
 		DisplayStatus("");
 
     if g_iWidget = btnStrt then
-      EntryMode := CustomerSelectMode;
-      DisplayCustomersDB;
-      --SelectScreen(g_ciCust);
+      if EntryMode = NoMode then
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      end if;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
-      EntryMode := CustomerProcessMode;
-      SelectScreen(g_ciaddcust);
+      --Commented out for testing ingredients without adding to database
+      --EntryMode := CustomerProcessMode;
+      --SelectScreen(g_ciaddcust);
       
-      --SelectScreen(g_ciProduct);
+      EntryMode := ProductSelectMode;
+      SetWidgetVisibility(btnNxt, Voff);
+      SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if EntryMode = CustomerProcessMode then
-        ProcessingCustomerEntry;
-        ClearCustomerTemp;
         EntryMode := ProductSelectMode;
-        -- Note 2/15: should we do an elsif for btnNxt because this is not
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
           SetImageWidgetPath(btnNxt, "/next.png");
         else
@@ -621,6 +600,12 @@ handler WidgetClicked;
         --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
         SelectScreen(g_ciProduct);
       end if;
+
+    elsif g_iWidget >= 108 and g_iWidget <= 116 then
+      -- !!! FOR TESTING PURPOSES !!! This will be a customer selection section
+      SelectProduct;
+      SelectScreen(g_ciTest);
+      SetupStartTimer(1,100,TimerOneShot);
 
     elsif g_iWidget = btnExt2 then
       if EntryMode = CustomerSelectMode then
@@ -647,25 +632,18 @@ handler WidgetClicked;
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
-    elsif g_iWidget = btnPgUp2 then
-      g_iPage := g_iPage - 1;   
-      SetSymbolState(g_iWidgetNum, 2);      
-      PageUporDownCustomerList(g_iPage);  
-
-    elsif g_iWidget = btnPgDn2 then
-      g_iPage := g_iPage + 1;   
-      SetSymbolState(g_iWidgetNum, 2);       
-      PageUporDownCustomerList(g_iPage); 
-    
     elsif g_iWidget = btnSetup then
       EntryMode:= SetupMenuMode;
       setupScreen;
       SelectScreen(g_ciSetup);
 -- new changes by aris
     elsif g_iWidget = btnNxt then
-      EntryMode := BatchMode;
-      SelectScreen(g_ciScales);
-      SetupStartTimer(5, 500, TimerOneShot);
+      --EntryMode := BatchMode;
+      --SelectScreen(g_ciScales);
+      --SetupStartTimer(5, 500, TimerOneShot);
+
+      EntryMode := NoMode;
+      --Select test screen
     
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
@@ -689,11 +667,6 @@ handler WidgetClicked;
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
-   -- elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
-     -- ProcessingCustomerEntry;
-      --ClearCustomerTemp;
-      --EntryMode := ProductSelectMode;
-
     end if;
 
     EnableHandler(WidgetClicked); 
@@ -702,14 +675,14 @@ handler WidgetClicked;
 
 procedure DisplayBatchComplete;
 begin
-  	EntryMode := BatchCompleteMode;
+  if g_EntryMode = BatchCompleteMode;
     SetLabelText(lblCust, t_customer);
     SetLabelText(lblShp1, t_street);
     SetLabelText(lblShp2, t_town);
     SetLabelText(lblShp3, t_state);
     --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
     --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
- 
+    end if;
 end;
 
 
