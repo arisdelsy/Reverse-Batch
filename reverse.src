@@ -65,6 +65,7 @@ program reverse;
  
  -- Number of Max record
   g_ciMaxRecords           : constant integer := 1000;
+  g_ciMaxProducts          : constant integer := 20;
 
 
   EntryMode : integer;
@@ -98,13 +99,30 @@ program reverse;
     record 
       sOrderNum : string; 
       sName : string;
-    end record;     
+    end record;
+
+  type ProductRecord is
+    record
+      sPSI     : string;
+      sQTY_CONC: string;
+      sSAND_MIX: string;
+      sCEMENT  : string;
+      sWAT_GALL: string;
+      sCALCIUM : string;
+      sAIR_ENT : string;
+      sANTIHYDR: string;
+      sRETARDER: string;
+    end record;    
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
 -- format is "type NameofVariable is array [size of array] of other_type"
+
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
-  g_arDisplay : DisplayArrays; 
+  g_arDisplay : DisplayArrays;
+  
+  type ProductArrays is array [g_ciMaxProducts] of ProductRecord;
+  g_arProduct : DisplayArrays; --to make a selection from the product database
 
   CustomersDB : CustomerDatabase;
   ProductDB   : ProductDatabase;
@@ -333,6 +351,8 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
+        SetWidgetColor(g_iWidget, "Black");
+        r1current_select := 0;
       else 
         r1_select := True;
         r1current_select := g_iWidget;
@@ -342,6 +362,8 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
     if g_iWidget >= 112 and g_iWidget <= 116 then 
       if r2_select = true and r2current_select= g_iWidget then 
         r2_select := False;
+        SetwidgetColor(g_iWidget, "Black");
+        r2current_select := 0;
       else 
         r2_select := True;
         r2current_select := g_iWidget;
@@ -355,11 +377,18 @@ procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a 
   end;
 
   procedure LoadProduct;
+  i : integer;
   begin
+  
+    for i in 
+
 
     if r1current_select = 108 and r2current_select = 112 then
       t_psi := ProductDB.PSI;
+
+    
     end if;
+
   end;
 
   --
