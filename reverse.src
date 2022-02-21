@@ -424,85 +424,64 @@ program reverse;
   end;  
 
 --new changes Aris 
-handler UserEntry; -- Built in and 
-  sTemp : string;
-begin
-  sTemp := GetEntry; -- is the action of getting user entry
-  ClosePrompt;
+	handler UserEntry; -- Built in and 
+  	sTemp : string;
+	begin
+  	sTemp := GetEntry; -- is the action of getting user entry
+  	ClosePrompt;
 
-  --This is only going to show up for new customer entries
-  if g_Entrymode = EnterOrderMode then 
-    SetLabelText(lbl224, sTemp);
-    t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
-    CustomersDB := sTemp;
-    if CustomersDB.FindFirst(Customer_Order) = SysOk then
-      g_iUpdate := 1; 
-    elsif sTemp = Blank then
-    
+  	--This is only going to show up for new customer entries
+  	if g_Entrymode = EnterOrderMode then 
+    	if sTemp = Blank then
         PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-      
+      end if;
+      t_order := sTemp;
+      SetLabelText(lbl224, t_order);
+      --SetLabelText(lbl224, sTemp);
+    	--t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
+      	
+  	elsif g_Entrymode = EnterNameMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
+      end if;
+    	SetLabelText(lbl225, sTemp);
+    	t_customer := sTemp;
 
-      
-    --CustomersDB.Order := StringToInteger(sTemp);
-    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
-      --g_iUpdate := 1; --boolean
-      --SetEntry(CustomersDB.Name);
-    --else
-      --g_iUpdate := 0;
-    --end if;
-  elsif g_Entrymode = EnterNameMode then 
-    SetLabelText(lbl225, sTemp);
-    t_customer := sTemp;
-    --CustomersDB.Name := sTemp;
-    --if CustomersDB.FindFirst(Customer_Name) = Sysok then
-      --g_iUpdate := 1;
-      --SetEntry(CustomersDB.Name);
-    --else
-      --g_iUpdate := 0;
-    --end if;
-    --this is for blank
-  elsif g_Entrymode = EnterStreetMode then 
-    SetLabelText(lbl226, sTemp);
-    t_street := sTemp;
-    --CustomersDB.Street := sTemp;
-    --if CustomersDB.FindFirst(Customer_Street) = Sysok then
-      --g_iUpdate := 1;
-      --SetEntry(CustomersDB.Street);
-    --else
-      --g_iUpdate := 0;
-      --end if;
-      --this is for blank
-  elsif g_Entrymode = EnterTownMode then 
-    SetLabelText(lbl227, sTemp);
-    t_town := sTemp;
-    --CustomersDB.Town := sTemp;
-    --if CustomersDB.FindFirst(Customer_Town) = Sysok then
-      --g_iUpdate := 1;
-      --SetEntry(CustomersDB.Town);
-    --else
-      --g_iUpdate := 0;
-      --end if;
-  elsif g_Entrymode = EnterStateMode then 
-    SetLabelText(lbl228, sTemp);
-    t_state := sTemp;
-    --CustomersDB.State := sTemp;
-    --if CustomersDB.FindFirst(Customer_State) = Sysok then
-      --g_iUpdate := 1;
-      --SetEntry(CustomersDB.State);
-    --else
-      --g_iUpdate := 0;
-    --end if;
-  elsif g_Entrymode = EnterZipCodeMode then 
-    SetLabelText(lbl229, sTemp);
-    t_zip := sTemp;
-    --CustomersDB.ZipCode := StringToInteger(sTemp);
-    --if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
-      --g_iUpdate := 1;
-      --SetEntry(IntegerToString(CustomersDB.ZipCode,5));
-    --else
-      --g_iUpdate := 0;
-    --end if;
-  end if;  
+  	elsif g_Entrymode = EnterStreetMode then 
+      if sTemp = Blank then
+    	
+        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
+      end if;
+      SetLabelText(lbl226, sTemp);
+    	t_street := sTemp;
+ 
+  	elsif g_Entrymode = EnterTownMode then
+      if sTemp = Blank then
+    	
+        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
+      end if; 
+    	SetLabelText(lbl227, sTemp);
+    	t_town := sTemp;
+    
+  	elsif g_Entrymode = EnterStateMode then 
+      if sTemp = Blank then
+    	
+        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
+      end if;
+    	SetLabelText(lbl228, sTemp);
+    	t_state := sTemp;
+    
+  	elsif g_Entrymode = EnterZipCodeMode then
+      if sTemp = Blank then
+    	
+        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
+      end if;
+    	SetLabelText(lbl229, sTemp);
+    	t_zip := StringToInteger(sTemp);
+    
+  	end if;
+
+  --ProcessingCustomerEntry;
 end;
 
 procedure ProcessingCustomerEntry(sTemp :string);
