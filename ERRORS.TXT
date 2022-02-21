@@ -1,26 +1,3 @@
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:319:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:320:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:321:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:322:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:323:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:324:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:325:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:326:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:327:19:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:328:7:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:332:10:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:333:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:334:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:335:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:336:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:337:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:338:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:339:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:340:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:341:21:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:342:9:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:342:14:: Undefined identifier
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:433:16:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:434:20:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:494:14:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:503:5:: syntax error
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:437:20:: Type mismatch in assignment
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:497:14:: Type mismatch in assignment
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:506:5:: syntax error
