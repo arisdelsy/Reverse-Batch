@@ -101,6 +101,19 @@ program reverse;
       sName : string;
     end record;     
 
+  type ProductRecord is
+    record
+      sPSI     : string;
+      sQTY_CONC: string;
+      sSAND_MIX: string;
+      sCEMENT  : string;
+      sWAT_GALL: string;
+      sCALCIUM : string;
+      sAIR_ENT : string;
+      sANTIHYDR: string;
+      sRETARDER: string;
+    end record;    
+
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 

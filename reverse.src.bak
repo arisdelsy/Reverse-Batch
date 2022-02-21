@@ -12,6 +12,7 @@ program reverse;
   g_ciaddcust : constant integer := 8;
   g_ciScales  : constant integer := 9;
   g_ciAddOns  : constant integer := 13;
+  g_ciTest    : constant integer := 99;
 
   -- Global/Types variables definitions 
   g_sSetupPassword : stored string;
@@ -64,12 +65,7 @@ program reverse;
  
  
  -- Number of Max record
-<<<<<<< Updated upstream
   g_ciMaxRecords            : constant integer := 1000;
-=======
-  g_ciMaxRecords           : constant integer := 1000;
-  g_ciMaxProducts          : constant integer := 20;
->>>>>>> Stashed changes
 
 
   EntryMode : integer;
@@ -96,14 +92,14 @@ program reverse;
   t_retard    : real;
 
   type boolean is (False,True);
-  r1_select : boolean;
-  r2_select : boolean;
+  r1_select : boolean := False;
+  r2_select : boolean := False;
 
   type DisplayRecord is
     record 
       sOrderNum : string; 
       sName : string;
-    end record;
+    end record;     
 
   type ProductRecord is
     record
@@ -120,11 +116,6 @@ program reverse;
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
-<<<<<<< Updated upstream
-=======
--- format is "type NameofVariable is array [size of array] of other_type"
-
->>>>>>> Stashed changes
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
   g_arDisplay : DisplayArrays;
   
@@ -291,8 +282,6 @@ program reverse;
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
-        SetWidgetColor(g_iWidget, "Black");
-        r1current_select := 0;
       else 
         r1_select := True;
         SetWidgetColor(g_iWidget, "#BB0000");
@@ -303,8 +292,6 @@ program reverse;
     if g_iWidget >= 112 and g_iWidget <= 116 then 
       if r2_select = true and r2current_select= g_iWidget then 
         r2_select := False;
-        SetwidgetColor(g_iWidget, "Black");
-        r2current_select := 0;
       else 
         r2_select := True;
         SetWidgetColor(g_iWidget, "#BB0000");
@@ -314,12 +301,13 @@ program reverse;
 
     if r1_select = true and r2_select = true then
       SetWidgetVisibility(btnNxt, Von);
+    else
+      SetWidgetVisibility(btnNxt, Voff);
     end if; 
 
   end;
 
   procedure LoadProduct;
-  i : integer;
   begin
   
     ClearProductListArray;
@@ -368,7 +356,6 @@ program reverse;
       t_antihydr := StringToReal(g_arProduct[1].sANTIHYDR);
       t_retard := StringToReal(g_arProduct[1].sRETARDER);
     end if;
-
   end;
 
   --For Aris hehe :)
@@ -516,64 +503,38 @@ end;
 
 procedure ProcessingCustomerEntry(sTemp :string);
 begin
-  CustomersDB.Order := t_order;
-  if CustomersDB.FindFirst(Customer_Order) = Sysok then
-    g_iUpdate := 1;
-    --SetEntry(CustomersDB.Order); 
-  else
-    g_iUpdate := 0; 
-  end if;
+
+  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
   CustomersDB.Name := t_customer;
-  if CustomersDB.FindFirst(Customer_Name) = Sysok then
-    g_iUpdate := 1;
-
-    --SetEntry(CustomersDB.Name);
-  elsif 
-    g_iUpdate := 0;
-  end if;
-
   CustomersDB.Street := t_street;
-  if CustomersDB.FindFirst(Customer_Street) = Sysok then
-    g_iUpdate := 1;
-    CustomersDB.Add; 
-    --SetEntry(CustomersDB.Name);
-  else
-    g_iUpdate := 0;
-  end if;
-
   CustomersDB.Town := t_town;
-  if CustomersDB.FindFirst(Customer_Town) = Sysok then 
-    g_iUpdate := 1;
-    CustomersDB.Add; 
-  else 
-    g_iUpdate := 0;
-  end if;
-
   CustomersDB.State := t_state;
-  if CustomersDB.FindFirst(Customer_State) = Sysok then 
-    g_iUpdate := 1;
-    CustomersDB.Add; 
-  else
-    g_iUpdate := 0; 
-  end if;
-  CustomersDB.ZipCode := t_zip;
-  if CustomersDB.FindFirst(Customer_ZipCode) = Sysok then
-    g_iUpdate := 1;
-    CustomersDB.Add; 
-  else 
-    g_iUpdate := 0;
-  end if;
+  CustomersDB.Zip := t_zip;
+
+  g_sysResult := CustomersDB.FindFirst(Customer_Order)
+  
+  CustomersDB.Add;
+  if t_customer <> Blank then
+    if t_order <> 0 and g_sysResult <> Sysok then 
+      Customer_Order := t_order; 
+    else  
+      if t_order = 0 then 
+        Customer_Order := t_order; 
+      else
+        DisplayStatus("Invalid number: Already in Database");
+      end if;
+    end if;
+  else  
+    SelectScreen(g_ciaddcust)
+    DisplayStatus("Please put a Customer Name");
+    --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
+
+
+  end;
+
+  
 end;
 
-<<<<<<< Updated upstream
-procedure RetrieveEntry;
-begin 
-  if CustomersDB.FindNext(Customer)
-
-end;
-
-=======
->>>>>>> Stashed changes
 procedure Ready;  -- Initialization procedure
 begin
 
@@ -619,10 +580,13 @@ handler WidgetClicked;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
-      EntryMode := CustomerProcessMode;
-      SelectScreen(g_ciaddcust);
+      --Commented out for testing ingredients without adding to database
+      --EntryMode := CustomerProcessMode;
+      --SelectScreen(g_ciaddcust);
       
-      --SelectScreen(g_ciProduct);
+      EntryMode := ProductSelectMode;
+      SetWidgetVisibility(btnNxt, Voff);
+      SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if EntryMode = CustomerProcessMode then
@@ -635,6 +599,12 @@ handler WidgetClicked;
         --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
         SelectScreen(g_ciProduct);
       end if;
+
+    elsif g_iWidget >= 108 and g_iWidget <= 116 then
+      -- !!! FOR TESTING PURPOSES !!! This will be a customer selection section
+      SelectProduct;
+      SelectScreen(g_ciTest);
+      SetupStartTimer(1,100,TimerOneShot);
 
     elsif g_iWidget = btnExt2 then
       if EntryMode = CustomerSelectMode then
@@ -667,9 +637,12 @@ handler WidgetClicked;
       SelectScreen(g_ciSetup);
 -- new changes by aris
     elsif g_iWidget = btnNxt then
-      EntryMode := BatchMode;
-      SelectScreen(g_ciScales);
-      SetupStartTimer(5, 500, TimerOneShot);
+      --EntryMode := BatchMode;
+      --SelectScreen(g_ciScales);
+      --SetupStartTimer(5, 500, TimerOneShot);
+
+      EntryMode := NoMode;
+      --Select test screen
     
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
@@ -693,14 +666,6 @@ handler WidgetClicked;
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
-<<<<<<< Updated upstream
-    elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
-      ProcessingCustomerEntry;
-      ClearCustomerTemp;
-      EntryMode := ProductSelectMode;
-
-=======
->>>>>>> Stashed changes
     end if;
 
     EnableHandler(WidgetClicked); 
