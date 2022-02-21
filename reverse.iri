@@ -396,6 +396,15 @@ lbl306    : constant integer := 306;
 lbl309    : constant integer := 309;
 bar312    : constant integer := 312;
 bar313    : constant integer := 313;
+testpsi   : constant integer := 314;
+testcon   : constant integer := 315;
+testmix   : constant integer := 316;
+testcem   : constant integer := 317;
+testwat   : constant integer := 318;
+testcal   : constant integer := 319;
+testair   : constant integer := 320;
+testanti  : constant integer := 321;
+testret   : constant integer := 322;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";

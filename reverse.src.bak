@@ -64,7 +64,12 @@ program reverse;
  
  
  -- Number of Max record
+<<<<<<< Updated upstream
   g_ciMaxRecords            : constant integer := 1000;
+=======
+  g_ciMaxRecords           : constant integer := 1000;
+  g_ciMaxProducts          : constant integer := 20;
+>>>>>>> Stashed changes
 
 
   EntryMode : integer;
@@ -98,12 +103,33 @@ program reverse;
     record 
       sOrderNum : string; 
       sName : string;
-    end record;     
+    end record;
+
+  type ProductRecord is
+    record
+      sPSI     : string;
+      sQTY_CONC: string;
+      sSAND_MIX: string;
+      sCEMENT  : string;
+      sWAT_GALL: string;
+      sCALCIUM : string;
+      sAIR_ENT : string;
+      sANTIHYDR: string;
+      sRETARDER: string;
+    end record;    
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
 -- amount of information which is a part of the DisplayRecord type (declared above)
+<<<<<<< Updated upstream
+=======
+-- format is "type NameofVariable is array [size of array] of other_type"
+
+>>>>>>> Stashed changes
   type DisplayArrays is array [g_ciMaxRecords] of DisplayRecord; 
-  g_arDisplay : DisplayArrays; 
+  g_arDisplay : DisplayArrays;
+  
+  type ProductArrays is array [g_ciMaxProducts] of ProductRecord;
+  g_arProduct : ProductArrays; --to make a selection from the product database
 
   CustomersDB : CustomerDatabase;
   ProductDB   : ProductDatabase;
@@ -151,6 +177,27 @@ program reverse;
 
       g_arDisplay[i].sOrderNum := Blank;
       g_arDisplay[i].sName := Blank; 
+
+    end loop;
+         
+  end;
+
+  procedure ClearProductListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciProduct  -- in the range from 1 to 1000
+    loop
+
+      g_arProduct[i].sPSI := Blank;
+      g_arProduct[i].sQTY_CONC := Blank;  
+      g_arProduct[i].sSAND_MIX := Blank;
+      g_arProduct[i].sCEMENT := Blank;
+      g_arProduct[i].sWAT_GALL := Blank;
+      g_arProduct[i].sCALCIUM := Blank;
+      g_arProduct[i].sAIR_ENT := Blank;
+      g_arProduct[i].sANTIHYDR := Blank;
+      g_arProduct[i].sRETARDER := Blank; 
 
     end loop;
          
@@ -244,8 +291,11 @@ program reverse;
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
+        SetWidgetColor(g_iWidget, "Black");
+        r1current_select := 0;
       else 
         r1_select := True;
+        SetWidgetColor(g_iWidget, "#BB0000");
         r1current_select := g_iWidget;
       end if;
     end if;
@@ -253,8 +303,11 @@ program reverse;
     if g_iWidget >= 112 and g_iWidget <= 116 then 
       if r2_select = true and r2current_select= g_iWidget then 
         r2_select := False;
+        SetwidgetColor(g_iWidget, "Black");
+        r2current_select := 0;
       else 
         r2_select := True;
+        SetWidgetColor(g_iWidget, "#BB0000");
         r2current_select := g_iWidget;
       end if;
     end if;
@@ -266,11 +319,56 @@ program reverse;
   end;
 
   procedure LoadProduct;
+  i : integer;
   begin
+  
+    ClearProductListArray;
+
+    -- FillArray
+    if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+
+      g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
+      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
+      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
+      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
+      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+      g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
+      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
+      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
+      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1); 
+      i := 2;            
+
+      while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+      loop         
+        if i <= g_ciMaxRecords then             
+          g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
+          g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
+          g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
+          g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
+          g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+          g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
+          g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
+          g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
+          g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1);                                             
+          i := i + 1;                          
+        end if;       
+      end loop; 
+    
+    end if; 
+
 
     if r1current_select = 108 and r2current_select = 112 then
-      t_psi := ProductDB.PSI;
+      t_psi := StringToInteger(g_arProduct[1].sPSI);
+      t_qtyconc := StringToReal(g_arProduct[1].sQTY_CONC);
+      t_sand := StringToReal(g_arProduct[1].sSAND_MIX);
+      t_cement := StringToReal(g_arProduct[1].sCEMENT);
+      t_wat_gal := StringToReal(g_arProduct[1].sWAT_GALL);
+      t_calcium := StringToInteger(g_arProduct[1].sCALCIUM);
+      t_air_ent := StringToReal(g_arProduct[1].sAIR_ENT);
+      t_antihydr := StringToReal(g_arProduct[1].sANTIHYDR);
+      t_retard := StringToReal(g_arProduct[1].sRETARDER);
     end if;
+
   end;
 
   --For Aris hehe :)
@@ -467,12 +565,15 @@ begin
   end if;
 end;
 
+<<<<<<< Updated upstream
 procedure RetrieveEntry;
 begin 
   if CustomersDB.FindNext(Customer)
 
 end;
 
+=======
+>>>>>>> Stashed changes
 procedure Ready;  -- Initialization procedure
 begin
 
@@ -592,11 +693,14 @@ handler WidgetClicked;
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
 
+<<<<<<< Updated upstream
     elsif g_iWidget = btnCont1 or g_iWidget = btnCont2 then
       ProcessingCustomerEntry;
       ClearCustomerTemp;
       EntryMode := ProductSelectMode;
 
+=======
+>>>>>>> Stashed changes
     end if;
 
     EnableHandler(WidgetClicked); 
