@@ -121,7 +121,7 @@ program reverse;
   g_arDisplay : DisplayArrays;
   
   type ProductArrays is array [g_ciMaxProducts] of ProductRecord;
-  g_arProduct : ProductArrays; --to make a selection from the product database
+	g_arProduct : ProductArrays; --to make a selection from the product database
 
   CustomersDB : CustomerDatabase;
   ProductDB   : ProductDatabase;
