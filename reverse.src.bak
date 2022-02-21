@@ -66,6 +66,7 @@ program reverse;
  
  -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
+	g_ciMaxProducts						: constant integer := 20;	
 
 
   EntryMode : integer;
@@ -325,24 +326,24 @@ program reverse;
       g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
       g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1); 
       i := 2;            
-
-      while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
-      loop         
-        if i <= g_ciMaxRecords then             
-          g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-          g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
-          g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
-          g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
-          g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
-          g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-          g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
-          g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
-          g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1);                                             
-          i := i + 1;                          
-        end if;       
-      end loop; 
-    
     end if; 
+    while CustomersDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+    loop         
+      if i <= g_ciMaxRecords then             
+        g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
+        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
+        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
+        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
+        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+        g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
+        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
+        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
+        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1);                                             
+        i := i + 1;                          
+      end if;       
+    end loop; 
+    
+
 
 
     if r1current_select = 108 and r2current_select = 112 then
