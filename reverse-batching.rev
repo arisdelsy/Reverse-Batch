@@ -1,13 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-  <Revision value="1.2.7.28548" />
+  <Revision value="1.2.7.31234" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <ConfigHash value="222 38 23 10 78 109 118 188 222 195 80 69 255 199 76 229 138 53 174 153 " />
 =======
   <ConfigHash value="240 13 229 39 3 149 44 71 153 153 69 47 156 99 64 74 31 71 82 114 " />
+>>>>>>> Stashed changes
+=======
+  <ConfigHash value="149 173 139 212 210 48 129 213 104 58 193 33 41 10 233 137 119 4 2 14 " />
 >>>>>>> Stashed changes
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
@@ -13347,7 +13351,7 @@ WDGT#76=10,40,247,641,1,1,1,#69694B,2
 WDGT#77=10,40,289,641,1,1,1,#69694B,2
 WDGT#78=10,40,331,641,1,1,1,#69694B,2
 WDGT#79=10,40,373,641,1,1,1,#69694B,2
-WDGT#80=4,689,2,111,378,,1,1,12,Black,lbl80,4,0,0,1,2
+WDGT#80=4,699,46,111,378,,1,1,12,Black,lbl80,4,0,0,1,2
 WDGT#81=7,715,10,75,75,1,1,0,local://9.png,2,btnExt2
 WDGT#82=7,715,95,75,75,1,1,0,local://19.png,2,btnPgUp2
 WDGT#83=7,715,180,75,75,1,1,0,local://18.png,2,btnPgDn2
@@ -13569,6 +13573,7 @@ WDGT#306=4,401,107,184,20,Ingridient 2,1,1,12,Black,lbl306,2,0,0,1,12
 WDGT#309=4,606,107,184,20,Batch #,1,1,12,Black,lbl309,2,0,0,1,12
 WDGT#312=3,0,1,400,98,2,1,2,1,Black,bar312,2,0,0,1,12
 WDGT#313=3,401,1,400,98,2,1,2,1,Black,bar313,2,0,0,1,12
+<<<<<<< Updated upstream
 WDGT#314=4,173,3,436,48,Caption,2,1,12,Black,testpsi,2,0,0,1,99
 WDGT#315=4,173,54,436,51,Caption,2,1,12,Black,testcon,2,0,0,1,99
 WDGT#316=4,173,105,436,46,Caption,2,1,12,Black,testmix,2,0,0,1,99
@@ -13578,6 +13583,9 @@ WDGT#319=4,173,234,436,41,Caption,2,1,12,Black,testcal,2,0,0,1,99
 WDGT#320=4,173,276,436,39,Caption,2,1,12,Black,testair,2,0,0,1,99
 WDGT#321=4,173,317,436,33,Caption,2,1,12,Black,testanti,2,0,0,1,99
 WDGT#322=4,173,351,436,35,Caption,2,1,12,Black,testret,2,0,0,1,99
+=======
+WDGT#124=4,715,268,75,75,+,2,3,40,#000000,btnAdd,4,0,0,1,2
+>>>>>>> Stashed changes
 AUTOBKLGHT=OFF
 BKLGHT=LOW
 GFMT=GROSS&lt;G&gt;&lt;NL2&gt;&lt;TD&gt;&lt;NL&gt;
