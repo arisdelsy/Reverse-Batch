@@ -32,7 +32,7 @@ program reverse;
   g_iDelayCnt : integer; 
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
-  Select1   : integer;
+  g_iSelect : integer;
   g_ciMaxPerScreen :integer;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
@@ -53,6 +53,7 @@ program reverse;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
+  SelectedCustomerMode: constant integer := 1009;
 
 -- Aris added new modes
 -- Entry Modes for customer entry
@@ -156,6 +157,35 @@ program reverse;
      return iDecimal; 
      
   end;
+
+  function GetSelection : integer;  -- Returns the current selected record in the display list    
+    i : integer;    
+  begin
+      if g_iSelect = 53 or g_iSelect = 54 then   
+        g_iWidgetNum := 1;
+      elsif g_iSelect = 55 or g_iSelect = 56 then
+        g_iWidgetnum := 2;
+      elsif g_iSelect = 57 or g_iSelect = 58 then
+        g_iWidgetNum := 3;
+      elsif g_iSelect = 59 or g_iSelect = 60 then
+        g_iWidgetNum := 4;
+      elsif g_iSelect = 61 or g_iSelect = 62 then
+        g_iWidgetNum := 5;
+      elsif g_iSelect = 63 or g_iSelect = 64 then
+        g_iWidgetNum := 6;
+      elsif g_iSelect = 65 or g_iSelect = 66 then
+        g_iWidgetNum := 7;
+      elsif g_iSelect = 67 or g_iSelect = 68 then
+        g_iWidgetNum := 8;
+      
+      end if;
+
+      i := (g_iPage - 1) * g_ciMaxPerSelectScreen + g_iWidgetNum;  
+    
+    return i;
+
+      
+  end; 
 
   procedure ClearDisplayListArray;  -- Clear Display List Array
     i : integer;
@@ -409,8 +439,8 @@ program reverse;
     end if;
   end;
 
-  --For Aris hehe :)
-  procedure SelectCustomer;
+  
+  procedure SelectCustomer; --this is just changing the color of the selection
     iTouch : integer;
     i : integer;
   begin
@@ -430,8 +460,8 @@ program reverse;
       SetwidgetColor(g_iWidget - 1, "#BB0000");
       SetwidgetColor(g_iWidget - 2, "#BB0000");
     end if;
-    Select1 := g_iWidget;
-
+    g_iSelect := g_iWidget;
+    
   end;
 
 
