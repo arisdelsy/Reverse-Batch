@@ -4,11 +4,7 @@
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-<<<<<<< Updated upstream
-  <ConfigHash value="222 38 23 10 78 109 118 188 222 195 80 69 255 199 76 229 138 53 174 153 " />
-=======
   <ConfigHash value="240 13 229 39 3 149 44 71 153 153 69 47 156 99 64 74 31 71 82 114 " />
->>>>>>> Stashed changes
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
