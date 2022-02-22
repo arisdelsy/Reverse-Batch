@@ -269,6 +269,54 @@ program reverse;
 
   end;   
 
+<<<<<<< HEAD
+=======
+  procedure DisplayCustomersDBtest; 
+    i : integer;
+    j : integer;
+
+  begin 
+
+    -- Clear Text Boxes & Widgets
+    ClearWidgetsData;
+    
+    -- Clear Array
+    ClearDisplayListArray; 
+    
+    -- Sort DB or Get Based of Criteria                                       
+    CustomersDB.Sort(1);                                    
+    i := 1; 
+    
+    -- FillArray
+   -- if CustomersDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+
+    g_arDisplay[1].sOrderNum := CustomersDB.Order;  -- for item we are 
+    g_arDisplay[1].sName := CustomersDB.Name;  --  
+      
+    --end if; 
+    
+    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
+    SelectScreen(g_ciCust);                                       
+    i := MinL2;  
+    SetSymbolState(g_iWidgetNum, 1);
+    g_iPage := 1;          
+    j := 1;   
+    
+    -- Populate Screen
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen
+    loop    
+      SetLabelText(i, g_arDisplay[j].sOrderNum);
+      SetLabelText(i + 1, g_arDisplay[j].sName);  
+      i := i + 2;
+      j := j + 1;   
+    end loop;  
+
+    --SetLabelText(i, g_arDisplay[j].sOrderNum);
+    --SetLabelText(i + 1, g_arDisplay[j].sName);                        
+
+  end;  
+
+>>>>>>> parent of 67bb547 (2/19)
   procedure SelectProduct;
     i : integer;
   begin

@@ -269,6 +269,57 @@ program reverse;
 
   end;   
 
+<<<<<<< HEAD
+=======
+  procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
+    a : integer;
+    i : integer;
+    j : integer;
+    b : integer;
+  begin 
+    
+    -- Clear display
+    for i := minLabel to maxLabel
+    loop
+      SetLabelText(i, Blank);
+    end loop;
+    
+    -- Find out where we are in the array
+    if tmpPage = 1 then
+      i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
+    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerScreen) then
+      i := (tmpPage * g_ciMaxPerScreen) - 7;      
+    else
+      i := 1;
+      g_iPage := 1;              
+    end if;
+
+    b := minLabel;
+    j := i + 7; 
+    
+    -- Display the top of the list if we have reach the end 
+    if g_arDisplay[i].sID = Blank then -- and EntryMode <> SetupSelectTruck then
+ 
+      DisplayInboundDB;  
+
+    else  
+      
+      -- Populate display with new data
+      for a := i to j
+      loop  
+        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sID <> Blank then
+          SetLabelText(b, g_arDisplay[a].sID);
+          SetLabelText(b + 1, g_arDisplay[a].sName);  
+					SetLabelText(b + 2, g_arDisplay[a].sInDT);
+          b := b + 3; 
+        end if; 
+      end loop;
+       
+    end if;
+
+  end; 
+
+>>>>>>> parent of 67bb547 (2/19)
   procedure SelectProduct;
     i : integer;
   begin
