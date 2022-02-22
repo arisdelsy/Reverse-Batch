@@ -32,7 +32,7 @@ program reverse;
   g_iDelayCnt : integer; 
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
-  Select1   : integer;
+  g_iSelect   : integer;
   g_ciMaxPerScreen :integer;
   g_iWaitSSScale : integer;
   g_iUpdate : integer;
@@ -429,7 +429,7 @@ program reverse;
       SetwidgetColor(g_iWidget - 1, "#BB0000");
       SetwidgetColor(g_iWidget - 2, "#BB0000");
     end if;
-    Select1 := g_iWidget;
+    g_iSelect := g_iWidget;
 
   end;
 
