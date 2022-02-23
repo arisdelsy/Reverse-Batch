@@ -73,7 +73,7 @@ program reverse;
   g_Entrymode : integer;
 
   --Temp variables for entry for customer info
-  t_order     : integer;
+  t_order     : string;
   t_customer  : string;
   t_street    : string;
   t_town      : string;
@@ -209,7 +209,7 @@ program reverse;
   procedure ClearCustomerTemp;
   begin
 
-    t_order     := 0;
+    t_order     := Blank;
     t_customer  := Blank;
     t_street    := Blank;
     t_town      := Blank;
@@ -236,14 +236,14 @@ program reverse;
     -- FillArray
     if CustomersDB.GetFirst = SysOk then  
 
-      g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  -- for item 
+      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item 
       g_arDisplay[i].sName := CustomersDB.Name;  
       i := 2;            
  
       while CustomersDB.GetNext = SysOk  
       loop         
         if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := IntegerToString(CustomersDB.Order,0);  
+          g_arDisplay[i].sOrderNum := CustomersDB.Order;  
       		g_arDisplay[i].sName := CustomersDB.Name;                                               
           i := i + 1;                          
         end if;       
@@ -277,7 +277,7 @@ program reverse;
   begin 
     
     -- Clear display
-    for i := minLabel to maxLabel
+    for i := MinL2 to MaxL2
     loop
       SetLabelText(i, Blank);
     end loop;
@@ -292,24 +292,23 @@ program reverse;
       g_iPage := 1;              
     end if;
 
-    b := minLabel;
+    b := MinL2;
     j := i + 7; 
     
     -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sID = Blank then -- and EntryMode <> SetupSelectTruck then
+    if g_arDisplay[i].sOrderNum = Blank then -- and EntryMode <> SetupSelectTruck then
  
-      DisplayInboundDB;  
+      DisplayCustomersDB;  
 
     else  
       
       -- Populate display with new data
       for a := i to j
       loop  
-        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sID <> Blank then
-          SetLabelText(b, g_arDisplay[a].sID);
+        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sOrderNum <> Blank then
+          SetLabelText(b, g_arDisplay[a].sOrderNum);
           SetLabelText(b + 1, g_arDisplay[a].sName);  
-					SetLabelText(b + 2, g_arDisplay[a].sInDT);
-          b := b + 3; 
+          b := b + 2; 
         end if; 
       end loop;
        
@@ -357,6 +356,7 @@ program reverse;
   end;
 
   procedure LoadProduct;
+  i : integer;
   begin
   
     ClearProductListArray;
@@ -537,28 +537,8 @@ begin
   CustomersDB.Street := t_street;
   CustomersDB.Town := t_town;
   CustomersDB.State := t_state;
-  CustomersDB.Zip := t_zip;
-
-  g_sysResult := CustomersDB.FindFirst(Customer_Order)
-  
+  CustomersDB.ZipCode := t_zip;
   CustomersDB.Add;
-  if t_customer <> Blank then
-    if t_order <> 0 and g_sysResult <> Sysok then 
-      Customer_Order := t_order; 
-    else  
-      if t_order = 0 then 
-        Customer_Order := t_order; 
-      else
-        DisplayStatus("Invalid number: Already in Database");
-      end if;
-    end if;
-  else  
-    SelectScreen(g_ciaddcust)
-    DisplayStatus("Please put a Customer Name");
-    --PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
-
-
-  end;
 
   
 end;
@@ -708,14 +688,14 @@ handler WidgetClicked;
 
 procedure DisplayBatchComplete;
 begin
-  if g_EntryMode = BatchCompleteMode;
+  if g_EntryMode = BatchCompleteMode then
     SetLabelText(lblCust, t_customer);
     SetLabelText(lblShp1, t_street);
     SetLabelText(lblShp2, t_town);
     SetLabelText(lblShp3, t_state);
     --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
     --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
-    end if;
+  end if;
 end;
 
 
