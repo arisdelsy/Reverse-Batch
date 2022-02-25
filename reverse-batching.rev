@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-  <Revision value="1.2.7.28548" />
+  <Revision value="1.2.7.31234" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="42 232 55 15 244 159 30 220 70 108 132 191 20 74 54 236 171 195 111 10 " />
+  <ConfigHash value="244 28 53 233 155 241 174 188 134 157 238 88 158 24 128 134 127 64 118 147 " />
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=10000
@@ -13387,7 +13387,7 @@ WDGT#120=7,804,127,100,100,1,1,0,,13,img120
 WDGT#121=7,704,260,77,79,1,1,0,,13,btnNxt13
 WDGT#122=7,693,17,85,83,1,1,0,local://9.png,13,btnExt13
 WDGT#123=3,54,298,680,78,2,1,2,2,#F3002E,bar123,1,1,1,1,9
-WDGT#124=4,715,265,75,75,+,2,3,34,#000000,btnAdd,2,0,0,1,2
+WDGT#124=4,715,265,75,75,+,2,3,34,#000000,btnAdd,4,0,0,1,2
 WDGT#127=4,29,80,130,71,YES,2,3,12,Black,lbl127,4,0,0,1,13
 WDGT#128=4,185,82,130,71,NO,2,3,12,Black,lbl128,4,0,0,1,13
 WDGT#129=10,350,57,1,310,2,1,Black,13
