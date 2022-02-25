@@ -70,6 +70,7 @@ program reverse;
 
   g_ciMaxPerSelectScreen    : constant integer := 8;
 
+  Blank : constant string := "";
 
   EntryMode : integer;
   g_Entrymode : integer;
@@ -81,7 +82,7 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : integer;
-  Blank : constant string := "";
+  
 
   --Temp variables for product information
   t_psi       : integer;
@@ -354,28 +355,28 @@ program reverse;
     -- FillArray
     if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
       g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
-      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
-      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
-      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, );  
+      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
+      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
+      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
       g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
-      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
-      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1); 
+      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
+      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
+      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1); 
       i := 2;            
     end if; 
     while ProductDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
     loop         
       if i <= g_ciMaxRecords then             
         g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, g_iDecimal1);  
-        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, g_iDecimal1);
-        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, g_iDecimal1);
-        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, g_iDecimal1);
+        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, 1);  
+        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
+        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
+        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
         g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, g_iDecimal1);
-        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, g_iDecimal1);
-        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, g_iDecimal1);                                             
+        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
+        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
+        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1);                                             
         i := i + 1;                          
       end if;       
     end loop; 
@@ -835,6 +836,8 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+    
+    elsif g_iWidget = 
 
     end if;
 
