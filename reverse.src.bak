@@ -40,6 +40,10 @@ program reverse;
   r1current_select : integer;   
   r2current_select : integer; 
   g_iProductRow    : integer; -- mimics what is being done with g_iWidgetNum
+  -- new variables Aris bargra
+  g_rTarget : real;
+  g_rInitial : real;
+  g_rActiveWeight : real;
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -164,6 +168,66 @@ program reverse;
      
   end;
 
+  procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
+    begin 
+    
+      ClosePrompt;  
+
+      if Entrymode = EnterOrderMode then 
+        EntryMode := CustomerSelectMode;
+        t_order := Blank;
+        SelectScreen(g_ciCust);
+      elsif Entrymode = EnterNameMode then 
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      elsif Entrymode = EnterStreetMode then 
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      elsif Entrymode = EnterTownMode then 
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      elsif Entrymode = EnterStateMode then 
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      elsif Entrymode = EnterZipCodeMode then 
+        EntryMode := CustomerSelectMode;
+        SelectScreen(g_ciCust);
+      else   
+        DisplayStatus(Blank); 
+        EntryMode := NoMode;  
+      end if;
+      
+    end;  
+
+   function GetSelection : integer;  -- Returns the current selected record in the display list    
+    -- we choose function because it returns a value 
+    i : integer;    
+    begin
+        if g_iSelect = 53 or g_iSelect = 54 then   
+          g_iWidgetNum := 1;
+        elsif g_iSelect = 55 or g_iSelect = 56 then
+          g_iWidgetnum := 2;
+        elsif g_iSelect = 57 or g_iSelect = 58 then
+          g_iWidgetNum := 3;
+        elsif g_iSelect = 59 or g_iSelect = 60 then
+          g_iWidgetNum := 4;
+        elsif g_iSelect = 61 or g_iSelect = 62 then
+          g_iWidgetNum := 5;
+        elsif g_iSelect = 63 or g_iSelect = 64 then
+          g_iWidgetNum := 6;
+        elsif g_iSelect = 65 or g_iSelect = 66 then
+          g_iWidgetNum := 7;
+        elsif g_iSelect = 67 or g_iSelect = 68 then
+          g_iWidgetNum := 8;
+
+        end if;
+
+        i := (g_iPage - 1) * g_ciMaxPerSelectScreen + g_iWidgetNum;  
+      
+      return i;
+
+    end;
+
   procedure ClearDisplayListArray;  -- Clear Display List Array
     i : integer;
   begin 
@@ -275,11 +339,11 @@ program reverse;
     j := 1;   
     
     -- Populate Screen
-    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerScreen   
+    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerSelectScreen   
     loop    
       SetLabelText(i, g_arDisplay[j].sOrderNum);
       SetLabelText(i + 1, g_arDisplay[j].sName);  
-      i := i + 3;
+      i := i + 2;
       j := j + 1;   
     end loop;                            
 
@@ -301,8 +365,8 @@ program reverse;
     -- Find out where we are in the array
     if tmpPage = 1 then
       i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
-    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerScreen) then
-      i := (tmpPage * g_ciMaxPerScreen) - 7;      
+    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerSelectScreen) then
+      i := (tmpPage * g_ciMaxPerSelectScreen) - 7;      
     else
       i := 1;
       g_iPage := 1;              
@@ -312,21 +376,21 @@ program reverse;
     j := i + 7; 
     
     -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sOrderNum = Blank then -- and EntryMode <> SetupSelectTruck then
+    if g_arDisplay[i].sOrderNum = Blank then --and EntryMode <> CustomerSelectMode then
  
       DisplayCustomersDB;  
 
     else  
       
-      -- Populate display with new data
-      for a := i to j
-      loop  
-        if a > 0 and a <= g_ciMaxRecords and g_arDisplay[a].sOrderNum <> Blank then
-          SetLabelText(b, g_arDisplay[a].sOrderNum);
-          SetLabelText(b + 1, g_arDisplay[a].sName);  
-          b := b + 2; 
-        end if; 
-      end loop;
+    -- Populate display with new data
+    for a := i to j
+    loop  
+      if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sOrderNum <> Blank then
+        SetLabelText(b, g_arDisplay[a].sOrderNum);
+        SetLabelText(b + 1, g_arDisplay[a].sName);  
+        b := b + 2; 
+      end if; 
+    end loop;
        
     end if;
 
@@ -502,34 +566,6 @@ program reverse;
     r2current_select := 0;
   end;
 
-   function GetSelection : integer;  -- Returns the current selected record in the display list    
-    i : integer;    
-  begin
-      if g_iSelect = 53 or g_iSelect = 54 then   
-        g_iWidgetNum := 1;
-      elsif g_iSelect = 55 or g_iSelect = 56 then
-        g_iWidgetnum := 2;
-      elsif g_iSelect = 57 or g_iSelect = 58 then
-        g_iWidgetNum := 3;
-      elsif g_iSelect = 59 or g_iSelect = 60 then
-        g_iWidgetNum := 4;
-      elsif g_iSelect = 61 or g_iSelect = 62 then
-        g_iWidgetNum := 5;
-      elsif g_iSelect = 63 or g_iSelect = 64 then
-        g_iWidgetNum := 6;
-      elsif g_iSelect = 65 or g_iSelect = 66 then
-        g_iWidgetNum := 7;
-      elsif g_iSelect = 67 or g_iSelect = 68 then
-        g_iWidgetNum := 8;
-
-      end if;
-
-      i := (g_iPage - 1) * g_ciMaxPerSelectScreen + g_iWidgetNum;  
-    
-    return i;
-
-  end;
-
   procedure ProcessSelection;
 
   begin
@@ -619,6 +655,20 @@ program reverse;
     
   end;  
 
+procedure ProcessingCustomerEntry;
+begin
+
+  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
+  CustomersDB.Name := t_customer;
+  CustomersDB.Street := t_street;
+  CustomersDB.Town := t_town;
+  CustomersDB.State := t_state;
+  CustomersDB.ZipCode := t_zip;
+  CustomersDB.Add;
+
+  
+end;
+
 --new changes Aris 
 	handler UserEntry; -- Built in and 
   	sTemp : string;
@@ -645,7 +695,6 @@ program reverse;
 
   	elsif g_Entrymode = EnterStreetMode then 
       if sTemp = Blank then
-    	
         PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
       end if;
       SetLabelText(lbl226, sTemp);
@@ -680,19 +729,7 @@ program reverse;
   --ProcessingCustomerEntry;
 end;
 
-procedure ProcessingCustomerEntry;
-begin
 
-  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
-  CustomersDB.Name := t_customer;
-  CustomersDB.Street := t_street;
-  CustomersDB.Town := t_town;
-  CustomersDB.State := t_state;
-  CustomersDB.ZipCode := t_zip;
-  CustomersDB.Add;
-
-  
-end;
 
 procedure Ready;  -- Initialization procedure
 begin
@@ -739,11 +776,9 @@ handler WidgetClicked;
 		DisplayStatus("");
 
     if g_iWidget = btnStrt then
-      if EntryMode = NoMode then
-        EntryMode := CustomerSelectMode;
-        DisplayCustomersDB;
-        SelectScreen(g_ciCust);
-      end if;
+      EntryMode := CustomerSelectMode;
+      DisplayCustomersDB;
+      SelectScreen(g_ciCust);
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
@@ -849,12 +884,33 @@ handler WidgetClicked;
     elsif g_iWidget = btnAdd then
       EntryMode := CustomerProcessMode;
       SelectScreen(g_ciaddcust);
+    elsif g_iWidget = btnPgUp2 then
+      g_iPage := g_iPage - 1;   
+      SetSymbolState(g_iWidgetNum, 2);      
+      PageUporDownCustomerList(g_iPage);  
+
+    elsif g_iWidget = btnPgDn2 then
+      g_iPage := g_iPage + 1;   
+      SetSymbolState(g_iWidgetNum, 2);       
+      PageUporDownCustomerList(g_iPage); 
 
     end if;
 
     EnableHandler(WidgetClicked); 
    
   end;
+
+--procedure BatchNBarGraphDisplay
+--begin
+    -- g_EntryMode = BatchMode;
+    -- g_rTarget := g_rInitial - g_rActiveWeight 
+    -- level := ((batch / target)*100)
+    -- 
+    -- while level < 100;
+    --    SetBargraphLevel(bar, level);
+
+--end;
+
 
 procedure DisplayBatchComplete;
 begin
