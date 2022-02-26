@@ -1,4 +1,0 @@
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:438:18:: Type mismatch in assignment
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:439:28:: Parameter type mismatch
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:495:15:: Not a member of qualified type
-C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:499:14:: syntax error

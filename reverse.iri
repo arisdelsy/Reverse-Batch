@@ -30,7 +30,7 @@ type TransDatabase is database ("Trans")
   TonAccum: Real;
 end database;
 type CustomerDatabase is database ("Customer")
-     Order: Integer;
+     Order: String;
       Name: String;
     Street: String;
       Town: String;
@@ -226,7 +226,8 @@ lbl119    : constant integer := 119;
 img120    : constant integer := 120;
 btnNxt13  : constant integer := 121;
 btnExt13  : constant integer := 122;
-lbl126    : constant integer := 126;
+bar123    : constant integer := 123;
+btnAdd    : constant integer := 124;
 lbl127    : constant integer := 127;
 lbl128    : constant integer := 128;
 line129   : constant integer := 129;
