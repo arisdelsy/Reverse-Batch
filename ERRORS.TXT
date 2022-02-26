@@ -1,3 +1,0 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:288:26:: Type mismatch in assignment
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:335:40:: Wrong number of parameters
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:342:5:: syntax error
