@@ -292,6 +292,21 @@ program reverse;
     t_zip       := 0;
 
   end;
+
+  procedure ClearProductTemp;
+  begin
+
+    t_psi := 0;
+    t_qtyconc := 0;
+    t_sand := 0;
+    t_cement := 0;
+    t_wat_gal := 0;
+    t_calcium := 0;
+    t_air_ent := 0;
+    t_antihydr := 0;
+    t_retard := 0;
+
+  end;
   
   procedure DisplayCustomersDB; 
     i : integer;
@@ -908,6 +923,10 @@ handler WidgetClicked;
     -- 
     -- while level < 100;
     --    SetBargraphLevel(bar, level);
+    --    
+    --    if level = 
+    --      SetWidgetColor(widgetnumber, yellow);
+    --
 
 --end;
 
