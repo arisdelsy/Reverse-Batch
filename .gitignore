@@ -3,3 +3,4 @@ ERRORS.TXT
 ERRORS.TXT
 *.bak
 iRite.settings.json
+.vscode/extensions.json
