@@ -40,10 +40,11 @@ program reverse;
   r1current_select : integer;   
   r2current_select : integer; 
   g_iProductRow    : integer; -- mimics what is being done with g_iWidgetNum
-  -- new variables Aris bargra
+  -- new variables Aris 
   g_rTarget : real;
   g_rInitial : real;
   g_rActiveWeight : real;
+  g_ciPrinter : constant integer := 1; -- printer port?
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -102,6 +103,11 @@ program reverse;
   type boolean is (False,True);
   r1_select : boolean := False;
   r2_select : boolean := False;
+
+  bCalcium : boolean;
+  bAnti_hydro : boolean;
+  bAir_ent : boolean;
+  bRetarder : boolean;
 
   type DisplayRecord is
     record 
@@ -782,7 +788,12 @@ begin
     end if;
   end if;    
   r1_select := False;
-  r2_select := False;          
+  r2_select := False;
+  bCalcium := False;
+  bAnti_hydro := False;
+  bAir_ent := False;
+  bRetarder := False;
+
   --Paused := No;
   --BatchMode := Complete;  
   --RefreshMainDisplay;
@@ -867,7 +878,8 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
  
     elsif g_iWidget = btnPrint then  
-      Print(GrossFmt);
+      Print(GrossFmt); -- test purposes?
+      -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
       EntryMode := NoMode;
@@ -965,7 +977,7 @@ handler WidgetClicked;
 
 procedure DisplayBatchComplete;
 begin
-  if g_EntryMode = BatchCompleteMode then
+  if EntryMode = BatchCompleteMode then
 
     --dTime := SystemTime;
     SetLabelText(lblCust, t_customer);
@@ -976,6 +988,65 @@ begin
     --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
   end if;
 end;
+
+procedure TicketOutput;
+  dTime := datetime := SystemTime
+begin
+  if EntryMode = AutoPrintMode or EntryMode = ManualPrintMode then
+    DisplayStatus("Printing...");
+    WriteLn(g_ciPrinter, "Order #: " + t_order);
+    WriteLn(g_ciPrinter, "Customer: " + t_customer);
+    WriteLn(g_ciPrinter, "Shipping Address:");
+    WriteLn(g_ciPrinter, t_street);
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
+
+    WriteLn(g_ciPrinter, Blank);
+    WriteLn(g_ciPrinter, Blank);
+
+    WriteLn(g_ciPrinter, "Product Mix" + );
+    WriteLn(g_ciPrinter, "PSI: " + t_psi);
+
+    if t_calcium <> bCalcium then
+      WriteLn(g_ciPrinter, "Add Calcium? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Add Calcium? : NO ");
+    end if;
+    
+    if t_antihydr <> bAnti_hydro then
+      WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
+    end if;
+
+    if t_air_ent <> bAir_ent then
+      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    end if;
+    
+    if t_retard <> bRetarder then
+      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    end if;
+
+    -- I KNOW THEY DONT BELONG HERE STEVEN IM JUST LEAVING THEM 
+    -- HERE SO I CAN REFER BACK TO THEM INSTEAD OF SCROLLING UP OR
+    -- OPENING A DOUBLE SRC
+    --t_psi := 0;
+    --t_qtyconc := 0;
+    --t_sand := 0;
+    --t_cement := 0;
+    --t_wat_gal := 0;
+    --t_calcium := 0;
+    --t_air_ent := 0;
+    --t_antihydr := 0;
+    --t_retard := 0;
+
+    ClearCustomerTemp;
+    ClearProductTemp;
+
+end
 
 
 
