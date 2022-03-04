@@ -1003,8 +1003,10 @@ begin
     WriteLn(g_ciPrinter, Blank);
     WriteLn(g_ciPrinter, Blank);
 
-    WriteLn(g_ciPrinter, "Product Mix" + );
+    WriteLn(g_ciPrinter, "Product Mix");
     WriteLn(g_ciPrinter, "PSI: " + t_psi);
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + t_qtyconc);
+    WriteLn(g_ciPrinter, );
 
     if t_calcium <> bCalcium then
       WriteLn(g_ciPrinter, "Add Calcium? : YES ");
@@ -1038,10 +1040,7 @@ begin
     --t_sand := 0;
     --t_cement := 0;
     --t_wat_gal := 0;
-    --t_calcium := 0;
-    --t_air_ent := 0;
-    --t_antihydr := 0;
-    --t_retard := 0;
+ 
 
     ClearCustomerTemp;
     ClearProductTemp;
