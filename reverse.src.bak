@@ -40,10 +40,12 @@ program reverse;
   r1current_select : integer;   
   r2current_select : integer; 
   g_iProductRow    : integer; -- mimics what is being done with g_iWidgetNum
-  -- new variables Aris bargra
+  -- new variables Aris 
   g_rTarget : real;
   g_rInitial : real;
   g_rActiveWeight : real;
+  g_ciPrinter : constant integer := 1; -- printer port?
+  
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -57,6 +59,7 @@ program reverse;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
+  AddOnsMode          : constant integer := 1015;
 
 -- Aris added new modes
 -- Entry Modes for customer entry
@@ -103,6 +106,11 @@ program reverse;
   r1_select : boolean := False;
   r2_select : boolean := False;
 
+  bCalcium : boolean;
+  bAnti_hydro : boolean;
+  bAir_ent : boolean;
+  bRetarder : boolean;
+
   type DisplayRecord is
     record 
       sOrderNum : string; 
@@ -115,15 +123,15 @@ program reverse;
 
   type ProductRecord is
     record
-      sPSI     : string;
-      sQTY_CONC: string;
-      sSAND_MIX: string;
-      sCEMENT  : string;
-      sWAT_GALL: string;
-      sCALCIUM : string;
-      sAIR_ENT : string;
-      sANTIHYDR: string;
-      sRETARDER: string;
+      sPSI     : integer;
+      sQTY_CONC: real;
+      sSAND_MIX: real;
+      sCEMENT  : real;
+      sWAT_GALL: real;
+      sCALCIUM : integer;
+      sAIR_ENT : real;
+      sANTIHYDR: real;
+      sRETARDER: real;
     end record;    
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
@@ -256,15 +264,15 @@ program reverse;
     for i := 1 to g_ciMaxProducts  -- in the range from 1 to 1000
     loop
 
-      g_arProduct[i].sPSI := Blank;
-      g_arProduct[i].sQTY_CONC := Blank;  
-      g_arProduct[i].sSAND_MIX := Blank;
-      g_arProduct[i].sCEMENT := Blank;
-      g_arProduct[i].sWAT_GALL := Blank;
-      g_arProduct[i].sCALCIUM := Blank;
-      g_arProduct[i].sAIR_ENT := Blank;
-      g_arProduct[i].sANTIHYDR := Blank;
-      g_arProduct[i].sRETARDER := Blank; 
+      g_arProduct[i].sPSI := 0;
+      g_arProduct[i].sQTY_CONC := 0;  
+      g_arProduct[i].sSAND_MIX := 0;
+      g_arProduct[i].sCEMENT := 0;
+      g_arProduct[i].sWAT_GALL := 0;
+      g_arProduct[i].sCALCIUM := 0;
+      g_arProduct[i].sAIR_ENT := 0;
+      g_arProduct[i].sANTIHYDR := 0;
+      g_arProduct[i].sRETARDER := 0; 
 
     end loop;
          
@@ -433,29 +441,29 @@ program reverse;
 
     -- FillArray
     if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
-      g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, 1);  
-      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
-      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
-      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
-      g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
-      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
-      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1); 
+      g_arProduct[i].sPSI := ProductDB.PSI;
+      g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+      g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+      g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+      g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+      g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+      g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+      g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+      g_arProduct[i].sRETARDER := ProductDB.RETARDER; 
       i := 2;            
     end if; 
     while ProductDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
     loop         
       if i <= g_ciMaxRecords then             
-        g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, 1);  
-        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
-        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
-        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
-        g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
-        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
-        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1);                                             
+        g_arProduct[i].sPSI := ProductDB.PSI;
+        g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+        g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+        g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+        g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+        g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+        g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+        g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+        g_arProduct[i].sRETARDER := ProductDB.RETARDER;                                             
         i := i + 1;                          
       end if;       
     end loop; 
@@ -474,6 +482,8 @@ program reverse;
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
+        SetWidgetColor(r1current_select, "Black");
+        r1current_select := 0;
       elsif r1_select = True and r1current_select <> g_iWidget then
         SetWidgetColor(r1current_select, "Black");
         r1current_select := g_iWidget;
@@ -488,8 +498,14 @@ program reverse;
 
     --R2
     if g_iWidget >= 112 and g_iWidget <= 116 then 
-      if r2_select = true and r2current_select= g_iWidget then 
+      if r2_select = true and r2current_select = g_iWidget then 
         r2_select := False;
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := 0;
+      elsif r2_select = True and r2current_select <> g_iWidget then
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := g_iWidget;
+        SetWidgetColor(g_iWidget, "#BB0000");
       else 
         r2_select := True;
         SetWidgetColor(g_iWidget, "#BB0000");
@@ -549,6 +565,7 @@ program reverse;
       g_iProductRow := 20;
     else
       DisplayStatus("System Malfunction!");
+      g_iProductRow := 0;
     end if;
 
   end;
@@ -564,15 +581,27 @@ program reverse;
     end loop;
     
     if g_iProductRow <> 0 then
-      SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
-      SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
-      SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
-      SetLabelText(testcem, g_arProduct[g_iProductRow].sCEMENT);
-      SetLabelText(testwat, g_arProduct[g_iProductRow].sWAT_GALL);
-      SetLabelText(testcal, g_arProduct[g_iProductRow].sCALCIUM);
-      SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
-      SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
-      SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
+      --SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
+      --SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
+      --SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
+      --SetLabelText(testcem, g_arProduct[g_iProductRow].sCEMENT);
+      --SetLabelText(testwat, g_arProduct[g_iProductRow].sWAT_GALL);
+      --SetLabelText(testcal, g_arProduct[g_iProductRow].sCALCIUM);
+      --SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
+      --SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
+      --SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
+      
+      t_psi       := g_arProduct[g_iProductRow].sPSI;
+      t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
+      t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
+      t_cement    := g_arProduct[g_iProductRow].sCEMENT;
+      t_wat_gal   := g_arProduct[g_iProductRow].sWAT_GALL;
+      t_calcium   := g_arProduct[g_iProductRow].sCALCIUM;
+      t_air_ent   := g_arProduct[g_iProductRow].sAIR_ENT;
+      t_antihydr  := g_arProduct[g_iProductRow].sANTIHYDR;
+      t_retard    := g_arProduct[g_iProductRow].sRETARDER;
+          
+
     else
       DisplayStatus("ERROR! No Selection Made.");
     end if;
@@ -684,6 +713,18 @@ begin
   
 end;
 
+procedure RunBatch;
+begin
+
+  --Batching concrete
+  
+  DisplayStatus("HI");
+
+  --Batching sand mix
+
+
+end;
+
 --new changes Aris 
 	handler UserEntry; -- Built in and 
   	sTemp : string;
@@ -758,7 +799,9 @@ begin
     end if;
   end if;    
   r1_select := False;
-  r2_select := False;          
+  r2_select := False;
+  
+
   --Paused := No;
   --BatchMode := Complete;  
   --RefreshMainDisplay;
@@ -773,6 +816,21 @@ begin
 
   EntryMode := BatchCompleteMode;
   SelectScreen(g_ciBatch);
+
+end;
+
+procedure DefaultsForAddOns;
+begin
+
+  bCalcium := False;
+  bAnti_hydro := False;
+  bAir_ent := False;
+  bRetarder := False;
+
+  Setwidgetcolor(lbl128, "#BB0000");
+  Setwidgetcolor(lbl137, "#BB0000");
+  Setwidgetcolor(lbl133, "#BB0000");
+  Setwidgetcolor(lbl142, "#BB0000");
 
 end;
 
@@ -843,7 +901,8 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
  
     elsif g_iWidget = btnPrint then  
-      Print(GrossFmt);
+      Print(GrossFmt); -- test purposes?
+      -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
       EntryMode := NoMode;
@@ -861,22 +920,90 @@ handler WidgetClicked;
       EntryMode:= SetupMenuMode;
       setupScreen;
       SelectScreen(g_ciSetup);
--- new changes by aris
+
+-- new changes by steven
     elsif g_iWidget = btnNxt then
-      --EntryMode := BatchMode;
-      --SelectScreen(g_ciScales);
-      --SetupStartTimer(5, 500, TimerOneShot);
       GetProductSelection;
+      if g_iProductRow <> 0 then 
+        EntryMode := BatchMode;
+        SelectScreen(g_ciScales);
+        RunBatch;
+      end if;
+      EntryMode := AddOnsMode;
+      SelectScreen(g_ciAddOns); 
+      DefaultsForAddOns;
+      -- (Note: we dont want to create lockup: which is like gridlock)
+
+      --USED FOR DEMO PURPOSES
+      --SetupStartTimer(5, 500, TimerOneShot);
+      
+      --USED FOR TESTING
       --LoadProduct; replaced by timer 2 trip
-      SetupStartTimer(2,50,TimerOneShot);
-      EntryMode := NoMode;
+      --SetupStartTimer(2,50,TimerOneShot);
+      --EntryMode := NoMode;
       --Select test screen
-      SelectScreen(g_ciTest);
-      SetupStartTimer(1,1000,TimerOneShot);
+      --SelectScreen(g_ciTest);
+      --SetupStartTimer(1,1000,TimerOneShot);
     
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
+
+    elsif g_iWidget = lbl127 then
+      if  bCalcium = False then
+        bCalcium := True;
+        SetWidgetColor(lbl128, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+      end if;
+      
+    elsif g_iWidget = lbl128 then 
+      if bCalcium = True then 
+        bCalcium := False;
+        SetWidgetColor(g_iWidget, "Black");
+        SetWidgetColor(lbl127, "#BB0000");
+      end if;
+
+    elsif g_iWidget = lbl132 then
+      if  bAir_ent = False then
+        bAir_ent := True;
+        SetWidgetColor(lbl133, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+      end if;
+
+    elsif g_iWidget = lbl133 then
+      if  bAir_ent = True then
+        bAir_ent := False;
+        SetWidgetColor(g_iWidget, "Black");
+        SetWidgetColor(lbl132, "#BB0000");
+      end if;
+
+    elsif g_iWidget = lbl136 then
+      if  bAnti_hydro= False then
+        bAnti_hydro := True;
+        SetWidgetColor(lbl137, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+      end if;
+    
+    elsif g_iWidget = lbl137 then
+      if  bAnti_hydro= True then
+        bAnti_hydro := False;
+        SetWidgetColor(g_iWidget, "Black");
+        SetWidgetColor(lbl136, "#BB0000");
+      end if;
+
+    elsif g_iWidget = lbl141 then
+      if  bRetarder = False then
+        bRetarder := True;
+        SetWidgetColor(lbl142, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+      end if;
+    
+    elsif g_iWidget = lbl142 then
+      if  bRetarder = True then
+        bRetarder := False;
+        SetWidgetColor(g_iWidget, "Black");
+        SetWidgetColor(lbl141, "#BB0000");
+      end if;
 
     elsif g_iWidget = lbl224 then
       PromptForEntry("Enter Order Number", EnterOrderMode, Blank,1);
@@ -933,7 +1060,7 @@ handler WidgetClicked;
 
 procedure DisplayBatchComplete;
 begin
-  if g_EntryMode = BatchCompleteMode then
+  if EntryMode = BatchCompleteMode then
 
     --dTime := SystemTime;
     SetLabelText(lblCust, t_customer);
@@ -945,7 +1072,55 @@ begin
   end if;
 end;
 
+procedure TicketOutput;
+  dTime : datetime := SystemTime;
+begin
+  if EntryMode = AutoPrintMode or EntryMode = ManualPrintMode then
+    DisplayStatus("Printing...");
+    WriteLn(g_ciPrinter, "Order #: " + t_order);
+    WriteLn(g_ciPrinter, "Customer: " + t_customer);
+    WriteLn(g_ciPrinter, "Shipping Address:");
+    WriteLn(g_ciPrinter, t_street);
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
 
+    WriteLn(g_ciPrinter, Blank);
+    WriteLn(g_ciPrinter, Blank);
+
+    WriteLn(g_ciPrinter, "Product Mix");
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1));
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
+    WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
+
+    if bCalcium = true  then
+      WriteLn(g_ciPrinter, "Add Calcium? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Add Calcium? : NO ");
+    end if;
+    
+    if bAnti_hydro = true then
+      WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
+    end if;
+
+    if bAir_ent = true then
+      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    end if;
+    
+    if bRetarder = true then
+      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    else
+      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    end if;
+  end if;
+    ClearCustomerTemp;
+    ClearProductTemp;
+  
+end;
 
 begin
 
@@ -955,3 +1130,14 @@ begin
   Ready;       
 
 end reverse; 
+
+--Used for printing values from batch selection
+-- IntegerToString(g_arProduct[i].sPSI, 0);
+-- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
+-- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
+-- RealToString(g_arProduct[i].sCEMENT, 6, 1);
+-- RealToString(g_arProduct[i].sWAT_GALL, 6, 1);
+-- IntegerToString(g_arProduct[i].sCALCIUM, 0);
+-- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
+-- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
+-- RealToString(g_arProduct[i].sRETARDER, 6, 1);
