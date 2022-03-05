@@ -102,7 +102,6 @@ SP1       : constant integer :=1;
 SP2       : constant integer :=2;
 SP3       : constant integer :=3;
 SP4       : constant integer :=4;
-SP5       : constant integer :=5;
 
 -- Widget Aliases
 bar1      : constant integer := 1;
