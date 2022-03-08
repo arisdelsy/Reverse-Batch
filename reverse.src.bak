@@ -278,6 +278,7 @@ program reverse;
          
   end;
 
+  --WHY IS THIS NOT BEING CALLED?
   procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
     i : integer;
   begin  
@@ -581,6 +582,7 @@ program reverse;
     end loop;
     
     if g_iProductRow <> 0 then
+      --FOR TEST SCREEN
       --SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
       --SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
       --SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
@@ -605,6 +607,14 @@ program reverse;
     else
       DisplayStatus("ERROR! No Selection Made.");
     end if;
+    
+    --Calculation for target weight
+    
+    --SetPoints Added by Aris 
+    SetSPValue(1, t_qtyconc);
+    SetSPValue(2, t_sand);
+    SetSPValue(3, t_cement);
+    SetSPValue(4, t_wat_gal);
 
     r1current_select := 0;
     r2current_select := 0;
@@ -716,11 +726,13 @@ end;
 procedure RunBatch;
 begin
 
-  --Batching concrete
+  --Batching concrete (using setpoints 1/2)
   
+
+
   DisplayStatus("HI");
 
-  --Batching sand mix
+  --Batching sand mix (using setpoints 3/4)
 
 
 end;
@@ -801,6 +813,7 @@ begin
   r1_select := False;
   r2_select := False;
   
+  --DefaultsForAddOns; possible placement
 
   --Paused := No;
   --BatchMode := Complete;  
@@ -839,6 +852,59 @@ begin
   EntryMode := BatchMode;
   SelectScreen(g_ciScales);
   SetupStartTimer(5,100, TimerOneShot);
+end;
+
+procedure TicketOutput;
+  dTime : datetime := SystemTime;
+begin
+  if EntryMode = AutoPrintMode or EntryMode = ManualPrintMode then
+    DisplayStatus("Printing...");
+    WriteLn(g_ciPrinter, "Order #: " + t_order);
+    WriteLn(g_ciPrinter, "Customer: " + t_customer);
+    WriteLn(g_ciPrinter, "Shipping Address:");
+    WriteLn(g_ciPrinter, t_street);
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
+
+    WriteLn(g_ciPrinter, Blank);
+    WriteLn(g_ciPrinter, Blank);
+
+    WriteLn(g_ciPrinter, "Product Mix");
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1));
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
+    WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
+
+  -- Aris: this will most likely be only if statements, 
+  -- that if the addon is yes then we display otherwise we
+  -- DO NOT print it on the ticket
+    if bCalcium = true  then
+      WriteLn(g_ciPrinter, "Calcium? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Add Calcium? : NO ");
+    end if;
+    
+    if bAnti_hydro = true then
+      WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
+    end if;
+
+    if bAir_ent = true then
+      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    end if;
+    
+    if bRetarder = true then
+      WriteLn(g_ciPrinter, "Retarder? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Retarder? : NO ");
+    end if;
+  end if;
+    ClearCustomerTemp;
+    ClearProductTemp;
+  
 end;
 
 handler WidgetClicked;
@@ -951,58 +1017,58 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl127 then
       if  bCalcium = False then
-        bCalcium := True;
         SetWidgetColor(lbl128, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bCalcium := True;
       end if;
       
     elsif g_iWidget = lbl128 then 
       if bCalcium = True then 
+        SetWidgetColor(lbl127, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bCalcium := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl127, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl132 then
       if  bAir_ent = False then
-        bAir_ent := True;
         SetWidgetColor(lbl133, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bAir_ent := True;
       end if;
 
     elsif g_iWidget = lbl133 then
       if  bAir_ent = True then
+        SetWidgetColor(lbl132, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bAir_ent := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl132, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl136 then
       if  bAnti_hydro= False then
-        bAnti_hydro := True;
         SetWidgetColor(lbl137, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bAnti_hydro := True;
       end if;
     
     elsif g_iWidget = lbl137 then
       if  bAnti_hydro= True then
         bAnti_hydro := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl136, "#BB0000");
+        SetWidgetColor(lbl136, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl141 then
       if  bRetarder = False then
-        bRetarder := True;
         SetWidgetColor(lbl142, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bRetarder := True;
       end if;
     
     elsif g_iWidget = lbl142 then
       if  bRetarder = True then
+        SetWidgetColor(lbl141, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bRetarder := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl141, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl224 then
@@ -1036,12 +1102,22 @@ handler WidgetClicked;
       SetSymbolState(g_iWidgetNum, 2);       
       PageUporDownCustomerList(g_iPage); 
 
+    elsif g_iWidget = btnNxt13 then 
+      EntryMode := BatchMode;
+      SelectScreen(g_ciScales);
+      RunBatch;
+
+    elsif g_iWidget = btnExt13 then
+      EntryMode := NoMode;
+      --DefaultsForAddOns;
+      SelectScreen(g_ciMain);
     end if;
 
     EnableHandler(WidgetClicked); 
    
   end;
 
+-- attempt by Aris
 --procedure BatchNBarGraphDisplay
 --begin
     -- g_EntryMode = BatchMode;
@@ -1056,7 +1132,8 @@ handler WidgetClicked;
     --
 
 --end;
-
+-- target : from active scale... by using the selectscalefunction 
+-- 
 
 procedure DisplayBatchComplete;
 begin
@@ -1070,56 +1147,6 @@ begin
     --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
     --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
   end if;
-end;
-
-procedure TicketOutput;
-  dTime : datetime := SystemTime;
-begin
-  if EntryMode = AutoPrintMode or EntryMode = ManualPrintMode then
-    DisplayStatus("Printing...");
-    WriteLn(g_ciPrinter, "Order #: " + t_order);
-    WriteLn(g_ciPrinter, "Customer: " + t_customer);
-    WriteLn(g_ciPrinter, "Shipping Address:");
-    WriteLn(g_ciPrinter, t_street);
-    WriteLn(g_ciPrinter, t_town + "," + t_state);
-
-    WriteLn(g_ciPrinter, Blank);
-    WriteLn(g_ciPrinter, Blank);
-
-    WriteLn(g_ciPrinter, "Product Mix");
-    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1));
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
-    WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
-
-    if bCalcium = true  then
-      WriteLn(g_ciPrinter, "Add Calcium? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Add Calcium? : NO ");
-    end if;
-    
-    if bAnti_hydro = true then
-      WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
-    end if;
-
-    if bAir_ent = true then
-      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
-    end if;
-    
-    if bRetarder = true then
-      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
-    end if;
-  end if;
-    ClearCustomerTemp;
-    ClearProductTemp;
-  
 end;
 
 begin
@@ -1141,3 +1168,12 @@ end reverse;
 -- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
 -- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
 -- RealToString(g_arProduct[i].sRETARDER, 6, 1);
+
+
+--setpoints are a value that are user defined, active if enabled or Disabled
+--we only want is enabled if we are running a batch and disabled otherwise 
+
+--the first setpoint will trigger the bar graph to turn yellow (100 pounds before the target is reached)
+ 
+
+--target val + 75 

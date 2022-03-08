@@ -278,6 +278,7 @@ program reverse;
          
   end;
 
+  --WHY IS THIS NOT BEING CALLED?
   procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
     i : integer;
   begin  
@@ -609,8 +610,11 @@ program reverse;
     
     --Calculation for target weight
     
-
+    --SetPoints Added by Aris 
     SetSPValue(1, t_qtyconc);
+    SetSPValue(2, t_sand);
+    SetSPValue(3, t_cement);
+    SetSPValue(4, t_wat_gal);
 
     r1current_select := 0;
     r2current_select := 0;
@@ -809,6 +813,7 @@ begin
   r1_select := False;
   r2_select := False;
   
+  --DefaultsForAddOns; possible placement
 
   --Paused := No;
   --BatchMode := Complete;  
@@ -874,27 +879,27 @@ begin
   -- that if the addon is yes then we display otherwise we
   -- DO NOT print it on the ticket
     if bCalcium = true  then
-      WriteLn(g_ciPrinter, "Add Calcium? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Add Calcium? : NO ");
+      WriteLn(g_ciPrinter, "Calcium? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Add Calcium? : NO ");
     end if;
     
     if bAnti_hydro = true then
       WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
+    --else
+      --WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
     end if;
 
     if bAir_ent = true then
       WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+    --else
+      --WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
     end if;
     
     if bRetarder = true then
-      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    else
-      WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
+      WriteLn(g_ciPrinter, "Retarder? : YES ");
+    --else
+      --WriteLn(g_ciPrinter, "Retarder? : NO ");
     end if;
   end if;
     ClearCustomerTemp;
@@ -1012,58 +1017,58 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl127 then
       if  bCalcium = False then
-        bCalcium := True;
         SetWidgetColor(lbl128, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bCalcium := True;
       end if;
       
     elsif g_iWidget = lbl128 then 
       if bCalcium = True then 
+        SetWidgetColor(lbl127, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bCalcium := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl127, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl132 then
       if  bAir_ent = False then
-        bAir_ent := True;
         SetWidgetColor(lbl133, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bAir_ent := True;
       end if;
 
     elsif g_iWidget = lbl133 then
       if  bAir_ent = True then
+        SetWidgetColor(lbl132, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bAir_ent := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl132, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl136 then
       if  bAnti_hydro= False then
-        bAnti_hydro := True;
         SetWidgetColor(lbl137, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bAnti_hydro := True;
       end if;
     
     elsif g_iWidget = lbl137 then
       if  bAnti_hydro= True then
         bAnti_hydro := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl136, "#BB0000");
+        SetWidgetColor(lbl136, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl141 then
       if  bRetarder = False then
-        bRetarder := True;
         SetWidgetColor(lbl142, "Black");
         SetWidgetColor(g_iWidget, "#BB0000");
+        bRetarder := True;
       end if;
     
     elsif g_iWidget = lbl142 then
       if  bRetarder = True then
+        SetWidgetColor(lbl141, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
         bRetarder := False;
-        SetWidgetColor(g_iWidget, "Black");
-        SetWidgetColor(lbl141, "#BB0000");
       end if;
 
     elsif g_iWidget = lbl224 then
@@ -1099,17 +1104,20 @@ handler WidgetClicked;
 
     elsif g_iWidget = btnNxt13 then 
       EntryMode := BatchMode;
+      SelectScreen(g_ciScales);
       RunBatch;
-    
+
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
-      SelectScreen(g_ciScales);
+      --DefaultsForAddOns;
+      SelectScreen(g_ciMain);
     end if;
 
     EnableHandler(WidgetClicked); 
    
   end;
 
+-- attempt by Aris
 --procedure BatchNBarGraphDisplay
 --begin
     -- g_EntryMode = BatchMode;
@@ -1124,7 +1132,8 @@ handler WidgetClicked;
     --
 
 --end;
-
+-- target : from active scale... by using the selectscalefunction 
+-- 
 
 procedure DisplayBatchComplete;
 begin
@@ -1159,3 +1168,12 @@ end reverse;
 -- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
 -- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
 -- RealToString(g_arProduct[i].sRETARDER, 6, 1);
+
+
+--setpoints are a value that are user defined, active if enabled or Disabled
+--we only want is enabled if we are running a batch and disabled otherwise 
+
+--the first setpoint will trigger the bar graph to turn yellow (100 pounds before the target is reached)
+ 
+
+--target val + 75 
