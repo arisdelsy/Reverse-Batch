@@ -793,27 +793,27 @@ begin
 
   --Batching concrete (using setpoints 1/2)
   --Calculation for target weight
-  --WaitSS(1);
-  --GetGross(1,Primary,g_rInitial1);
+  WaitSS(1);
+  GetGross(1,Primary,g_rInitial1);
 
-  --g_rtarget1 := g_rInitial1 - t_cement;
+  g_rtarget1 := g_rInitial1 - t_cement;
 
-  --SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
-  --SetSPValue(2, g_rtarget1);
+  SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
+  SetSPValue(2, g_rtarget1);
   
   --Batching sand mix (using setpoints 3/4)
-  --WaitSS(2);
-  --GetGross(2,Primary,g_rInitial2);
+  WaitSS(2);
+  GetGross(2,Primary,g_rInitial2);
 
-  --g_rtarget2 := g_rInitial2 - t_sand;
+  g_rtarget2 := g_rInitial2 - t_sand;
 
-  --while()
+  while()
 
 
   --SetPoints
 
-  --SetSPValue(3, );
-  --SetSPValue(4, );
+  SetSPValue(3, );
+  SetSPValue(4, );
 
 
   DisplayStatus("HI");
