@@ -40,12 +40,15 @@ program reverse;
   r1current_select : integer;   
   r2current_select : integer; 
   g_iProductRow    : integer; -- mimics what is being done with g_iWidgetNum
-  -- new variables Aris 
-  g_rTarget : real;
-  g_rInitial : real;
-  g_rActiveWeight : real;
-  g_ciPrinter : constant integer := 1; -- printer port?
-  
+  --Variables for storing inital weight of scales as well as target weights
+  g_rInitial1 : real;
+  g_rInitial2 : real;
+  g_rtarget1  : real;
+  g_rtarget2  : real;
+  g_rActiveWeight1 : real;
+  g_rActiveWeight2 : real;
+  -- Printer port
+  g_ciPrinter : constant integer := 1;
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -61,7 +64,6 @@ program reverse;
   BatchCompleteMode   : constant integer := 1008;
   AddOnsMode          : constant integer := 1015;
 
--- Aris added new modes
 -- Entry Modes for customer entry
   EnterOrderMode          : constant integer := 1009;
   EnterNameMode           : constant integer := 1010;
@@ -176,36 +178,122 @@ program reverse;
      
   end;
 
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+     
+		SetEntry(sDefault);
+    if iPrompt = 1 then   
+      PromptUser(sPrompt);
+    elsif iPrompt = 2 then
+      PromptNumeric(sPrompt);
+    elsif iPrompt = 3 then
+      PromptPassword(sPrompt);
+    else
+      PromptUser(sPrompt);  
+    end if;
+    g_EntryMode := iMode;
+    
+  end;  
+
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
     begin 
     
       ClosePrompt;  
 
       if Entrymode = EnterOrderMode then 
-        EntryMode := CustomerSelectMode;
+        EntryMode := CustomerProcessMode;
         t_order := Blank;
-        SelectScreen(g_ciCust);
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterNameMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_customer := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterStreetMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_street := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterTownMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_town := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterStateMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_state := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterZipCodeMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_zip := 0;
+        SelectScreen(g_ciaddcust);
       else   
         DisplayStatus(Blank); 
         EntryMode := NoMode;  
       end if;
       
     end;  
+
+  procedure ProcessDataEntry(sTemp : string);
+  begin
+    --This is only going to show up for new customer entries
+    if g_Entrymode = EnterOrderMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      end if;
+      t_order := sTemp;
+      SetLabelText(lbl224, t_order);
+      EntryMode := CustomerProcessMode;
+      --SetLabelText(lbl224, sTemp);
+      --t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
+        
+    elsif g_Entrymode = EnterNameMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
+      end if;
+      SetLabelText(lbl225, sTemp);
+      t_customer := sTemp;
+      EntryMode := CustomerProcessMode;
+
+    elsif g_Entrymode = EnterStreetMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
+      end if;
+      SetLabelText(lbl226, sTemp);
+      t_street := sTemp;
+      EntryMode := CustomerProcessMode;
+
+    elsif g_Entrymode = EnterTownMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
+      end if; 
+      SetLabelText(lbl227, sTemp);
+      t_town := sTemp;
+      EntryMode := CustomerProcessMode;
+    
+    elsif g_Entrymode = EnterStateMode then 
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
+      end if;
+      SetLabelText(lbl228, sTemp);
+      t_state := sTemp;
+      EntryMode := CustomerProcessMode;
+    
+    elsif g_Entrymode = EnterZipCodeMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
+      end if;
+      SetLabelText(lbl229, sTemp);
+      t_zip := StringToInteger(sTemp);
+      EntryMode := CustomerProcessMode;
+    
+    end if;
+  end;
 
    function GetSelection : integer;  -- Returns the current selected record in the display list    
     -- we choose function because it returns a value 
@@ -371,6 +459,8 @@ program reverse;
       j := j + 1;   
     end loop;                            
 
+    SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
+
   end;   
 
   procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
@@ -417,6 +507,8 @@ program reverse;
     end loop;
        
     end if;
+  
+  SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
 
   end; 
 
@@ -576,10 +668,11 @@ program reverse;
   i : integer;
   begin
     
-    for i := testpsi to testanti
-    loop
-      SetLabelText(i, Chr$(08));
-    end loop;
+    --FOR TEST SCREEN
+    --for i := testpsi to testanti
+    --loop
+      --SetLabelText(i, Chr$(08));
+    --end loop;
     
     if g_iProductRow <> 0 then
       --FOR TEST SCREEN
@@ -607,14 +700,6 @@ program reverse;
     else
       DisplayStatus("ERROR! No Selection Made.");
     end if;
-    
-    --Calculation for target weight
-    
-    --SetPoints Added by Aris 
-    SetSPValue(1, t_qtyconc);
-    SetSPValue(2, t_sand);
-    SetSPValue(3, t_cement);
-    SetSPValue(4, t_wat_gal);
 
     r1current_select := 0;
     r2current_select := 0;
@@ -687,39 +772,22 @@ program reverse;
 
   end;
 
-  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
-  begin
-    
-    DisableHandler(NumericKeyPressed);
-    DisableHandler(EnterKeyPressed);
-    DisableHandler(NavUpKeyPressed);
-    DisableHandler(NavDownKeyPressed);   
-     
-		SetEntry(sDefault);
-    if iPrompt = 1 then   
-      PromptUser(sPrompt);
-    elsif iPrompt = 2 then
-      PromptNumeric(sPrompt);
-    elsif iPrompt = 3 then
-      PromptPassword(sPrompt);
-    else
-      PromptUser(sPrompt);  
-    end if;
-    g_EntryMode := iMode;
-    
-  end;  
-
 procedure ProcessingCustomerEntry;
 begin
+    CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
+    CustomersDB.Name := t_customer;
+    CustomersDB.Street := t_street;
+    CustomersDB.Town := t_town;
+    CustomersDB.State := t_state;
+    CustomersDB.ZipCode := t_zip;
 
-  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
-  CustomersDB.Name := t_customer;
-  CustomersDB.Street := t_street;
-  CustomersDB.Town := t_town;
-  CustomersDB.State := t_state;
-  CustomersDB.ZipCode := t_zip;
-  CustomersDB.Add;
-
+    g_sysResult := CustomersDB.FindFirst(Customer_Order); --This will equal SysOk if found in DB
+    if g_sysResult <> SysOk then
+      CustomersDB.Add;
+    else
+      DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
+      EntryMode := CustomerProcessMode;
+    end if;
   
 end;
 
@@ -727,12 +795,31 @@ procedure RunBatch;
 begin
 
   --Batching concrete (using setpoints 1/2)
+  --Calculation for target weight
+  --WaitSS(1);
+  --GetGross(1,Primary,g_rInitial1);
+
+  --g_rtarget1 := g_rInitial1 - t_cement;
+
+  --SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
+  --SetSPValue(2, g_rtarget1);
   
+  --Batching sand mix (using setpoints 3/4)
+  --WaitSS(2);
+  --GetGross(2,Primary,g_rInitial2);
+
+  --g_rtarget2 := g_rInitial2 - t_sand;
+
+  --while()
+
+
+  --SetPoints
+
+  --SetSPValue(3, );
+  --SetSPValue(4, );
 
 
   DisplayStatus("HI");
-
-  --Batching sand mix (using setpoints 3/4)
 
 
 end;
@@ -743,57 +830,12 @@ end;
 	begin
   	sTemp := GetEntry; -- is the action of getting user entry
   	ClosePrompt;
-
-  	--This is only going to show up for new customer entries
-  	if g_Entrymode = EnterOrderMode then 
-    	if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-      end if;
-      t_order := sTemp;
-      SetLabelText(lbl224, t_order);
-      --SetLabelText(lbl224, sTemp);
-    	--t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
-      	
-  	elsif g_Entrymode = EnterNameMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
-      end if;
-    	SetLabelText(lbl225, sTemp);
-    	t_customer := sTemp;
-
-  	elsif g_Entrymode = EnterStreetMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
-      end if;
-      SetLabelText(lbl226, sTemp);
-    	t_street := sTemp;
- 
-  	elsif g_Entrymode = EnterTownMode then
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
-      end if; 
-    	SetLabelText(lbl227, sTemp);
-    	t_town := sTemp;
     
-  	elsif g_Entrymode = EnterStateMode then 
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
-      end if;
-    	SetLabelText(lbl228, sTemp);
-    	t_state := sTemp;
-    
-  	elsif g_Entrymode = EnterZipCodeMode then
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
-      end if;
-    	SetLabelText(lbl229, sTemp);
-    	t_zip := StringToInteger(sTemp);
-    
-  	end if;
-
+    if EventKey = EnterKey then
+      ProcessDataEntry(sTemp);
+    else
+      ProcessPromptCancel;
+    end if;
   --ProcessingCustomerEntry;
 end;
 
@@ -813,10 +855,7 @@ begin
   r1_select := False;
   r2_select := False;
   
-  --DefaultsForAddOns; possible placement
 
-  --Paused := No;
-  --BatchMode := Complete;  
   --RefreshMainDisplay;
   --SetWidgetVisibility(btnRPrnt, Voff);
   EntryMode := NoMode;
@@ -834,6 +873,11 @@ end;
 
 procedure DefaultsForAddOns;
 begin
+
+  Setwidgetcolor(lbl127, "Black");
+  Setwidgetcolor(lbl136, "Black");
+  Setwidgetcolor(lbl132, "Black");
+  Setwidgetcolor(lbl141, "Black");
 
   bCalcium := False;
   bAnti_hydro := False;
@@ -880,26 +924,18 @@ begin
   -- DO NOT print it on the ticket
     if bCalcium = true  then
       WriteLn(g_ciPrinter, "Calcium? : YES ");
-    --else
-      --WriteLn(g_ciPrinter, "Add Calcium? : NO ");
     end if;
     
     if bAnti_hydro = true then
       WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
-    --else
-      --WriteLn(g_ciPrinter, "Anti Hydro? : NO ");
     end if;
 
     if bAir_ent = true then
       WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    --else
-      --WriteLn(g_ciPrinter, "Air Entrainment? : NO ");
     end if;
     
     if bRetarder = true then
       WriteLn(g_ciPrinter, "Retarder? : YES ");
-    --else
-      --WriteLn(g_ciPrinter, "Retarder? : NO ");
     end if;
   end if;
     ClearCustomerTemp;
@@ -936,19 +972,23 @@ handler WidgetClicked;
       SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if EntryMode = CustomerProcessMode then
-        ProcessingCustomerEntry;
-        EntryMode := ProductSelectMode;
-        if FileExists("/sdimages/next.png", SDCard) = SysOk then
-          SetImageWidgetPath(btnNxt, "/next.png");
-        else
-          SetImageWidgetPath(btnNxt, "local://10.png");
+      if t_order <> Blank and g_sysResult <> SysOk then
+        if EntryMode = CustomerProcessMode then
+          ProcessingCustomerEntry;
+          EntryMode := ProductSelectMode;
+          if FileExists("/sdimages/next.png", SDCard) = SysOk then
+            SetImageWidgetPath(btnNxt, "/next.png");
+          else
+            SetImageWidgetPath(btnNxt, "local://10.png");
+          end if;
+          --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
+          SetWidgetVisibility(btnNxt, Voff);
+          ResetProduct;
+          FillProductArray;
+          SelectScreen(g_ciProduct);
         end if;
-        --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
-        SetWidgetVisibility(btnNxt, Voff);
-        ResetProduct;
-        FillProductArray;
-        SelectScreen(g_ciProduct);
+      else
+        DisplayStatus("ERROR: Please enter an order number!");
       end if;
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
@@ -987,7 +1027,6 @@ handler WidgetClicked;
       setupScreen;
       SelectScreen(g_ciSetup);
 
--- new changes by steven
     elsif g_iWidget = btnNxt then
       GetProductSelection;
       if g_iProductRow <> 0 then 
@@ -1115,25 +1154,7 @@ handler WidgetClicked;
 
     EnableHandler(WidgetClicked); 
    
-  end;
-
--- attempt by Aris
---procedure BatchNBarGraphDisplay
---begin
-    -- g_EntryMode = BatchMode;
-    -- g_rTarget := g_rInitial - g_rActiveWeight 
-    -- level := ((batch / target)*100)
-    -- 
-    -- while level < 100;
-    --    SetBargraphLevel(bar, level);
-    --    
-    --    if level = 
-    --      SetWidgetColor(widgetnumber, yellow);
-    --
-
---end;
--- target : from active scale... by using the selectscalefunction 
--- 
+  end; 
 
 procedure DisplayBatchComplete;
 begin
