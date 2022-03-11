@@ -409,6 +409,12 @@ program reverse;
     i : integer;
     j : integer;
   begin 
+    
+    --Makes all selections black
+    for i := minL2 to maxL2
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
 
     -- Clear Array
     ClearDisplayListArray; 
@@ -685,7 +691,6 @@ program reverse;
       --SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
       --SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
       --SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
-      
       t_psi       := g_arProduct[g_iProductRow].sPSI;
       t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
       t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
@@ -709,7 +714,7 @@ program reverse;
 
   begin
     if g_iSelect <> 0 then
-      if EntryMode = ProductSelectMode then
+      if EntryMode = CustomerSelectMode then
         if g_arDisplay[GetSelection].sName <> Blank then   
           t_customer := g_arDisplay[GetSelection].sName;
           t_order    := g_arDisplay[GetSelection].sOrderNum;
@@ -724,7 +729,7 @@ program reverse;
       end if;
     else
       Displaystatus("Select An Entry to Continue");
-      EntryMode :=  ProductSelectMode;
+      EntryMode :=  CustomerSelectMode;
       g_iSelect := 0;    
     end if;
 
@@ -749,10 +754,10 @@ program reverse;
   -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
     if iTouch = 0 then
       Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget + 1, "#BB0000");
+      SetwidgetColor(g_iWidget - 1, "#BB0000");
     elsif iTouch = 1 then
       Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget - 1, "#BB0000");
+      SetwidgetColor(g_iWidget + 1, "#BB0000");
     end if;
     g_iSelect := g_iWidget;
     ProcessSelection;
@@ -784,9 +789,6 @@ begin
     g_sysResult := CustomersDB.FindFirst(Customer_Order); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
-    else
-      DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
-      EntryMode := CustomerProcessMode;
     end if;
   
 end;
@@ -901,46 +903,60 @@ end;
 procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
-  if EntryMode = AutoPrintMode or EntryMode = ManualPrintMode then
-    DisplayStatus("Printing...");
-    WriteLn(g_ciPrinter, "Order #: " + t_order);
-    WriteLn(g_ciPrinter, "Customer: " + t_customer);
-    WriteLn(g_ciPrinter, "Shipping Address:");
-    WriteLn(g_ciPrinter, t_street);
-    WriteLn(g_ciPrinter, t_town + "," + t_state);
+  DisplayStatus("Printing...");
+  WriteLn(g_ciPrinter, "**************************" );
+  WriteLn(g_ciPrinter, "Order #: " + t_order);
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
+  WriteLn(g_ciPrinter, "Shipping Address:");
+  WriteLn(g_ciPrinter, t_street);
+  WriteLn(g_ciPrinter, t_town + "," + t_state);
 
-    WriteLn(g_ciPrinter, Blank);
-    WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
 
-    WriteLn(g_ciPrinter, "Product Mix");
-    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1));
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
-    WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
+  WriteLn(g_ciPrinter, "Product Mix");
+  WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+  WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1) + "yds.");
+  WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
+  WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
+  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
 
-  -- Aris: this will most likely be only if statements, 
-  -- that if the addon is yes then we display otherwise we
-  -- DO NOT print it on the ticket
-    if bCalcium = true  then
-      WriteLn(g_ciPrinter, "Calcium? : YES ");
-    end if;
-    
-    if bAnti_hydro = true then
-      WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
-    end if;
+-- Aris: this will most likely be only if statements, 
+-- that if the addon is yes then we display otherwise we
+-- DO NOT print it on the ticket
+  WriteLn(g_ciPrinter, "ADD ONS:");
+  WriteLn(g_ciPrinter, "--------");
 
-    if bAir_ent = true then
-      WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-    end if;
-    
-    if bRetarder = true then
-      WriteLn(g_ciPrinter, "Retarder? : YES ");
-    end if;
+  if bCalcium = true  then
+    WriteLn(g_ciPrinter, "Calcium? : YES ");
   end if;
-    ClearCustomerTemp;
-    ClearProductTemp;
   
+  if bAnti_hydro = true then
+    WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+  end if;
+
+  if bAir_ent = true then
+    WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+  end if;
+  
+  if bRetarder = true then
+    WriteLn(g_ciPrinter, "Retarder? : YES ");
+  end if;
+  
+end;
+
+procedure DisplayBatchComplete;
+begin
+  if EntryMode = BatchCompleteMode then
+
+    --dTime := SystemTime;
+    SetLabelText(lblCust, t_customer);
+    SetLabelText(lblShp1, t_street);
+    SetLabelText(lblShp2, t_town);
+    SetLabelText(lblShp3, t_state);
+    SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    SetLabelText(lbl275, RealToString(t_qtyconc,1,1) + " Yards");
+  end if;
 end;
 
 handler WidgetClicked;
@@ -957,9 +973,7 @@ handler WidgetClicked;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
-      --Commented out for testing ingredients without adding to database
-      --EntryMode := CustomerProcessMode;
-      --SelectScreen(g_ciaddcust);
+      SelectCustomer;
       if FileExists("/sdimages/next.png", SDCard) = SysOk then
         SetImageWidgetPath(btnNxt, "/next.png");
       else
@@ -972,20 +986,24 @@ handler WidgetClicked;
       SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if t_order <> Blank and g_sysResult <> SysOk then
+      if t_order <> Blank then
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
-          EntryMode := ProductSelectMode;
-          if FileExists("/sdimages/next.png", SDCard) = SysOk then
-            SetImageWidgetPath(btnNxt, "/next.png");
+          if g_sysResult <> SysOk then
+            EntryMode := ProductSelectMode;
+            if FileExists("/sdimages/next.png", SDCard) = SysOk then
+              SetImageWidgetPath(btnNxt, "/next.png");
+            else
+              SetImageWidgetPath(btnNxt, "local://10.png");
+            end if;
+            --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
+            SetWidgetVisibility(btnNxt, Voff);
+            ResetProduct;
+            FillProductArray;
+            SelectScreen(g_ciProduct);
           else
-            SetImageWidgetPath(btnNxt, "local://10.png");
+            DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
           end if;
-          --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
-          SetWidgetVisibility(btnNxt, Voff);
-          ResetProduct;
-          FillProductArray;
-          SelectScreen(g_ciProduct);
         end if;
       else
         DisplayStatus("ERROR: Please enter an order number!");
@@ -1007,10 +1025,13 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
  
     elsif g_iWidget = btnPrint then  
-      Print(GrossFmt); -- test purposes?
+      TicketOutput;
+      --Print(GrossFmt); -- test purposes?
       -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
+      ClearCustomerTemp;
+      ClearProductTemp;
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
@@ -1028,15 +1049,17 @@ handler WidgetClicked;
       SelectScreen(g_ciSetup);
 
     elsif g_iWidget = btnNxt then
-      GetProductSelection;
-      if g_iProductRow <> 0 then 
-        EntryMode := BatchMode;
-        SelectScreen(g_ciScales);
-        RunBatch;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        SetImageWidgetPath(btnNxt13, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt13, "local://10.png");
       end if;
+      GetProductSelection;
+      LoadProduct; 
       EntryMode := AddOnsMode;
       SelectScreen(g_ciAddOns); 
       DefaultsForAddOns;
+      
       -- (Note: we dont want to create lockup: which is like gridlock)
 
       --USED FOR DEMO PURPOSES
@@ -1050,6 +1073,18 @@ handler WidgetClicked;
       --SelectScreen(g_ciTest);
       --SetupStartTimer(1,1000,TimerOneShot);
     
+    elsif g_iWidget = btnNxt13 then
+      --This stays here
+      --RunBatch;
+
+
+      --TESTING BELOW
+      EntryMode := BatchCompleteMode;
+      DisplayBatchComplete;
+      --EntryMode := BatchMode;
+      SelectScreen(g_ciBatch);
+      --RunBatch;
+
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
@@ -1141,11 +1176,6 @@ handler WidgetClicked;
       SetSymbolState(g_iWidgetNum, 2);       
       PageUporDownCustomerList(g_iPage); 
 
-    elsif g_iWidget = btnNxt13 then 
-      EntryMode := BatchMode;
-      SelectScreen(g_ciScales);
-      RunBatch;
-
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
       --DefaultsForAddOns;
@@ -1155,20 +1185,6 @@ handler WidgetClicked;
     EnableHandler(WidgetClicked); 
    
   end; 
-
-procedure DisplayBatchComplete;
-begin
-  if EntryMode = BatchCompleteMode then
-
-    --dTime := SystemTime;
-    SetLabelText(lblCust, t_customer);
-    SetLabelText(lblShp1, t_street);
-    SetLabelText(lblShp2, t_town);
-    SetLabelText(lblShp3, t_state);
-    --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
-    --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
-  end if;
-end;
 
 begin
 
