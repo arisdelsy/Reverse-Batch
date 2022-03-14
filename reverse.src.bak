@@ -735,11 +735,6 @@ program reverse;
 
   end;
 
-  handler timer2trip;
-  begin
-    LoadProduct;
-  end;
-
 
   procedure SelectCustomer;
     iTouch : integer;
@@ -798,27 +793,27 @@ begin
 
   --Batching concrete (using setpoints 1/2)
   --Calculation for target weight
-  --WaitSS(1);
-  --GetGross(1,Primary,g_rInitial1);
+  WaitSS(1);
+  GetGross(1,Primary,g_rInitial1);
 
-  --g_rtarget1 := g_rInitial1 - t_cement;
+  g_rtarget1 := g_rInitial1 - t_cement;
 
-  --SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
-  --SetSPValue(2, g_rtarget1);
+  SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
+  SetSPValue(2, g_rtarget1);
   
   --Batching sand mix (using setpoints 3/4)
-  --WaitSS(2);
-  --GetGross(2,Primary,g_rInitial2);
+  WaitSS(2);
+  GetGross(2,Primary,g_rInitial2);
 
-  --g_rtarget2 := g_rInitial2 - t_sand;
+  g_rtarget2 := g_rInitial2 - t_sand;
 
-  --while()
+  while()
 
 
   --SetPoints
 
-  --SetSPValue(3, );
-  --SetSPValue(4, );
+  SetSPValue(3, );
+  SetSPValue(4, );
 
 
   DisplayStatus("HI");
@@ -865,14 +860,6 @@ begin
   
 end;
 
-handler timer5Trip;
-begin
-
-  EntryMode := BatchCompleteMode;
-  SelectScreen(g_ciBatch);
-
-end;
-
 procedure DefaultsForAddOns;
 begin
 
@@ -893,28 +880,23 @@ begin
 
 end;
 
-handler Timer1Trip;
-begin
-  EntryMode := BatchMode;
-  SelectScreen(g_ciScales);
-  SetupStartTimer(5,100, TimerOneShot);
-end;
-
 procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
   DisplayStatus("Printing...");
   WriteLn(g_ciPrinter, "**************************" );
-  WriteLn(g_ciPrinter, "Order #: " + t_order);
-  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
-  WriteLn(g_ciPrinter, "Shipping Address:");
-  WriteLn(g_ciPrinter, t_street);
-  WriteLn(g_ciPrinter, t_town + "," + t_state);
+  WriteLn(g_ciPrinter, Space$(50) + UCase$(t_customer));
 
+  WriteLn(g_ciPrinter,  Space$(50) + "Order #: " + t_order);
+  
+  WriteLn(g_ciPrinter,  Space$(50) + "Shipping Address:");
+  WriteLn(g_ciPrinter,  Space$(50) +t_street);
+  WriteLn(g_ciPrinter,  Space$(50) +t_town + "," + t_state);
+  WriteLn(g_ciPrinter, "**************************" );
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, "Product Mix");
+  WriteLn(g_ciPrinter, Space$(50) + "Product Mix");
   WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
   WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1) + "yds.");
   WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
@@ -1061,29 +1043,16 @@ handler WidgetClicked;
       DefaultsForAddOns;
       
       -- (Note: we dont want to create lockup: which is like gridlock)
-
-      --USED FOR DEMO PURPOSES
-      --SetupStartTimer(5, 500, TimerOneShot);
-      
-      --USED FOR TESTING
-      --LoadProduct; replaced by timer 2 trip
-      --SetupStartTimer(2,50,TimerOneShot);
-      --EntryMode := NoMode;
-      --Select test screen
-      --SelectScreen(g_ciTest);
-      --SetupStartTimer(1,1000,TimerOneShot);
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
+      --EntryMode := BatchMode;
       --RunBatch;
-
-
+      
       --TESTING BELOW
       EntryMode := BatchCompleteMode;
       DisplayBatchComplete;
-      --EntryMode := BatchMode;
       SelectScreen(g_ciBatch);
-      --RunBatch;
 
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
