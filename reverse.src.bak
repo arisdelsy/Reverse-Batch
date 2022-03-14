@@ -45,8 +45,8 @@ program reverse;
   g_rInitial2 : real;
   g_rtarget1  : real;
   g_rtarget2  : real;
-  g_rActiveWeight1 : real;
-  g_rActiveWeight2 : real;
+  g_rActive1 : real;
+  g_rActive2 : real;
   -- Printer port
   g_ciPrinter : constant integer := 1;
 
@@ -789,32 +789,71 @@ begin
 end;
 
 procedure RunBatch;
+  bar_percentage1 : integer := 0;
+  bar_percentage2 : integer := 0;
+  bar_npercentage1 : integer := 0;
+  bar_npercentage2 : integer := 0;
+
+  x : integer;
+  y : integer;
+
 begin
 
-  --Batching concrete (using setpoints 1/2)
+  --Batching concrete
   --Calculation for target weight
-  WaitSS(1);
   GetGross(1,Primary,g_rInitial1);
+  g_rActive1 := g_rInitial1;
 
-  g_rtarget1 := g_rInitial1 - t_cement;
+  g_rtarget1 := g_rActive1 - t_cement;
+  SetBargraphLevel(barS1, 100);
+  SetWidgetColor(barS1, "Red");
+  SetWidgetVisibility(barS1,Von);
+  x := g_rActive1 - g_rtarget1;
+  --while(g_rActive1 > g_rtarget1)
+  while(x > 0)
+  loop
 
-  SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
-  SetSPValue(2, g_rtarget1);
+    GetGross(1,Primary,g_rActive1);
+    x := g_rActive1 - g_rtarget1;
+    bar_percentage1 := (x/t_cement) * 100;
+    SetBargraphLevel(bar279, bar_percentage1);
+    SetLabelText(tarCem, IntegerToString(x,0));
+
+    if bar_percentage1 <= 25 then
+      SetWidgetColor(barS1, "Yellow");
+    elsif bar_percentage1 = 0 then
+      SetWidgetColor(barS1, "Green");
+    end if;
+
+  end loop;
+
   
-  --Batching sand mix (using setpoints 3/4)
-  WaitSS(2);
+  --Batching sand mix
   GetGross(2,Primary,g_rInitial2);
+  g_rActive2 := g_rInitial2;
 
-  g_rtarget2 := g_rInitial2 - t_sand;
+  g_rtarget2 := g_rActive2 - t_sand;
+  SetBargraphLevel(barS2, 100);
+  SetWidgetColor(barS2, "Red");
+  SetWidgetVisibility(barS2,Von);
+  y := g_rActive2 - g_rtarget2;
+  --while(g_rActive1 > g_rtarget1)
+  while(y > 0)
+  loop
 
-  while()
+    GetGross(2,Primary,g_rActive2);
+    y := g_rActive2 - g_rtarget2;
+    bar_percentage2 := (y/t_sand) * 100;
+    SetBargraphLevel(bar280, bar_percentage2);
+    SetLabelText(tarAg, IntegerToString(y,0));
 
+    if bar_percentage2 <= 25 then
+      SetWidgetColor(barS1, "Yellow");
+    elsif bar_percentage2 = 0 then
+      SetWidgetColor(barS1, "Green");
+    end if;
 
-  --SetPoints
-
-  SetSPValue(3, );
-  SetSPValue(4, );
-
+  end loop;
 
   DisplayStatus("HI");
 
@@ -884,47 +923,83 @@ procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
   DisplayStatus("Printing...");
-  WriteLn(g_ciPrinter, "**************************" );
-  WriteLn(g_ciPrinter, Space$(50) + UCase$(t_customer));
-
-  WriteLn(g_ciPrinter,  Space$(50) + "Order #: " + t_order);
-  
-  WriteLn(g_ciPrinter,  Space$(50) + "Shipping Address:");
-  WriteLn(g_ciPrinter,  Space$(50) +t_street);
-  WriteLn(g_ciPrinter,  Space$(50) +t_town + "," + t_state);
-  WriteLn(g_ciPrinter, "**************************" );
-  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Space$(25) + "**************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE INDUSTRIES INC.");
+  WriteLn(g_ciPrinter, Space$(29) + "226 Selleck St C");
+  WriteLn(g_ciPrinter, Space$(28) + "Stamford, CT, 06902");
+  WriteLn(g_ciPrinter, Space$(25) + "**************************");
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, Space$(50) + "Product Mix");
-  WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-  WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1) + "yds.");
-  WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
-  WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 1) + "lb.");
-  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 1) + "gal.");
-
--- Aris: this will most likely be only if statements, 
--- that if the addon is yes then we display otherwise we
--- DO NOT print it on the ticket
-  WriteLn(g_ciPrinter, "ADD ONS:");
-  WriteLn(g_ciPrinter, "--------");
-
-  if bCalcium = true  then
-    WriteLn(g_ciPrinter, "Calcium? : YES ");
-  end if;
+  WriteLn(g_ciPrinter, "Customer:" + UCase$(t_customer));
+  WriteLn(g_ciPrinter, "Order #: " + t_order);
+  WriteLn(g_ciPrinter, "Shipping Address:");
+  WriteLn(g_ciPrinter, t_street);
+  WriteLn(g_ciPrinter, t_town + "," + t_state);
   
-  if bAnti_hydro = true then
-    WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
-  end if;
+  WriteLn(g_ciPrinter, "********************************************************************************");
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(34) + "ADD ONS");
+  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "**************************");
+  --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+  --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
+  --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
+  --WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + "lb.");
+  --WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + "gal.");
 
-  if bAir_ent = true then
-    WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
-  end if;
+  --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
+  --WriteLn(g_ciPrinter, Space$(25) + "**************************");
+
+  --if bCalcium = true  then
+    --WriteLn(g_ciPrinter, "Calcium: " + IntegerToString(t_calcium,0));
+  --end if;
   
-  if bRetarder = true then
-    WriteLn(g_ciPrinter, "Retarder? : YES ");
-  end if;
+  --if bAnti_hydro = true then
+    --WriteLn(g_ciPrinter, "Anti Hydro: " + RealToString(t_antihydr,6,2));
+  --end if;
+
+  --if bAir_ent = true then
+    --WriteLn(g_ciPrinter, "Air Entrainment: " + RealToString(t_air_ent,6,2));
+  --end if;
   
+  --if bRetarder = true then
+    --WriteLn(g_ciPrinter, "Retarder: " + RealToString(t_retard,6,2));
+  --end if;
+
+
+  -- *** optimized to be tested **
+
+   if bCalcium = true then 
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0) + Space$(45) + "Calcium: " + IntegerToString(t_calcium,0));
+   else 
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+   end if;   
+
+   if bAnti_hydro = true then 
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + " yds." + Space$(25) + "Anti Hydro: " + RealToString(t_antihydr,6,2));
+   else 
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + " yds.");
+   end if;   
+
+   if bAir_ent = true then 
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + " lb." + Space$(25) + "Air Entrainment: " + RealToString(t_air_ent,6,2));
+   else 
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + " lb.");
+   end if;   
+
+   if bRetarder = true then 
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + " lb." + Space$(37) + "Retarder: " + RealToString(t_retard,6,2));
+   else 
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + " lb.");
+   end if;   
+
+  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + " gal.");
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
+
+
+
 end;
 
 procedure DisplayBatchComplete;
@@ -992,7 +1067,6 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
-      -- !!! FOR TESTING PURPOSES !!! This will be a customer selection section
       SelectProduct;
       --SetupStartTimer(1,100,TimerOneShot);
 
@@ -1046,9 +1120,13 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
-      --EntryMode := BatchMode;
-      --RunBatch;
-      
+      SetWidgetVisibility(barS1, Voff);
+      SetWidgetVisibility(barS2, VOff);
+      EntryMode := BatchMode;
+      SelectScreen(g_ciScales);
+      RunBatch;
+
+    elsif g_iWidget = bar123 then
       --TESTING BELOW
       EntryMode := BatchCompleteMode;
       DisplayBatchComplete;
