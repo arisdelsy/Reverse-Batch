@@ -885,17 +885,18 @@ procedure TicketOutput;
 begin
   DisplayStatus("Printing...");
   WriteLn(g_ciPrinter, "**************************" );
-
-  WriteLn(g_ciPrinter, "Order #: " + t_order);
   WriteLn(g_ciPrinter, Space$(50) + UCase$(t_customer));
-  WriteLn(g_ciPrinter, "Shipping Address:");
-  WriteLn(g_ciPrinter, t_street);
-  WriteLn(g_ciPrinter, t_town + "," + t_state);
+
+  WriteLn(g_ciPrinter,  Space$(50) + "Order #: " + t_order);
+  
+  WriteLn(g_ciPrinter,  Space$(50) + "Shipping Address:");
+  WriteLn(g_ciPrinter,  Space$(50) +t_street);
+  WriteLn(g_ciPrinter,  Space$(50) +t_town + "," + t_state);
   WriteLn(g_ciPrinter, "**************************" );
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, "Product Mix");
+  WriteLn(g_ciPrinter, Space$(50) + "Product Mix");
   WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
   WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 1) + "yds.");
   WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 1) + "lb.");
@@ -909,19 +910,19 @@ begin
   WriteLn(g_ciPrinter, "--------");
 
   if bCalcium = true  then
-    WriteLn(g_ciPrinter, "Calcium? : YES ");
+    WriteLn(g_ciPrinter, "Calcium : " + t_calcium);
   end if;
   
   if bAnti_hydro = true then
-    WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+    WriteLn(g_ciPrinter, "Anti Hydro : " + t_antihydr);
   end if;
 
   if bAir_ent = true then
-    WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    WriteLn(g_ciPrinter, "Air Entrainment : " + t_air_ent);
   end if;
   
   if bRetarder = true then
-    WriteLn(g_ciPrinter, "Retarder? : YES ");
+    WriteLn(g_ciPrinter, "Retarder? : " + t_retard);
   end if;
   
 end;
