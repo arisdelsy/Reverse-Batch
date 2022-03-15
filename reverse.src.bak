@@ -954,11 +954,24 @@ begin
   WriteLn(g_ciPrinter, Space$(25) + "***************************");
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, "Customer:" + UCase$(t_customer));
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
   WriteLn(g_ciPrinter, "Order #: " + t_order);
   WriteLn(g_ciPrinter, "Shipping Address:");
-  WriteLn(g_ciPrinter, t_street);
-  WriteLn(g_ciPrinter, t_town + "," + t_state);
+  
+  if t_street <> Blank then
+    WriteLn(g_ciPrinter, t_street);
+  else 
+    WriteLn(g_ciPrinter, Blank);
+  end if;
+  
+  if t_town <> Blank or t_state <> Blank then
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
+  --elsif 
+    --WriteLn()
+  else 
+    WriteLn(g_ciPrinter, Blank);
+
+  end if;
   
   --WriteLn(g_ciPrinter, "********************************************************************************");
   --WriteLn(g_ciPrinter, Blank);
@@ -1006,7 +1019,7 @@ begin
    end if;   
 
    if bAir_ent = true then 
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb." + Space$(25) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb." + Space$(24) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
    else 
     WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.");
    end if;   
@@ -1263,7 +1276,7 @@ begin
 
 end reverse; 
 
---Used for printing values from batch selection
+-- Used for printing values from batch selection
 -- IntegerToString(g_arProduct[i].sPSI, 0);
 -- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
 -- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
