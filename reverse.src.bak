@@ -797,9 +797,10 @@ begin
   GetGross(1,Primary,g_rInitial1);
 
   g_rtarget1 := g_rInitial1 - t_cement;
-
   SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
   SetSPValue(2, g_rtarget1);
+  --while()
+
   
   --Batching sand mix (using setpoints 3/4)
   WaitSS(2);
@@ -807,13 +808,13 @@ begin
 
   g_rtarget2 := g_rInitial2 - t_sand;
 
-  while()
+  
 
 
   --SetPoints
 
-  SetSPValue(3, );
-  SetSPValue(4, );
+  --SetSPValue(3, );
+  --SetSPValue(4, );
 
 
   DisplayStatus("HI");
@@ -910,19 +911,19 @@ begin
   WriteLn(g_ciPrinter, "--------");
 
   if bCalcium = true  then
-    WriteLn(g_ciPrinter, "Calcium? : YES ");
+    WriteLn(g_ciPrinter, "Calcium : " + t_calcium);
   end if;
   
   if bAnti_hydro = true then
-    WriteLn(g_ciPrinter, "Anti Hydro? : YES ");
+    WriteLn(g_ciPrinter, "Anti Hydro : " + t_antihydr);
   end if;
 
   if bAir_ent = true then
-    WriteLn(g_ciPrinter, "Air Entrainment? : YES ");
+    WriteLn(g_ciPrinter, "Air Entrainment : " + t_air_ent);
   end if;
   
   if bRetarder = true then
-    WriteLn(g_ciPrinter, "Retarder? : YES ");
+    WriteLn(g_ciPrinter, "Retarder? : " + t_retard);
   end if;
   
 end;

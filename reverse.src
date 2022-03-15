@@ -799,7 +799,7 @@ begin
   g_rtarget1 := g_rInitial1 - t_cement;
   SetSPValue(1, g_rtarget1 + (g_rtarget1*0.25));
   SetSPValue(2, g_rtarget1);
-  while()
+  --while()
 
   
   --Batching sand mix (using setpoints 3/4)
@@ -813,8 +813,8 @@ begin
 
   --SetPoints
 
-  SetSPValue(3, );
-  SetSPValue(4, );
+  --SetSPValue(3, );
+  --SetSPValue(4, );
 
 
   DisplayStatus("HI");
