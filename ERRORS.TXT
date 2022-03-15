@@ -1,4 +1,0 @@
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:914:39:: Operand type mismatch
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:918:42:: Operand type mismatch
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:922:47:: Operand type mismatch
-C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:926:41:: Operand type mismatch

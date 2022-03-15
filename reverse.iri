@@ -405,6 +405,8 @@ testcal   : constant integer := 319;
 testair   : constant integer := 320;
 testanti  : constant integer := 321;
 testret   : constant integer := 322;
+barS1     : constant integer := 125;
+barS2     : constant integer := 126;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
