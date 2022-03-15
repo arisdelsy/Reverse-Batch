@@ -1276,7 +1276,7 @@ begin
 
 end reverse; 
 
---Used for printing values from batch selection
+-- Used for printing values from batch selection
 -- IntegerToString(g_arProduct[i].sPSI, 0);
 -- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
 -- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
