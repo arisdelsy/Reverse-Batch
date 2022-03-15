@@ -40,10 +40,15 @@ program reverse;
   r1current_select : integer;   
   r2current_select : integer; 
   g_iProductRow    : integer; -- mimics what is being done with g_iWidgetNum
-  -- new variables Aris bargra
-  g_rTarget : real;
-  g_rInitial : real;
-  g_rActiveWeight : real;
+  --Variables for storing inital weight of scales as well as target weights
+  g_rInitial1 : real;
+  g_rInitial2 : real;
+  g_rtarget1  : real;
+  g_rtarget2  : real;
+  g_rActive1 : real;
+  g_rActive2 : real;
+  -- Printer port
+  g_ciPrinter : constant integer := 1;
 
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
@@ -57,8 +62,8 @@ program reverse;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
+  AddOnsMode          : constant integer := 1015;
 
--- Aris added new modes
 -- Entry Modes for customer entry
   EnterOrderMode          : constant integer := 1009;
   EnterNameMode           : constant integer := 1010;
@@ -103,6 +108,11 @@ program reverse;
   r1_select : boolean := False;
   r2_select : boolean := False;
 
+  bCalcium : boolean;
+  bAnti_hydro : boolean;
+  bAir_ent : boolean;
+  bRetarder : boolean;
+
   type DisplayRecord is
     record 
       sOrderNum : string; 
@@ -115,15 +125,15 @@ program reverse;
 
   type ProductRecord is
     record
-      sPSI     : string;
-      sQTY_CONC: string;
-      sSAND_MIX: string;
-      sCEMENT  : string;
-      sWAT_GALL: string;
-      sCALCIUM : string;
-      sAIR_ENT : string;
-      sANTIHYDR: string;
-      sRETARDER: string;
+      sPSI     : integer;
+      sQTY_CONC: real;
+      sSAND_MIX: real;
+      sCEMENT  : real;
+      sWAT_GALL: real;
+      sCALCIUM : integer;
+      sAIR_ENT : real;
+      sANTIHYDR: real;
+      sRETARDER: real;
     end record;    
 
 -- this means we are creating a new type called DisplayArrays is an array which holds g_ciMaxRecords
@@ -168,36 +178,122 @@ program reverse;
      
   end;
 
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
+  begin
+    
+    DisableHandler(NumericKeyPressed);
+    DisableHandler(EnterKeyPressed);
+    DisableHandler(NavUpKeyPressed);
+    DisableHandler(NavDownKeyPressed);   
+     
+		SetEntry(sDefault);
+    if iPrompt = 1 then   
+      PromptUser(sPrompt);
+    elsif iPrompt = 2 then
+      PromptNumeric(sPrompt);
+    elsif iPrompt = 3 then
+      PromptPassword(sPrompt);
+    else
+      PromptUser(sPrompt);  
+    end if;
+    g_EntryMode := iMode;
+    
+  end;  
+
   procedure ProcessPromptCancel;   -- Performs Cancel operation when cancelling a prompt
     begin 
     
       ClosePrompt;  
 
       if Entrymode = EnterOrderMode then 
-        EntryMode := CustomerSelectMode;
+        EntryMode := CustomerProcessMode;
         t_order := Blank;
-        SelectScreen(g_ciCust);
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterNameMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_customer := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterStreetMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_street := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterTownMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_town := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterStateMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_state := Blank;
+        SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterZipCodeMode then 
-        EntryMode := CustomerSelectMode;
-        SelectScreen(g_ciCust);
+        EntryMode := CustomerProcessMode;
+        t_zip := 0;
+        SelectScreen(g_ciaddcust);
       else   
         DisplayStatus(Blank); 
         EntryMode := NoMode;  
       end if;
       
     end;  
+
+  procedure ProcessDataEntry(sTemp : string);
+  begin
+    --This is only going to show up for new customer entries
+    if g_Entrymode = EnterOrderMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+      end if;
+      t_order := sTemp;
+      SetLabelText(lbl224, t_order);
+      EntryMode := CustomerProcessMode;
+      --SetLabelText(lbl224, sTemp);
+      --t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
+        
+    elsif g_Entrymode = EnterNameMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
+      end if;
+      SetLabelText(lbl225, sTemp);
+      t_customer := sTemp;
+      EntryMode := CustomerProcessMode;
+
+    elsif g_Entrymode = EnterStreetMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
+      end if;
+      SetLabelText(lbl226, sTemp);
+      t_street := sTemp;
+      EntryMode := CustomerProcessMode;
+
+    elsif g_Entrymode = EnterTownMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
+      end if; 
+      SetLabelText(lbl227, sTemp);
+      t_town := sTemp;
+      EntryMode := CustomerProcessMode;
+    
+    elsif g_Entrymode = EnterStateMode then 
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
+      end if;
+      SetLabelText(lbl228, sTemp);
+      t_state := sTemp;
+      EntryMode := CustomerProcessMode;
+    
+    elsif g_Entrymode = EnterZipCodeMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
+      end if;
+      SetLabelText(lbl229, sTemp);
+      t_zip := StringToInteger(sTemp);
+      EntryMode := CustomerProcessMode;
+    
+    end if;
+  end;
 
    function GetSelection : integer;  -- Returns the current selected record in the display list    
     -- we choose function because it returns a value 
@@ -256,20 +352,21 @@ program reverse;
     for i := 1 to g_ciMaxProducts  -- in the range from 1 to 1000
     loop
 
-      g_arProduct[i].sPSI := Blank;
-      g_arProduct[i].sQTY_CONC := Blank;  
-      g_arProduct[i].sSAND_MIX := Blank;
-      g_arProduct[i].sCEMENT := Blank;
-      g_arProduct[i].sWAT_GALL := Blank;
-      g_arProduct[i].sCALCIUM := Blank;
-      g_arProduct[i].sAIR_ENT := Blank;
-      g_arProduct[i].sANTIHYDR := Blank;
-      g_arProduct[i].sRETARDER := Blank; 
+      g_arProduct[i].sPSI := 0;
+      g_arProduct[i].sQTY_CONC := 0;  
+      g_arProduct[i].sSAND_MIX := 0;
+      g_arProduct[i].sCEMENT := 0;
+      g_arProduct[i].sWAT_GALL := 0;
+      g_arProduct[i].sCALCIUM := 0;
+      g_arProduct[i].sAIR_ENT := 0;
+      g_arProduct[i].sANTIHYDR := 0;
+      g_arProduct[i].sRETARDER := 0; 
 
     end loop;
          
   end;
 
+  --WHY IS THIS NOT BEING CALLED?
   procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
     i : integer;
   begin  
@@ -292,11 +389,32 @@ program reverse;
     t_zip       := 0;
 
   end;
+
+  procedure ClearProductTemp;
+  begin
+
+    t_psi := 0;
+    t_qtyconc := 0;
+    t_sand := 0;
+    t_cement := 0;
+    t_wat_gal := 0;
+    t_calcium := 0;
+    t_air_ent := 0;
+    t_antihydr := 0;
+    t_retard := 0;
+
+  end;
   
   procedure DisplayCustomersDB; 
     i : integer;
     j : integer;
   begin 
+    
+    --Makes all selections black
+    for i := minL2 to maxL2
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
 
     -- Clear Array
     ClearDisplayListArray; 
@@ -347,6 +465,8 @@ program reverse;
       j := j + 1;   
     end loop;                            
 
+    SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
+
   end;   
 
   procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
@@ -393,6 +513,8 @@ program reverse;
     end loop;
        
     end if;
+  
+  SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
 
   end; 
 
@@ -418,29 +540,29 @@ program reverse;
 
     -- FillArray
     if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
-      g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-      g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, 1);  
-      g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
-      g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
-      g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
-      g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-      g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
-      g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
-      g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1); 
+      g_arProduct[i].sPSI := ProductDB.PSI;
+      g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+      g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+      g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+      g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+      g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+      g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+      g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+      g_arProduct[i].sRETARDER := ProductDB.RETARDER; 
       i := 2;            
     end if; 
     while ProductDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
     loop         
       if i <= g_ciMaxRecords then             
-        g_arProduct[i].sPSI := IntegerToString(ProductDB.PSI, 0);
-        g_arProduct[i].sQTY_CONC := RealToString(ProductDB.QTY_CONC, 6, 1);  
-        g_arProduct[i].sSAND_MIX := RealToString(ProductDB.SAND_MIX, 6, 1);
-        g_arProduct[i].sCEMENT := RealToString(ProductDB.CEMENT, 6, 1);
-        g_arProduct[i].sWAT_GALL := RealToString(ProductDB.WAT_GALL, 6, 1);
-        g_arProduct[i].sCALCIUM := IntegerToString(ProductDB.CALCIUM, 0);
-        g_arProduct[i].sAIR_ENT := RealToString(ProductDB.AIR_ENT, 6, 1);
-        g_arProduct[i].sANTIHYDR := RealToString(ProductDB.ANTIHYDR, 6, 1);
-        g_arProduct[i].sRETARDER := RealToString(ProductDB.RETARDER, 6, 1);                                             
+        g_arProduct[i].sPSI := ProductDB.PSI;
+        g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+        g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+        g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+        g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+        g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+        g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+        g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+        g_arProduct[i].sRETARDER := ProductDB.RETARDER;                                             
         i := i + 1;                          
       end if;       
     end loop; 
@@ -459,6 +581,8 @@ program reverse;
     if g_iWidget >= 108 and g_iWidget <= 111 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
+        SetWidgetColor(r1current_select, "Black");
+        r1current_select := 0;
       elsif r1_select = True and r1current_select <> g_iWidget then
         SetWidgetColor(r1current_select, "Black");
         r1current_select := g_iWidget;
@@ -473,8 +597,14 @@ program reverse;
 
     --R2
     if g_iWidget >= 112 and g_iWidget <= 116 then 
-      if r2_select = true and r2current_select= g_iWidget then 
+      if r2_select = true and r2current_select = g_iWidget then 
         r2_select := False;
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := 0;
+      elsif r2_select = True and r2current_select <> g_iWidget then
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := g_iWidget;
+        SetWidgetColor(g_iWidget, "#BB0000");
       else 
         r2_select := True;
         SetWidgetColor(g_iWidget, "#BB0000");
@@ -534,6 +664,7 @@ program reverse;
       g_iProductRow := 20;
     else
       DisplayStatus("System Malfunction!");
+      g_iProductRow := 0;
     end if;
 
   end;
@@ -543,21 +674,34 @@ program reverse;
   i : integer;
   begin
     
-    for i := testpsi to testanti
-    loop
-      SetLabelText(i, Chr$(08));
-    end loop;
+    --FOR TEST SCREEN
+    --for i := testpsi to testanti
+    --loop
+      --SetLabelText(i, Chr$(08));
+    --end loop;
     
     if g_iProductRow <> 0 then
-      SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
-      SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
-      SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
-      SetLabelText(testcem, g_arProduct[g_iProductRow].sCEMENT);
-      SetLabelText(testwat, g_arProduct[g_iProductRow].sWAT_GALL);
-      SetLabelText(testcal, g_arProduct[g_iProductRow].sCALCIUM);
-      SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
-      SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
-      SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
+      --FOR TEST SCREEN
+      --SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
+      --SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
+      --SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
+      --SetLabelText(testcem, g_arProduct[g_iProductRow].sCEMENT);
+      --SetLabelText(testwat, g_arProduct[g_iProductRow].sWAT_GALL);
+      --SetLabelText(testcal, g_arProduct[g_iProductRow].sCALCIUM);
+      --SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
+      --SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
+      --SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
+      t_psi       := g_arProduct[g_iProductRow].sPSI;
+      t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
+      t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
+      t_cement    := g_arProduct[g_iProductRow].sCEMENT;
+      t_wat_gal   := g_arProduct[g_iProductRow].sWAT_GALL;
+      t_calcium   := g_arProduct[g_iProductRow].sCALCIUM;
+      t_air_ent   := g_arProduct[g_iProductRow].sAIR_ENT;
+      t_antihydr  := g_arProduct[g_iProductRow].sANTIHYDR;
+      t_retard    := g_arProduct[g_iProductRow].sRETARDER;
+          
+
     else
       DisplayStatus("ERROR! No Selection Made.");
     end if;
@@ -570,7 +714,7 @@ program reverse;
 
   begin
     if g_iSelect <> 0 then
-      if EntryMode = ProductSelectMode then
+      if EntryMode = CustomerSelectMode then
         if g_arDisplay[GetSelection].sName <> Blank then   
           t_customer := g_arDisplay[GetSelection].sName;
           t_order    := g_arDisplay[GetSelection].sOrderNum;
@@ -585,15 +729,10 @@ program reverse;
       end if;
     else
       Displaystatus("Select An Entry to Continue");
-      EntryMode :=  ProductSelectMode;
+      EntryMode :=  CustomerSelectMode;
       g_iSelect := 0;    
     end if;
 
-  end;
-
-  handler timer2trip;
-  begin
-    LoadProduct;
   end;
 
 
@@ -610,10 +749,10 @@ program reverse;
   -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
     if iTouch = 0 then
       Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget + 1, "#BB0000");
+      SetwidgetColor(g_iWidget - 1, "#BB0000");
     elsif iTouch = 1 then
       Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget - 1, "#BB0000");
+      SetwidgetColor(g_iWidget + 1, "#BB0000");
     end if;
     g_iSelect := g_iWidget;
     ProcessSelection;
@@ -633,40 +772,116 @@ program reverse;
 
   end;
 
-  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
-  begin
-    
-    DisableHandler(NumericKeyPressed);
-    DisableHandler(EnterKeyPressed);
-    DisableHandler(NavUpKeyPressed);
-    DisableHandler(NavDownKeyPressed);   
-     
-		SetEntry(sDefault);
-    if iPrompt = 1 then   
-      PromptUser(sPrompt);
-    elsif iPrompt = 2 then
-      PromptNumeric(sPrompt);
-    elsif iPrompt = 3 then
-      PromptPassword(sPrompt);
-    else
-      PromptUser(sPrompt);  
-    end if;
-    g_EntryMode := iMode;
-    
-  end;  
-
 procedure ProcessingCustomerEntry;
 begin
+    CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
+    CustomersDB.Name := t_customer;
+    CustomersDB.Street := t_street;
+    CustomersDB.Town := t_town;
+    CustomersDB.State := t_state;
+    CustomersDB.ZipCode := t_zip;
 
-  CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
-  CustomersDB.Name := t_customer;
-  CustomersDB.Street := t_street;
-  CustomersDB.Town := t_town;
-  CustomersDB.State := t_state;
-  CustomersDB.ZipCode := t_zip;
-  CustomersDB.Add;
-
+    g_sysResult := CustomersDB.FindFirst(Customer_Order); --This will equal SysOk if found in DB
+    if g_sysResult <> SysOk then
+      CustomersDB.Add;
+    end if;
   
+end;
+
+procedure RunBatch;
+  bar_percentage1 : integer := 0;
+  bar_percentage2 : integer := 0;
+  bar_npercentage1 : integer := 0;
+  bar_npercentage2 : integer := 0;
+
+  x : integer;
+  y : integer;
+
+begin
+
+  --Batching concrete
+  --Calculation for target weight
+  GetGross(1,Primary,g_rInitial1);
+  g_rActive1 := g_rInitial1;
+
+  g_rtarget1 := g_rActive1 - t_cement;
+  SetBargraphLevel(barS1, 100);
+  SetWidgetColor(barS1, "Red");
+  SetWidgetVisibility(barS1,Von);
+  x := g_rActive1 - g_rtarget1;
+  --while(g_rActive1 > g_rtarget1)
+
+  --Batching sand mix
+  GetGross(2,Primary,g_rInitial2);
+  g_rActive2 := g_rInitial2;
+
+  g_rtarget2 := g_rActive2 - t_sand;
+  SetBargraphLevel(barS2, 100);
+  SetWidgetColor(barS2, "Red");
+  SetWidgetVisibility(barS2,Von);
+  y := g_rActive2 - g_rtarget2;
+
+  while x > 0 and y > 0
+  loop
+
+    GetGross(1,Primary,g_rActive1);
+    x := g_rActive1 - g_rtarget1;
+    bar_percentage1 := (x/t_cement) * 100;
+    SetBargraphLevel(bar279, bar_percentage1);
+    SetLabelText(tarCem, IntegerToString(x,0));
+
+    GetGross(2,Primary,g_rActive2);
+    y := g_rActive2 - g_rtarget2;
+    bar_percentage2 := (y/t_sand) * 100;
+    SetBargraphLevel(bar280, bar_percentage2);
+    SetLabelText(tarAg, IntegerToString(y,0));
+
+    if bar_percentage2 <= 25 then
+      SetWidgetColor(barS1, "Yellow");
+    elsif bar_percentage2 = 0 then
+      SetWidgetColor(barS1, "Green");
+    end if;
+
+    if bar_percentage1 <= 25 then
+      SetWidgetColor(barS1, "Yellow");
+    elsif bar_percentage1 = 0 then
+      SetWidgetColor(barS1, "Green");
+    end if;
+
+  end loop;
+
+
+  --while(g_rActive1 > g_rtarget1)
+  --while(y > 0)
+  --loop
+
+
+
+  --end loop;
+
+  DisplayStatus("HI");
+
+
+end;
+
+procedure CheckBatch;
+begin
+
+  GetGross(1,Primary,g_rInitial1);
+  GetGross(2,Primary,g_rInitial2);
+
+  if g_rInitial1 < t_cement then
+    Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
+  elsif g_rInitial2 < t_sand then
+    DisplayStatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 2!");
+  else
+    SetWidgetVisibility(barS1, Voff);
+    SetWidgetVisibility(barS2, VOff);
+    EntryMode := BatchMode;
+    SelectScreen(g_ciScales);
+    RunBatch;
+  end if;
+    
 end;
 
 --new changes Aris 
@@ -675,57 +890,12 @@ end;
 	begin
   	sTemp := GetEntry; -- is the action of getting user entry
   	ClosePrompt;
-
-  	--This is only going to show up for new customer entries
-  	if g_Entrymode = EnterOrderMode then 
-    	if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
-      end if;
-      t_order := sTemp;
-      SetLabelText(lbl224, t_order);
-      --SetLabelText(lbl224, sTemp);
-    	--t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
-      	
-  	elsif g_Entrymode = EnterNameMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Customer Entry - Retry", EnterNameMode, Blank, 1);
-      end if;
-    	SetLabelText(lbl225, sTemp);
-    	t_customer := sTemp;
-
-  	elsif g_Entrymode = EnterStreetMode then 
-      if sTemp = Blank then
-        PromptForEntry("Invalid Street Entry - Retry", EnterStreetMode, Blank, 1);
-      end if;
-      SetLabelText(lbl226, sTemp);
-    	t_street := sTemp;
- 
-  	elsif g_Entrymode = EnterTownMode then
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Town Entry - Retry", EnterTownMode, Blank, 1);
-      end if; 
-    	SetLabelText(lbl227, sTemp);
-    	t_town := sTemp;
     
-  	elsif g_Entrymode = EnterStateMode then 
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
-      end if;
-    	SetLabelText(lbl228, sTemp);
-    	t_state := sTemp;
-    
-  	elsif g_Entrymode = EnterZipCodeMode then
-      if sTemp = Blank then
-    	
-        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
-      end if;
-    	SetLabelText(lbl229, sTemp);
-    	t_zip := StringToInteger(sTemp);
-    
-  	end if;
-
+    if EventKey = EnterKey then
+      ProcessDataEntry(sTemp);
+    else
+      ProcessPromptCancel;
+    end if;
   --ProcessingCustomerEntry;
 end;
 
@@ -743,9 +913,9 @@ begin
     end if;
   end if;    
   r1_select := False;
-  r2_select := False;          
-  --Paused := No;
-  --BatchMode := Complete;  
+  r2_select := False;
+  
+
   --RefreshMainDisplay;
   --SetWidgetVisibility(btnRPrnt, Voff);
   EntryMode := NoMode;
@@ -753,19 +923,135 @@ begin
   
 end;
 
-handler timer5Trip;
+procedure DefaultsForAddOns;
 begin
 
-  EntryMode := BatchCompleteMode;
-  SelectScreen(g_ciBatch);
+  Setwidgetcolor(lbl127, "Black");
+  Setwidgetcolor(lbl136, "Black");
+  Setwidgetcolor(lbl132, "Black");
+  Setwidgetcolor(lbl141, "Black");
+
+  bCalcium := False;
+  bAnti_hydro := False;
+  bAir_ent := False;
+  bRetarder := False;
+
+  Setwidgetcolor(lbl128, "#BB0000");
+  Setwidgetcolor(lbl137, "#BB0000");
+  Setwidgetcolor(lbl133, "#BB0000");
+  Setwidgetcolor(lbl142, "#BB0000");
 
 end;
 
-handler Timer1Trip;
+procedure TicketOutput;
+  dTime : datetime := SystemTime;
 begin
-  EntryMode := BatchMode;
-  SelectScreen(g_ciScales);
-  SetupStartTimer(5,100, TimerOneShot);
+  DisplayStatus("Printing...");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE INDUSTRIES INC.");
+  WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
+  WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Blank);
+
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
+  WriteLn(g_ciPrinter, "Order #: " + t_order);
+  WriteLn(g_ciPrinter, "Shipping Address:");
+  
+  if t_street <> Blank then
+    WriteLn(g_ciPrinter, t_street);
+  else 
+    WriteLn(g_ciPrinter, Blank);
+  end if;
+  
+  if t_town <> Blank or t_state <> Blank then
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
+  --elsif 
+    --WriteLn()
+  else 
+    WriteLn(g_ciPrinter, Blank);
+
+  end if;
+  
+  --WriteLn(g_ciPrinter, "********************************************************************************");
+  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
+  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "***************************");
+  --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+  --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
+  --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
+  --WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + "lb.");
+  --WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + "gal.");
+
+  --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
+  --WriteLn(g_ciPrinter, Space$(25) + "**************************");
+
+  --if bCalcium = true  then
+    --WriteLn(g_ciPrinter, "Calcium: " + IntegerToString(t_calcium,0));
+  --end if;
+  
+  --if bAnti_hydro = true then
+    --WriteLn(g_ciPrinter, "Anti Hydro: " + RealToString(t_antihydr,6,2));
+  --end if;
+
+  --if bAir_ent = true then
+    --WriteLn(g_ciPrinter, "Air Entrainment: " + RealToString(t_air_ent,6,2));
+  --end if;
+  
+  --if bRetarder = true then
+    --WriteLn(g_ciPrinter, "Retarder: " + RealToString(t_retard,6,2));
+  --end if;
+
+
+  -- *** optimized to be tested **
+
+   if bCalcium = true then 
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0) + Space$(44) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
+   else 
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
+   end if;   
+
+   if bAnti_hydro = true then 
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds." + Space$(20) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
+   else 
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds.");
+   end if;   
+
+   if bAir_ent = true then 
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb." + Space$(24) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
+   else 
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.");
+   end if;   
+
+   if bRetarder = true then 
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb." + Space$(35) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
+   else 
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb.");
+   end if;   
+
+  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
+
+
+
+end;
+
+procedure DisplayBatchComplete;
+begin
+  if EntryMode = BatchCompleteMode then
+
+    --dTime := SystemTime;
+    SetLabelText(lblCust, t_customer);
+    SetLabelText(lblShp1, t_street);
+    SetLabelText(lblShp2, t_town);
+    SetLabelText(lblShp3, t_state);
+    SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    SetLabelText(lbl275, RealToString(t_qtyconc,1,1) + " Yards");
+  end if;
 end;
 
 handler WidgetClicked;
@@ -782,9 +1068,7 @@ handler WidgetClicked;
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
-      --Commented out for testing ingredients without adding to database
-      --EntryMode := CustomerProcessMode;
-      --SelectScreen(g_ciaddcust);
+      SelectCustomer;
       if FileExists("/sdimages/next.png", SDCard) = SysOk then
         SetImageWidgetPath(btnNxt, "/next.png");
       else
@@ -797,23 +1081,30 @@ handler WidgetClicked;
       SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if EntryMode = CustomerProcessMode then
-        ProcessingCustomerEntry;
-        EntryMode := ProductSelectMode;
-        if FileExists("/sdimages/next.png", SDCard) = SysOk then
-          SetImageWidgetPath(btnNxt, "/next.png");
-        else
-          SetImageWidgetPath(btnNxt, "local://10.png");
+      if t_order <> Blank then
+        if EntryMode = CustomerProcessMode then
+          ProcessingCustomerEntry;
+          if g_sysResult <> SysOk then
+            EntryMode := ProductSelectMode;
+            if FileExists("/sdimages/next.png", SDCard) = SysOk then
+              SetImageWidgetPath(btnNxt, "/next.png");
+            else
+              SetImageWidgetPath(btnNxt, "local://10.png");
+            end if;
+            --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
+            SetWidgetVisibility(btnNxt, Voff);
+            ResetProduct;
+            FillProductArray;
+            SelectScreen(g_ciProduct);
+          else
+            DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
+          end if;
         end if;
-        --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
-        SetWidgetVisibility(btnNxt, Voff);
-        ResetProduct;
-        FillProductArray;
-        SelectScreen(g_ciProduct);
+      else
+        DisplayStatus("ERROR: Please enter an order number!");
       end if;
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
-      -- !!! FOR TESTING PURPOSES !!! This will be a customer selection section
       SelectProduct;
       --SetupStartTimer(1,100,TimerOneShot);
 
@@ -828,9 +1119,13 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
  
     elsif g_iWidget = btnPrint then  
-      Print(GrossFmt);
+      TicketOutput;
+      --Print(GrossFmt); -- test purposes?
+      -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
+      ClearCustomerTemp;
+      ClearProductTemp;
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
@@ -846,22 +1141,90 @@ handler WidgetClicked;
       EntryMode:= SetupMenuMode;
       setupScreen;
       SelectScreen(g_ciSetup);
--- new changes by aris
+
     elsif g_iWidget = btnNxt then
-      --EntryMode := BatchMode;
-      --SelectScreen(g_ciScales);
-      --SetupStartTimer(5, 500, TimerOneShot);
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        SetImageWidgetPath(btnNxt13, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt13, "local://10.png");
+      end if;
       GetProductSelection;
-      --LoadProduct; replaced by timer 2 trip
-      SetupStartTimer(2,50,TimerOneShot);
-      EntryMode := NoMode;
-      --Select test screen
-      SelectScreen(g_ciTest);
-      SetupStartTimer(1,1000,TimerOneShot);
+      LoadProduct; 
+      EntryMode := AddOnsMode;
+      SelectScreen(g_ciAddOns); 
+      DefaultsForAddOns;
+      
+      -- (Note: we dont want to create lockup: which is like gridlock)
     
+    elsif g_iWidget = btnNxt13 then
+      --This stays here
+      CheckBatch;
+
+    elsif g_iWidget = bar123 then
+      --TESTING BELOW
+      EntryMode := BatchCompleteMode;
+      DisplayBatchComplete;
+      SelectScreen(g_ciBatch);
+
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
+
+    elsif g_iWidget = lbl127 then
+      if  bCalcium = False then
+        SetWidgetColor(lbl128, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bCalcium := True;
+      end if;
+      
+    elsif g_iWidget = lbl128 then 
+      if bCalcium = True then 
+        SetWidgetColor(lbl127, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bCalcium := False;
+      end if;
+
+    elsif g_iWidget = lbl132 then
+      if  bAir_ent = False then
+        SetWidgetColor(lbl133, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bAir_ent := True;
+      end if;
+
+    elsif g_iWidget = lbl133 then
+      if  bAir_ent = True then
+        SetWidgetColor(lbl132, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bAir_ent := False;
+      end if;
+
+    elsif g_iWidget = lbl136 then
+      if  bAnti_hydro= False then
+        SetWidgetColor(lbl137, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bAnti_hydro := True;
+      end if;
+    
+    elsif g_iWidget = lbl137 then
+      if  bAnti_hydro= True then
+        bAnti_hydro := False;
+        SetWidgetColor(lbl136, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+      end if;
+
+    elsif g_iWidget = lbl141 then
+      if  bRetarder = False then
+        SetWidgetColor(lbl142, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bRetarder := True;
+      end if;
+    
+    elsif g_iWidget = lbl142 then
+      if  bRetarder = True then
+        SetWidgetColor(lbl141, "Black");
+        SetWidgetColor(g_iWidget, "#BB0000");
+        bRetarder := False;
+      end if;
 
     elsif g_iWidget = lbl224 then
       PromptForEntry("Enter Order Number", EnterOrderMode, Blank,1);
@@ -894,39 +1257,15 @@ handler WidgetClicked;
       SetSymbolState(g_iWidgetNum, 2);       
       PageUporDownCustomerList(g_iPage); 
 
+    elsif g_iWidget = btnExt13 then
+      EntryMode := NoMode;
+      --DefaultsForAddOns;
+      SelectScreen(g_ciMain);
     end if;
 
     EnableHandler(WidgetClicked); 
    
-  end;
-
---procedure BatchNBarGraphDisplay
---begin
-    -- g_EntryMode = BatchMode;
-    -- g_rTarget := g_rInitial - g_rActiveWeight 
-    -- level := ((batch / target)*100)
-    -- 
-    -- while level < 100;
-    --    SetBargraphLevel(bar, level);
-
---end;
-
-
-procedure DisplayBatchComplete;
-begin
-  if g_EntryMode = BatchCompleteMode then
-
-    --dTime := SystemTime;
-    SetLabelText(lblCust, t_customer);
-    SetLabelText(lblShp1, t_street);
-    SetLabelText(lblShp2, t_town);
-    SetLabelText(lblShp3, t_state);
-    --SetLabelText(lblProd, MISSING VARIABLE);  UNCOMMENT WHEN THIS SECTION IS DONE
-    --SetLabelText(lbl275, MISSING TOTAL VARIABLE); UNCOMMENT WHEN THIS SECTION IS DONE
-  end if;
-end;
-
-
+  end; 
 
 begin
 
@@ -936,3 +1275,23 @@ begin
   Ready;       
 
 end reverse; 
+
+-- Used for printing values from batch selection
+-- IntegerToString(g_arProduct[i].sPSI, 0);
+-- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
+-- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
+-- RealToString(g_arProduct[i].sCEMENT, 6, 1);
+-- RealToString(g_arProduct[i].sWAT_GALL, 6, 1);
+-- IntegerToString(g_arProduct[i].sCALCIUM, 0);
+-- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
+-- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
+-- RealToString(g_arProduct[i].sRETARDER, 6, 1);
+
+
+--setpoints are a value that are user defined, active if enabled or Disabled
+--we only want is enabled if we are running a batch and disabled otherwise 
+
+--the first setpoint will trigger the bar graph to turn yellow (100 pounds before the target is reached)
+ 
+
+--target val + 75 

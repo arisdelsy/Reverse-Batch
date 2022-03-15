@@ -102,7 +102,6 @@ SP1       : constant integer :=1;
 SP2       : constant integer :=2;
 SP3       : constant integer :=3;
 SP4       : constant integer :=4;
-SP5       : constant integer :=5;
 
 -- Widget Aliases
 bar1      : constant integer := 1;
@@ -406,6 +405,8 @@ testcal   : constant integer := 319;
 testair   : constant integer := 320;
 testanti  : constant integer := 321;
 testret   : constant integer := 322;
+barS1     : constant integer := 125;
+barS2     : constant integer := 126;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
