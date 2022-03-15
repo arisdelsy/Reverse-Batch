@@ -810,24 +810,7 @@ begin
   SetWidgetVisibility(barS1,Von);
   x := g_rActive1 - g_rtarget1;
   --while(g_rActive1 > g_rtarget1)
-  while(x > 0)
-  loop
 
-    GetGross(1,Primary,g_rActive1);
-    x := g_rActive1 - g_rtarget1;
-    bar_percentage1 := (x/t_cement) * 100;
-    SetBargraphLevel(bar279, bar_percentage1);
-    SetLabelText(tarCem, IntegerToString(x,0));
-
-    if bar_percentage1 <= 25 then
-      SetWidgetColor(barS1, "Yellow");
-    elsif bar_percentage1 = 0 then
-      SetWidgetColor(barS1, "Green");
-    end if;
-
-  end loop;
-
-  
   --Batching sand mix
   GetGross(2,Primary,g_rInitial2);
   g_rActive2 := g_rInitial2;
@@ -837,9 +820,15 @@ begin
   SetWidgetColor(barS2, "Red");
   SetWidgetVisibility(barS2,Von);
   y := g_rActive2 - g_rtarget2;
-  --while(g_rActive1 > g_rtarget1)
-  while(y > 0)
+
+  while x > 0 and y > 0
   loop
+
+    GetGross(1,Primary,g_rActive1);
+    x := g_rActive1 - g_rtarget1;
+    bar_percentage1 := (x/t_cement) * 100;
+    SetBargraphLevel(bar279, bar_percentage1);
+    SetLabelText(tarCem, IntegerToString(x,0));
 
     GetGross(2,Primary,g_rActive2);
     y := g_rActive2 - g_rtarget2;
@@ -853,11 +842,46 @@ begin
       SetWidgetColor(barS1, "Green");
     end if;
 
+    if bar_percentage1 <= 25 then
+      SetWidgetColor(barS1, "Yellow");
+    elsif bar_percentage1 = 0 then
+      SetWidgetColor(barS1, "Green");
+    end if;
+
   end loop;
+
+
+  --while(g_rActive1 > g_rtarget1)
+  --while(y > 0)
+  --loop
+
+
+
+  --end loop;
 
   DisplayStatus("HI");
 
 
+end;
+
+procedure CheckBatch;
+begin
+
+  GetGross(1,Primary,g_rInitial1);
+  GetGross(2,Primary,g_rInitial2);
+
+  if g_rInitial1 < t_cement then
+    Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
+  elsif g_rInitial2 < t_sand then
+    DisplayStatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 2!");
+  else
+    SetWidgetVisibility(barS1, Voff);
+    SetWidgetVisibility(barS2, VOff);
+    EntryMode := BatchMode;
+    SelectScreen(g_ciScales);
+    RunBatch;
+  end if;
+    
 end;
 
 --new changes Aris 
@@ -923,24 +947,37 @@ procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
   DisplayStatus("Printing...");
-  WriteLn(g_ciPrinter, Space$(25) + "**************************");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
   WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE INDUSTRIES INC.");
-  WriteLn(g_ciPrinter, Space$(29) + "226 Selleck St C");
-  WriteLn(g_ciPrinter, Space$(28) + "Stamford, CT, 06902");
-  WriteLn(g_ciPrinter, Space$(25) + "**************************");
+  WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
+  WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, "Customer:" + UCase$(t_customer));
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
   WriteLn(g_ciPrinter, "Order #: " + t_order);
   WriteLn(g_ciPrinter, "Shipping Address:");
-  WriteLn(g_ciPrinter, t_street);
-  WriteLn(g_ciPrinter, t_town + "," + t_state);
   
-  WriteLn(g_ciPrinter, "********************************************************************************");
+  if t_street <> Blank then
+    WriteLn(g_ciPrinter, t_street);
+  else 
+    WriteLn(g_ciPrinter, Blank);
+  end if;
+  
+  if t_town <> Blank or t_state <> Blank then
+    WriteLn(g_ciPrinter, t_town + "," + t_state);
+  --elsif 
+    --WriteLn()
+  else 
+    WriteLn(g_ciPrinter, Blank);
+
+  end if;
+  
+  --WriteLn(g_ciPrinter, "********************************************************************************");
+  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(34) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "**************************");
+  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
+  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "***************************");
   --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
   --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
   --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
@@ -970,30 +1007,31 @@ begin
   -- *** optimized to be tested **
 
    if bCalcium = true then 
-    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0) + Space$(45) + "Calcium: " + IntegerToString(t_calcium,0));
+    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0) + Space$(44) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
    else 
     WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
    end if;   
 
    if bAnti_hydro = true then 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + " yds." + Space$(25) + "Anti Hydro: " + RealToString(t_antihydr,6,2));
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds." + Space$(20) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
    else 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + " yds.");
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds.");
    end if;   
 
    if bAir_ent = true then 
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + " lb." + Space$(25) + "Air Entrainment: " + RealToString(t_air_ent,6,2));
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb." + Space$(24) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
    else 
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + " lb.");
+    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.");
    end if;   
 
    if bRetarder = true then 
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + " lb." + Space$(37) + "Retarder: " + RealToString(t_retard,6,2));
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb." + Space$(35) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
    else 
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + " lb.");
+    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb.");
    end if;   
 
-  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + " gal.");
+  WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
@@ -1120,11 +1158,7 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
-      SetWidgetVisibility(barS1, Voff);
-      SetWidgetVisibility(barS2, VOff);
-      EntryMode := BatchMode;
-      SelectScreen(g_ciScales);
-      RunBatch;
+      CheckBatch;
 
     elsif g_iWidget = bar123 then
       --TESTING BELOW
