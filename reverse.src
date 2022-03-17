@@ -146,6 +146,7 @@ program reverse;
 
   CustomersDB : CustomerDatabase;
   ProductDB   : ProductDatabase;
+  TransDB     : TransDatabase;
   
   procedure SetupStartTimer(iTimer : integer; iDuration : integer; itmMode : TimerMode); -- Setup a Timer and Start                                
   begin
@@ -405,6 +406,88 @@ program reverse;
 
   end;
   
+  handler Timer25Trip;  -- Wait for Standstill check
+    iMotion : integer;   
+    rGrossWgt1 : real;
+    rGrossWgt2 : real;
+		iInRange1 : integer;
+    iInRange2 : integer;
+  begin
+
+    InMotion(g_iTotalScale, iMotion);
+    
+    if iMotion = 0 then  
+    
+      StopTimer(25);
+      DisplayStatus(Blank);  
+
+      g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
+			g_sysResult2 := InRange(1, iInRange1);
+
+      g_sysResult3 := GetGross(2, Primary, rGrossWgt2); 
+      GetTare(g_iTotalScale, g_uUnits, rTareWgt);
+      
+			-- Get Gross Command
+      if g_sysResult1 <> SysOk then
+        SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1));  
+        ReadytoProcessTruck(200);
+			  return;
+      else
+        GetGross(1, Primary, rGrossWgt1);
+      end if;
+			
+			-- Check In Range
+      if g_sysResult2 <> SysOk then
+        SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
+        ReadytoProcessTruck(200);  
+			  return;
+      end if;			
+			
+		 -- Validate InRage
+		 if iInRange = 0 then  
+        SetLabelText(lbSts1, "Scale NOT In Range");  
+        ReadytoProcessTruck(200); 
+				return;
+		 end if;
+		 
+     if EntryMode = ManualPrintMode then  -- Weigh In
+        
+        TransDB.DT := SystemTime; 
+        TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
+        TransDB.T_Sand := RealToString(rGrossWgt2, 0, 2);
+        TransDB.Yards := RealToString(t_qtyconc, 0, 2);
+        TransDB.Product := IntegerToString(t_psi, 0) + RealToString(t_qtyconc, 0, 2);
+        g_sysResult1 := TransDB.Add;
+        
+        if g_sysResult1 = SysOk then      
+          --PrintInboundTicket;  -- Print Inbound Ticket
+          
+          if g_iTruckExit = 1 then
+            SetLabelText(lbSts1, "Weigh In Complete - Exit Scale");
+            TurnOffWeighInOutButtons;      
+            ClearTare(g_iTotalScale);
+            EntryMode := ExitScale;
+            SelectScreen(g_ciMain);	
+          else
+            SetLabelText(lbSts1, "Weigh In Complete"); 
+            EntryMode := WeighMode;
+            SelectScreen(g_ciMain);	
+          end if;		
+
+        else 
+          SetLabelText(lbSts1, "Database Error: " + SysCodeToString(g_sysResult1));
+        	ReadytoProcessTruck(200);
+          SelectScreen(g_ciMain);	  					
+        end if;  
+        
+      end if;  
+      
+    else
+      SetLabelText(lbSts1, "...In Motion...");
+    end if;
+
+  end;
+
   procedure DisplayCustomersDB; 
     i : integer;
     j : integer;
@@ -791,9 +874,6 @@ end;
 procedure RunBatch;
   bar_percentage1 : integer := 0;
   bar_percentage2 : integer := 0;
-  bar_npercentage1 : integer := 0;
-  bar_npercentage2 : integer := 0;
-
   x : integer;
   y : integer;
 
@@ -821,7 +901,7 @@ begin
   SetWidgetVisibility(barS2,Von);
   y := g_rActive2 - g_rtarget2;
 
-  while x > 0 and y > 0
+  while EntryMode = BatchMode
   loop
 
     GetGross(1,Primary,g_rActive1);
@@ -846,6 +926,10 @@ begin
       SetWidgetColor(barS1, "Yellow");
     elsif bar_percentage1 = 0 then
       SetWidgetColor(barS1, "Green");
+    end if;
+
+    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
+      EntryMode := NoMode;
     end if;
 
   end loop;
