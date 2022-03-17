@@ -404,7 +404,7 @@ program reverse;
     t_retard := 0;
 
   end;
-  
+
   procedure DisplayCustomersDB; 
     i : integer;
     j : integer;
@@ -791,9 +791,6 @@ end;
 procedure RunBatch;
   bar_percentage1 : integer := 0;
   bar_percentage2 : integer := 0;
-  bar_npercentage1 : integer := 0;
-  bar_npercentage2 : integer := 0;
-
   x : integer;
   y : integer;
 
@@ -821,7 +818,7 @@ begin
   SetWidgetVisibility(barS2,Von);
   y := g_rActive2 - g_rtarget2;
 
-  while x > 0 and y > 0
+  while EntryMode = BatchMode
   loop
 
     GetGross(1,Primary,g_rActive1);
@@ -846,6 +843,10 @@ begin
       SetWidgetColor(barS1, "Yellow");
     elsif bar_percentage1 = 0 then
       SetWidgetColor(barS1, "Green");
+    end if;
+
+    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
+      EntryMode := NoMode;
     end if;
 
   end loop;
