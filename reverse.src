@@ -22,7 +22,11 @@ program reverse;
   --g_ibUpdate : boolean;
   g_iDecimal1 : integer;  
   g_uUnits : Units; 
-  g_sysResult : SysCode;   
+  g_sysResult : SysCode;
+  g_sysResult1 : SysCode;
+  g_sysResult2 : SysCode;
+  g_sysResult3 : SysCode;
+  g_sysResult4 : SysCode;
   g_iDebug : integer;
   g_rScaleEmptyWeight : stored real;
   g_rScaleDischargeTime : stored real;
@@ -407,14 +411,16 @@ program reverse;
   end;
   
   handler Timer25Trip;  -- Wait for Standstill check
-    iMotion : integer;   
+    iMotion1 : integer; 
+    iMotion2 : integer;   
     rGrossWgt1 : real;
     rGrossWgt2 : real;
 		iInRange1 : integer;
     iInRange2 : integer;
   begin
 
-    InMotion(g_iTotalScale, iMotion);
+    InMotion(1, iMotion1);
+    InMotion(2, iMotion2);
     
     if iMotion = 0 then  
     
@@ -424,7 +430,9 @@ program reverse;
       g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
 			g_sysResult2 := InRange(1, iInRange1);
 
-      g_sysResult3 := GetGross(2, Primary, rGrossWgt2); 
+      g_sysResult3 := GetGross(2, Primary, rGrossWgt2);
+      g_sysResult4 := InRange(2, iInRange2); 
+
       GetTare(g_iTotalScale, g_uUnits, rTareWgt);
       
 			-- Get Gross Command
@@ -1032,15 +1040,15 @@ procedure TicketOutput;
 begin
   DisplayStatus("Printing...");
   WriteLn(g_ciPrinter, Space$(25) + "***************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE INDUSTRIES INC.");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/Short Load Concrete");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(25) + "***************************");
   WriteLn(g_ciPrinter, Blank);
 
-  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer));
-  WriteLn(g_ciPrinter, "Order #: " + t_order);
-  WriteLn(g_ciPrinter, "Shipping Address:");
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info");
+  WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
+  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Address " + );
   
   if t_street <> Blank then
     WriteLn(g_ciPrinter, t_street);
@@ -1097,9 +1105,9 @@ begin
    end if;   
 
    if bAnti_hydro = true then 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds." + Space$(20) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds." + Space$(20) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
    else 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 2) + " yds.");
+    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.");
    end if;   
 
    if bAir_ent = true then 
@@ -1119,6 +1127,9 @@ begin
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Space$(15) + "By signing this ticket buyer has agreed to the Terms and Conditions");
+  WriteLn(g_ciPrinter, Space$(15) + "which are located at www.shortloadconcrete.net";)
 
 
 
