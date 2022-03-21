@@ -1039,12 +1039,15 @@ procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
   DisplayStatus("Printing...");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/Short Load Concrete");
+
+  -- Header for Ticket
+  WriteLn(g_ciPrinter, Space$(25) + "*******************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/SHORT LOAD CONCRETE");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Space$(25) + "*******************************");
   WriteLn(g_ciPrinter, Blank);
+  --------------------------------------------------------------------------
 
   WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info");
   WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
@@ -1054,8 +1057,6 @@ begin
   
   if t_town <> Blank or t_state <> Blank then
     WriteLn(g_ciPrinter, t_town + "," + t_state);
-  --elsif 
-    --WriteLn()
   else 
     WriteLn(g_ciPrinter, Blank);
 
