@@ -1050,11 +1050,7 @@ begin
   WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
   WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Address " + );
   
-  if t_street <> Blank then
-    WriteLn(g_ciPrinter, t_street);
-  else 
-    WriteLn(g_ciPrinter, Blank);
-  end if;
+  WriteLn(g_ciPrinter, t_street);
   
   if t_town <> Blank or t_state <> Blank then
     WriteLn(g_ciPrinter, t_town + "," + t_state);
