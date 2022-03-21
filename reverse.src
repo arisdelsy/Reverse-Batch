@@ -95,7 +95,12 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : integer;
-  
+
+  t_onsite    : integer;
+  t_streetB   : string;
+  t_townB     : string;
+  t_stateB    : string;
+  t_zipB      : integer;  
 
   --Temp variables for product information
   t_psi       : integer;
@@ -1039,28 +1044,20 @@ procedure TicketOutput;
   dTime : datetime := SystemTime;
 begin
   DisplayStatus("Printing...");
-
-  -- Header for Ticket
-  WriteLn(g_ciPrinter, Space$(25) + "*******************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/SHORT LOAD CONCRETE");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/Short Load Concrete");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
-  WriteLn(g_ciPrinter, Space$(25) + "*******************************");
+  WriteLn(g_ciPrinter, Space$(25) + "***************************");
   WriteLn(g_ciPrinter, Blank);
-  --------------------------------------------------------------------------
 
-  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info");
+  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
   WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
   WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Address " + );
   
-  WriteLn(g_ciPrinter, t_street);
-  
-  if t_town <> Blank or t_state <> Blank then
-    WriteLn(g_ciPrinter, t_town + "," + t_state);
-  else 
-    WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, t_street + Space$(15) +  );
+  WriteLn(g_ciPrinter, t_town + "," + t_state);
 
-  end if;
   
   --WriteLn(g_ciPrinter, "********************************************************************************");
   --WriteLn(g_ciPrinter, Blank);
