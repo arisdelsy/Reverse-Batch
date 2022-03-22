@@ -67,6 +67,7 @@ program reverse;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
   AddOnsMode          : constant integer := 1015;
+  BillingMode         : constant integer := 1021;
 
 -- Entry Modes for customer entry
   EnterOrderMode          : constant integer := 1009;
@@ -75,6 +76,13 @@ program reverse;
   EnterTownMode           : constant integer := 1012;
   EnterStateMode          : constant integer := 1013;
   EnterZipCodeMode            : constant integer := 1014;
+
+  --EntryModes for billing
+  EnterOnsiteTelMode      : constant integer := 1016;
+  EnterStreetBMode        : constant integer := 1017;
+  EnterTownBMode          : constant integer := 1018;
+  EnterStateBMode         : constant integer := 1019;
+  EnterZipCodeBMode       : constant integer := 1020;
  
  
  -- Number of Max record
@@ -287,7 +295,7 @@ program reverse;
     elsif g_Entrymode = EnterStateMode then 
       if sTemp = Blank then
       
-        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
+        PromptForEntry("Invalid State Entry - Retry", EnterStateMode, Blank, 1);
       end if;
       SetLabelText(lbl228, sTemp);
       t_state := sTemp;
@@ -296,13 +304,58 @@ program reverse;
     elsif g_Entrymode = EnterZipCodeMode then
       if sTemp = Blank then
       
-        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
+        PromptForEntry("Invalid Zip Code Entry - Retry", EnterZipCodeMode, Blank, 1); 
       end if;
       SetLabelText(lbl229, sTemp);
       t_zip := StringToInteger(sTemp);
       EntryMode := CustomerProcessMode;
     
+    --NEW EDITS MADE BY ARIS PLEASE REVIEW  *** ask steven why the top entry has a 1 if it should be 2 
+    -----------------------------------------------------------------------------------------------------
+    elsif g_Entrymode = EnterOnsiteTelMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Phone Number Entry - Retry", EnterOnsiteTelMode, Blank, 1); 
+      end if;
+      SetLabelText(lbl328, sTemp);
+      t_onsite := StringToInteger(sTemp);
+      EntryMode := BillingMode;
+    
+    elsif g_Entrymode = EnterStreetBMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Street Entry - Retry", EnterStreetBMode, Blank, 1);
+      end if;
+      SetLabelText(lbl330, sTemp);
+      t_streetB := sTemp;
+      EntryMode := BillingMode;
+
+    elsif g_Entrymode = EnterTownBMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Town Entry - Retry", EnterTownBMode, Blank, 1);
+      end if; 
+      SetLabelText(lbl331, sTemp);
+      t_townB := sTemp;
+      EntryMode := BillingMode;
+    
+    elsif g_Entrymode = EnterStateBMode then 
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid State Entry - Retry", EnterStateBMode, Blank, 1);
+      end if;
+      SetLabelText(lbl332, sTemp);
+      t_stateB := sTemp;
+      EntryMode := BillingMode;
+    
+    elsif g_Entrymode = EnterZipCodeBMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Zip Code Entry - Retry", EnterZipCodeBMode, Blank, 1); 
+      end if;
+      SetLabelText(lbl333, sTemp);
+      t_zipB := StringToInteger(sTemp);
+      EntryMode := BillingMode;
     end if;
+  --------------------------------------------------
   end;
 
    function GetSelection : integer;  -- Returns the current selected record in the display list    
@@ -473,7 +526,7 @@ program reverse;
         g_sysResult1 := TransDB.Add;
         
         if g_sysResult1 = SysOk then      
-          --PrintInboundTicket;  -- Print Inbound Ticket
+          PrintInboundTicket;  -- Print Inbound Ticket
           
           if g_iTruckExit = 1 then
             SetLabelText(lbSts1, "Weigh In Complete - Exit Scale");
@@ -1042,24 +1095,31 @@ end;
 
 procedure TicketOutput;
   dTime : datetime := SystemTime;
+  temp2 : string;
+  length_s : integer;
 begin
   DisplayStatus("Printing...");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/Short Load Concrete");
+  WriteLn(g_ciPrinter, Space$(25) + "*****************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/SHORT LOAD CONCRETE");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
+
+  temp2 := "Customer: " + t_customer;
+  length_s := Len(temp2);
+  if length_s < 45 then
+    WriteLn(g_ciPrinter, temp2 + Space$(45-length_s) + "Billing Info.");
 
   WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
   WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
-  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Address " + );
+  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address: ");
   
-  WriteLn(g_ciPrinter, t_street + Space$(15) +  );
-  WriteLn(g_ciPrinter, t_town + "," + t_state);
+  WriteLn(g_ciPrinter, t_street + Space$(15) + t_stateB );
+  WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ t_townB + "," + t_stateB);
 
   
-  --WriteLn(g_ciPrinter, "********************************************************************************");
+  WriteLn(g_ciPrinter, "********************************************************************************");
   --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
@@ -1072,23 +1132,6 @@ begin
 
   --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
   --WriteLn(g_ciPrinter, Space$(25) + "**************************");
-
-  --if bCalcium = true  then
-    --WriteLn(g_ciPrinter, "Calcium: " + IntegerToString(t_calcium,0));
-  --end if;
-  
-  --if bAnti_hydro = true then
-    --WriteLn(g_ciPrinter, "Anti Hydro: " + RealToString(t_antihydr,6,2));
-  --end if;
-
-  --if bAir_ent = true then
-    --WriteLn(g_ciPrinter, "Air Entrainment: " + RealToString(t_air_ent,6,2));
-  --end if;
-  
-  --if bRetarder = true then
-    --WriteLn(g_ciPrinter, "Retarder: " + RealToString(t_retard,6,2));
-  --end if;
-
 
   -- *** optimized to be tested **
 
@@ -1122,8 +1165,8 @@ begin
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(15) + "By signing this ticket buyer has agreed to the Terms and Conditions");
-  WriteLn(g_ciPrinter, Space$(15) + "which are located at www.shortloadconcrete.net";)
+  WriteLn(g_ciPrinter, Space$(13) + "By signing this ticket buyer has agreed to the Terms and Conditions");
+  WriteLn(g_ciPrinter, Space$(13) + "which are located at www.shortloadconcrete.net");
 
 
 
@@ -1332,6 +1375,21 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+
+    elsif g_iWidget = lbl328 then
+      PromptForEntry("Enter Onsite Phone Number", EnterOnsiteTelMode, Blank,2);
+    
+    elsif g_iWidget = lbl330 then
+      PromptForEntry("Enter Street", EnterStreetBMode, Blank,1);
+
+    elsif g_iWidget = lbl331 then
+      PromptForEntry("Enter Town", EnterTownBMode, Blank,1);
+    
+    elsif g_iWidget = lbl332 then
+      PromptForEntry("Enter State", EnterStateBMode, Blank,1);
+    
+    elsif g_iWidget = lbl333 then
+      PromptForEntry("Enter ZipCode", EnterZipCodeBMode, Blank,2);
     
     elsif g_iWidget = btnAdd then
       EntryMode := CustomerProcessMode;
