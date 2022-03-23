@@ -5,12 +5,12 @@ program reverse;
 --Screens
   g_ciMain    : constant integer := 14;
   g_ciCust    : constant integer := 2;
-  g_ciaddcust : constant integer := 3;
+  g_ciShip : constant integer := 3;
   g_ciProduct : constant integer := 4;
   g_ciYN      : constant integer := 5;
   g_ciSetup   : constant integer := 10;
   g_ciBatch   : constant integer := 1;
-  g_ciShip    : constant integer := 8;
+  g_ciaddcust : constant integer := 8;
   g_ciScales  : constant integer := 9;
   g_ciAddOns  : constant integer := 13;
   --Testing screen
@@ -945,7 +945,7 @@ begin
     CustomersDB.State := t_state;
     CustomersDB.ZipCode := t_zip;
 
-    g_sysResult := CustomersDB.FindFirst(Customer_PhoneNum); --This will equal SysOk if found in DB
+    g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
     end if;
@@ -1241,11 +1241,15 @@ handler WidgetClicked;
             end if;
             --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
             SetWidgetVisibility(btnNxt, Voff);
-            ResetProduct;
-            FillProductArray;
-            SelectScreen(g_ciProduct);
+            -----------------------------
+            --SAVING FOR LATER
+            --ResetProduct;
+            --FillProductArray;
+            --SelectScreen(g_ciProduct);
+            -----------------------------
+            
           else
-            DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
+            DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE USE A NEW PHONE NUMBER!");
           end if;
         end if;
       else
@@ -1282,6 +1286,10 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
 
     elsif g_iWidget = btnExt10 then
+      EntryMode := NoMode;
+      SelectScreen(g_ciMain);
+    
+    elsif g_iWidget = btnExt3 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
