@@ -945,7 +945,7 @@ begin
     CustomersDB.State := t_state;
     CustomersDB.ZipCode := t_zip;
 
-    g_sysResult := CustomersDB.FindFirst(Customer_Order); --This will equal SysOk if found in DB
+    g_sysResult := CustomersDB.FindFirst(Customer_PhoneNum); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
     end if;
@@ -1126,7 +1126,7 @@ begin
   if length_s < 45 then
     WriteLn(g_ciPrinter, temp2 + Space$(45-length_s) + "Billing Info.");
   end if;
-  
+
   --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
   WriteLn(g_ciPrinter, "Order #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
   WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address: ");
@@ -1375,7 +1375,7 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget = lbl224 then
-      PromptForEntry("Enter Order Number", EnterPhoneMode, Blank,1);
+      PromptForEntry("Enter Phone Number", EnterPhoneMode, Blank,1);
 
     elsif g_iWidget = lbl225 then
       PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
@@ -1391,6 +1391,12 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+    
+    elsif g_iWidget = lbl328 then
+      PromptForEntry("Enter Onsite Phone", EnterOnsiteTelMode, Blank,1);
+    
+    elsif g_iWidget = lbl335 then
+      PromptForEntry("Enter Customer Name", EnterShipCustomerMode, Blank,1);
     
     elsif g_iWidget = lbl330 then
       PromptForEntry("Enter Street", EnterShipStreetMode, Blank,1);

@@ -507,7 +507,7 @@ program reverse;
     InMotion(1, iMotion1);
     InMotion(2, iMotion2);
     
-    if iMotion = 0 then  
+    if iMotion1 = 0 and iMotion2 = 0 then  
     
       StopTimer(25);
       DisplayStatus(Blank);  
@@ -945,7 +945,7 @@ begin
     CustomersDB.State := t_state;
     CustomersDB.ZipCode := t_zip;
 
-    g_sysResult := CustomersDB.FindFirst(Customer_Order); --This will equal SysOk if found in DB
+    g_sysResult := CustomersDB.FindFirst(Customer_PhoneNum); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
     end if;
@@ -1125,13 +1125,14 @@ begin
   length_s := Len(temp2);
   if length_s < 45 then
     WriteLn(g_ciPrinter, temp2 + Space$(45-length_s) + "Billing Info.");
+  end if;
 
-  WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
+  --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
   WriteLn(g_ciPrinter, "Order #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
   WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address: ");
   
-  WriteLn(g_ciPrinter, t_street + Space$(15) + t_stateB );
-  WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ t_townB + "," + t_stateB);
+  WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
+  WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
 
   
   WriteLn(g_ciPrinter, "********************************************************************************");
@@ -1374,7 +1375,7 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget = lbl224 then
-      PromptForEntry("Enter Order Number", EnterPhoneMode, Blank,1);
+      PromptForEntry("Enter Phone Number", EnterPhoneMode, Blank,1);
 
     elsif g_iWidget = lbl225 then
       PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
@@ -1390,6 +1391,12 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+    
+    elsif g_iWidget = lbl328 then
+      PromptForEntry("Enter Onsite Phone", EnterOnsiteTelMode, Blank,1);
+    
+    elsif g_iWidget = lbl335 then
+      PromptForEntry("Enter Customer Name", EnterShipCustomerMode, Blank,1);
     
     elsif g_iWidget = lbl330 then
       PromptForEntry("Enter Street", EnterShipStreetMode, Blank,1);
