@@ -5,14 +5,16 @@ program reverse;
 --Screens
   g_ciMain    : constant integer := 14;
   g_ciCust    : constant integer := 2;
+  g_ciaddcust : constant integer := 3;
   g_ciProduct : constant integer := 4;
   g_ciYN      : constant integer := 5;
   g_ciSetup   : constant integer := 10;
   g_ciBatch   : constant integer := 1;
-  g_ciaddcust : constant integer := 8;
+  g_ciShip    : constant integer := 8;
   g_ciScales  : constant integer := 9;
   g_ciAddOns  : constant integer := 13;
-  g_ciTest    : constant integer := 99;
+  --Testing screen
+  --g_ciTest    : constant integer := 99;
 
   -- Global/Types variables definitions 
   g_sSetupPassword : stored string;
@@ -26,14 +28,7 @@ program reverse;
   g_sysResult1 : SysCode;
   g_sysResult2 : SysCode;
   g_sysResult3 : SysCode;
-  g_sysResult4 : SysCode;
-  g_iDebug : integer;
-  g_rScaleEmptyWeight : stored real;
-  g_rScaleDischargeTime : stored real;
-  g_iRecipeId : stored integer;  
-  g_iTotalNbrIngredients : integer;    
-  g_iCurrentIngredient : integer;    
-  g_iDelayCnt : integer; 
+  g_sysResult4 : SysCode;   
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
@@ -67,22 +62,23 @@ program reverse;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
   AddOnsMode          : constant integer := 1015;
-  BillingMode         : constant integer := 1021;
+  ShippingMode        : constant integer := 1022;
 
 -- Entry Modes for customer entry
-  EnterOrderMode          : constant integer := 1009;
+  EnterPhoneMode          : constant integer := 1009;
   EnterNameMode           : constant integer := 1010;
   EnterStreetMode         : constant integer := 1011;
   EnterTownMode           : constant integer := 1012;
   EnterStateMode          : constant integer := 1013;
-  EnterZipCodeMode            : constant integer := 1014;
+  EnterZipCodeMode        : constant integer := 1014;
 
-  --EntryModes for billing
-  EnterOnsiteTelMode      : constant integer := 1016;
-  EnterStreetBMode        : constant integer := 1017;
-  EnterTownBMode          : constant integer := 1018;
-  EnterStateBMode         : constant integer := 1019;
-  EnterZipCodeBMode       : constant integer := 1020;
+  --EntryModes for shipping
+  EnterOnsiteTelMode         : constant integer := 1016;
+  EnterShipCustomerMode      : constant integer := 1017;
+  EnterShipStreetMode        : constant integer := 1018;
+  EnterShipTownMode          : constant integer := 1019;
+  EnterShipStateMode         : constant integer := 1020;
+  EnterShipZipCodeMode       : constant integer := 1021;
  
  
  -- Number of Max record
@@ -97,18 +93,19 @@ program reverse;
   g_Entrymode : integer;
 
   --Temp variables for entry for customer info
-  t_order     : string;
+  t_phonenum  : string;
   t_customer  : string;
   t_street    : string;
   t_town      : string;
   t_state     : string;
   t_zip       : integer;
 
-  t_onsite    : integer;
-  t_streetB   : string;
-  t_townB     : string;
-  t_stateB    : string;
-  t_zipB      : integer;  
+  ts_onsite   : string;
+  ts_customer : string;
+  ts_street   : string;
+  ts_town     : string;
+  ts_state    : string;
+  ts_zip      : integer;  
 
   --Temp variables for product information
   t_psi       : integer;
@@ -132,7 +129,7 @@ program reverse;
 
   type DisplayRecord is
     record 
-      sOrderNum : string; 
+      sPhoneNum : string; 
       sName     : string;
       sStreet   : string;
       sTown     : string;
@@ -223,9 +220,9 @@ program reverse;
     
       ClosePrompt;  
 
-      if Entrymode = EnterOrderMode then 
+      if Entrymode = EnterPhoneMode then 
         EntryMode := CustomerProcessMode;
-        t_order := Blank;
+        t_phonenum := Blank;
         SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterNameMode then 
         EntryMode := CustomerProcessMode;
@@ -247,6 +244,26 @@ program reverse;
         EntryMode := CustomerProcessMode;
         t_zip := 0;
         SelectScreen(g_ciaddcust);
+      elsif Entrymode = EnterOnsiteTelMode then 
+        EntryMode := ShippingMode;
+        ts_onsite := Blank;
+        SelectScreen(g_ciShip);
+      elsif Entrymode = EnterShipCustomerMode then 
+        EntryMode := ShippingMode;
+        ts_customer := Blank;
+        SelectScreen(g_ciShip);
+      elsif Entrymode = EnterShipStreetMode then 
+        EntryMode := ShippingMode;
+        ts_street := Blank;
+        SelectScreen(g_ciShip);
+      elsif Entrymode = EnterShipTownMode then 
+        EntryMode := ShippingMode;
+        ts_town := Blank;
+        SelectScreen(g_ciShip);
+      elsif Entrymode = EnterShipZipCodeMode then 
+        EntryMode := ShippingMode;
+        ts_zip := 0;
+        SelectScreen(g_ciShip);
       else   
         DisplayStatus(Blank); 
         EntryMode := NoMode;  
@@ -257,15 +274,15 @@ program reverse;
   procedure ProcessDataEntry(sTemp : string);
   begin
     --This is only going to show up for new customer entries
-    if g_Entrymode = EnterOrderMode then 
+    if g_Entrymode = EnterPhoneMode then 
       if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterOrderMode, Blank, 1);
+        PromptForEntry("Invalid Order Number - Retry", EnterPhoneMode, Blank, 1);
       end if;
-      t_order := sTemp;
-      SetLabelText(lbl224, t_order);
+      t_phonenum := sTemp;
+      SetLabelText(lbl224, t_phonenum);
       EntryMode := CustomerProcessMode;
       --SetLabelText(lbl224, sTemp);
-      --t_order := StringToInteger(sTemp); -- will this be used for printing, variable t_order?
+      --t_phonenum := StringToInteger(sTemp); -- will this be used for printing, variable t_phonenum?
         
     elsif g_Entrymode = EnterNameMode then 
       if sTemp = Blank then
@@ -295,7 +312,7 @@ program reverse;
     elsif g_Entrymode = EnterStateMode then 
       if sTemp = Blank then
       
-        PromptForEntry("Invalid Order Number - Retry", EnterStateMode, Blank, 1);
+        PromptForEntry("Invalid State Entry - Retry", EnterStateMode, Blank, 1);
       end if;
       SetLabelText(lbl228, sTemp);
       t_state := sTemp;
@@ -304,13 +321,55 @@ program reverse;
     elsif g_Entrymode = EnterZipCodeMode then
       if sTemp = Blank then
       
-        PromptForEntry("Invalid Zip Code Number - Retry", EnterZipCodeMode, Blank, 1); 
+        PromptForEntry("Invalid Zip Code Entry - Retry", EnterZipCodeMode, Blank, 2); 
       end if;
       SetLabelText(lbl229, sTemp);
       t_zip := StringToInteger(sTemp);
       EntryMode := CustomerProcessMode;
     
+    elsif g_Entrymode = EnterOnsiteTelMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Phone Number Entry - Retry", EnterOnsiteTelMode, Blank, 1); 
+      end if;
+      SetLabelText(lbl328, sTemp);
+      ts_onsite := sTemp;
+      EntryMode := ShippingMode;
+    
+    elsif g_Entrymode = EnterShipStreetMode then 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Street Entry - Retry", EnterShipStreetMode, Blank, 1);
+      end if;
+      SetLabelText(lbl330, sTemp);
+      ts_street := sTemp;
+      EntryMode := ShippingMode;
+
+    elsif g_Entrymode = EnterShipTownMode then
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid Town Entry - Retry", EnterShipTownMode, Blank, 1);
+      end if; 
+      SetLabelText(lbl331, sTemp);
+      ts_town := sTemp;
+      EntryMode := ShippingMode;
+    
+    elsif g_Entrymode = EnterShipStateMode then 
+      if sTemp = Blank then
+      
+        PromptForEntry("Invalid State Entry - Retry", EnterShipStateMode, Blank, 1);
+      end if;
+      SetLabelText(lbl332, sTemp);
+      ts_state := sTemp;
+      EntryMode := ShippingMode;
+    
+    elsif g_Entrymode = EnterShipZipCodeMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Zip Code Entry - Retry", EnterShipZipCodeMode, Blank, 2); 
+      end if;
+      SetLabelText(lbl333, sTemp);
+      ts_zip := StringToInteger(sTemp);
+      EntryMode := ShippingMode;
     end if;
+  --------------------------------------------------
   end;
 
    function GetSelection : integer;  -- Returns the current selected record in the display list    
@@ -348,11 +407,11 @@ program reverse;
   
     for i := 1 to g_ciMaxRecords 
     loop
-      if g_arDisplay[i].sOrderNum = Blank then  
+      if g_arDisplay[i].sPhoneNum = Blank then  
         return;
       end if;
 
-      g_arDisplay[i].sOrderNum := Blank;
+      g_arDisplay[i].sPhoneNum := Blank;
       g_arDisplay[i].sName := Blank; 
       g_arDisplay[i].sStreet := Blank;
       g_arDisplay[i].sTown := Blank;
@@ -396,10 +455,21 @@ program reverse;
 
   end; 
 
+  procedure ClearShipTemp;
+  begin
+    ts_onsite   := Blank;
+    ts_customer := Blank;
+    ts_street   := Blank;
+    ts_town     := Blank;
+    ts_state    := Blank;
+    ts_zip      := 0;  
+
+  end;
+
   procedure ClearCustomerTemp;
   begin
 
-    t_order     := Blank;
+    t_phonenum  := Blank;
     t_customer  := Blank;
     t_street    := Blank;
     t_town      := Blank;
@@ -422,92 +492,82 @@ program reverse;
     t_retard := 0;
 
   end;
+
   
-  --handler Timer25Trip;  -- Wait for Standstill check
-    --iMotion1 : integer; 
-    --iMotion2 : integer;   
-    --rGrossWgt1 : real;
-    --rGrossWgt2 : real;
-		--iInRange1 : integer;
-    --iInRange2 : integer;
-  --begin
-
-    --InMotion(1, iMotion1);
-    --InMotion(2, iMotion2);
+  handler Timer25Trip;  -- Wait for Standstill check
+    iMotion1 : integer; 
+    iMotion2 : integer;   
+    rGrossWgt1 : real;
+    rGrossWgt2 : real;
+		iInRange1 : integer;
+    iInRange2 : integer;
     
-    --if iMotion = 0 then  
+  begin
+
+    InMotion(1, iMotion1);
+    InMotion(2, iMotion2);
     
-      --StopTimer(25);
-      --DisplayStatus(Blank);  
+    if iMotion = 0 then  
+    
+      StopTimer(25);
+      DisplayStatus(Blank);  
 
-      --g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
-			--g_sysResult2 := InRange(1, iInRange1);
+      g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
+			g_sysResult2 := InRange(1, iInRange1);
 
-      --g_sysResult3 := GetGross(2, Primary, rGrossWgt2);
-      --g_sysResult4 := InRange(2, iInRange2); 
-
-      --GetTare(g_iTotalScale, g_uUnits, rTareWgt);
+      g_sysResult3 := GetGross(2, Primary, rGrossWgt2);
+      g_sysResult4 := InRange(2, iInRange2); 
       
 			-- Get Gross Command
-      --if g_sysResult1 <> SysOk then
-        --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult1));  
-        --ReadytoProcessTruck(200);
-			  --return;
-      --else
-        --GetGross(1, Primary, rGrossWgt1);
-      --end if;
+      if g_sysResult1 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult1));  
+			  return;
+      else
+        GetGross(1, Primary, rGrossWgt1);
+      end if;
 			
 			-- Check In Range
-      --if g_sysResult2 <> SysOk then
-        --SetLabelText(lbSts1, "Scale Error: " + SysCodeToString(g_sysResult2));  
-        --ReadytoProcessTruck(200);  
-			  --return;
-      --end if;			
+      if g_sysResult2 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult2));  
+			  return;
+      end if;			
 			
 		 -- Validate InRage
-		 --if iInRange = 0 then  
-        --SetLabelText(lbSts1, "Scale NOT In Range");  
-        --ReadytoProcessTruck(200); 
-				--return;
-		 --end if;
-		 
-     --if EntryMode = ManualPrintMode then  -- Weigh In
-        
-        --TransDB.DT := SystemTime; 
-        --TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
-        --TransDB.T_Sand := RealToString(rGrossWgt2, 0, 2);
-        --TransDB.Yards := RealToString(t_qtyconc, 0, 2);
-        --TransDB.Product := IntegerToString(t_psi, 0) + RealToString(t_qtyconc, 0, 2);
-        --g_sysResult1 := TransDB.Add;
-        
-        --if g_sysResult1 = SysOk then      
-          --PrintInboundTicket;  -- Print Inbound Ticket
-          
-          --if g_iTruckExit = 1 then
-            --SetLabelText(lbSts1, "Weigh In Complete - Exit Scale");
-            --TurnOffWeighInOutButtons;      
-            --ClearTare(g_iTotalScale);
-            --EntryMode := ExitScale;
-            --SelectScreen(g_ciMain);	
-          --else
-            --SetLabelText(lbSts1, "Weigh In Complete"); 
-            --EntryMode := WeighMode;
-            --SelectScreen(g_ciMain);	
-          --end if;		
+		 if iInRange1 = 0 then  
+        DisplayStatus("Scale 1 NOT In Range");  
+				return;
+		 end if;
 
-        --else 
-          --SetLabelText(lbSts1, "Database Error: " + SysCodeToString(g_sysResult1));
-        	--ReadytoProcessTruck(200);
-          --SelectScreen(g_ciMain);	  					
-        --end if;  
-        
-      --end if;  
+		 if iInRange2 = 0 then  
+        DisplayStatus("Scale 2 NOT In Range");  
+				return;
+		 end if;
       
-    --else
-      --SetLabelText(lbSts1, "...In Motion...");
-    --end if;
+     if EntryMode = ManualPrintMode then  -- Weigh In
+        
+        TransDB.DT := SystemTime; 
+        TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
+        TransDB.T_Sand := RealToString(rGrossWgt2, 0, 2);
+        TransDB.Yards := RealToString(t_qtyconc, 0, 2);
+        TransDB.Product := IntegerToString(t_psi, 0) + RealToString(t_qtyconc, 0, 2);
+        g_sysResult := TransDB.Add;
+        
+        if g_sysResult = SysOk then      
+          
+          EntryMode := NoMode;
+          SelectScreen(g_ciMain);
 
-  --end;
+        else 
+          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
+        end if;  
+        
+      end if;  
+      
+    else
+      DisplayStatus("...In Motion...");
+    end if;
+
+  end;
 
   procedure DisplayCustomersDB; 
     i : integer;
@@ -530,7 +590,7 @@ program reverse;
     -- FillArray
     if CustomersDB.GetFirst = SysOk then  
 
-      g_arDisplay[i].sOrderNum := CustomersDB.Order;  -- for item 
+      g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;  -- for item 
       g_arDisplay[i].sName := CustomersDB.Name; 
       g_arDisplay[i].sStreet := CustomersDB.Street;
       g_arDisplay[i].sTown := CustomersDB.Town;
@@ -542,7 +602,7 @@ program reverse;
       while CustomersDB.GetNext = SysOk  
       loop         
         if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sOrderNum := CustomersDB.Order;
+          g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;
           g_arDisplay[i].sName := CustomersDB.Name; 
           g_arDisplay[i].sStreet := CustomersDB.Street;
           g_arDisplay[i].sTown := CustomersDB.Town;
@@ -561,9 +621,9 @@ program reverse;
     j := 1;   
     
     -- Populate Screen
-    while g_arDisplay[j].sOrderNum <> Blank and j <= g_ciMaxPerSelectScreen   
+    while g_arDisplay[j].sPhoneNum <> Blank and j <= g_ciMaxPerSelectScreen   
     loop    
-      SetLabelText(i, g_arDisplay[j].sOrderNum);
+      SetLabelText(i, g_arDisplay[j].sPhoneNum);
       SetLabelText(i + 1, g_arDisplay[j].sName);  
       i := i + 2;
       j := j + 1;   
@@ -600,7 +660,7 @@ program reverse;
     j := i + 7; 
     
     -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sOrderNum = Blank then --and EntryMode <> CustomerSelectMode then
+    if g_arDisplay[i].sPhoneNum = Blank then --and EntryMode <> CustomerSelectMode then
  
       DisplayCustomersDB;  
 
@@ -609,8 +669,8 @@ program reverse;
     -- Populate display with new data
     for a := i to j
     loop  
-      if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sOrderNum <> Blank then
-        SetLabelText(b, g_arDisplay[a].sOrderNum);
+      if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sPhoneNum <> Blank then
+        SetLabelText(b, g_arDisplay[a].sPhoneNum);
         SetLabelText(b + 1, g_arDisplay[a].sName);  
         b := b + 2; 
       end if; 
@@ -821,7 +881,7 @@ program reverse;
       if EntryMode = CustomerSelectMode then
         if g_arDisplay[GetSelection].sName <> Blank then   
           t_customer := g_arDisplay[GetSelection].sName;
-          t_order    := g_arDisplay[GetSelection].sOrderNum;
+          t_phonenum := g_arDisplay[GetSelection].sPhoneNum;
           t_street   := g_arDisplay[GetSelection].sStreet;
           t_town     := g_arDisplay[GetSelection].sTown;
           t_state    := g_arDisplay[GetSelection].sState;
@@ -878,7 +938,7 @@ program reverse;
 
 procedure ProcessingCustomerEntry;
 begin
-    CustomersDB.Order := t_order; -- we are temporarily setting the value of t_order to the database 
+    CustomersDB.PhoneNum := t_phonenum; -- we are temporarily setting the value of t_phonenum to the database 
     CustomersDB.Name := t_customer;
     CustomersDB.Street := t_street;
     CustomersDB.Town := t_town;
@@ -1050,18 +1110,25 @@ end;
 
 procedure TicketOutput;
   dTime : datetime := SystemTime;
+  temp2 : string;
+  length_s : integer;
 begin
   DisplayStatus("Printing...");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/Short Load Concrete");
+  WriteLn(g_ciPrinter, Space$(25) + "*****************************");
+  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/SHORT LOAD CONCRETE");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
-  WriteLn(g_ciPrinter, Space$(25) + "***************************");
+  WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
+  temp2 := "Customer: " + t_customer;
+  length_s := Len(temp2);
+  if length_s < 45 then
+    WriteLn(g_ciPrinter, temp2 + Space$(45-length_s) + "Billing Info.");
+
   WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
-  WriteLn(g_ciPrinter, "Order #: " + t_order + Space$(15) + "Customer: " + t_customer);
-  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address ");
+  WriteLn(g_ciPrinter, "Order #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
+  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address: ");
   
   WriteLn(g_ciPrinter, t_street + Space$(15) + t_stateB );
   WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ t_townB + "," + t_stateB);
@@ -1080,23 +1147,6 @@ begin
 
   --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
   --WriteLn(g_ciPrinter, Space$(25) + "**************************");
-
-  --if bCalcium = true  then
-    --WriteLn(g_ciPrinter, "Calcium: " + IntegerToString(t_calcium,0));
-  --end if;
-  
-  --if bAnti_hydro = true then
-    --WriteLn(g_ciPrinter, "Anti Hydro: " + RealToString(t_antihydr,6,2));
-  --end if;
-
-  --if bAir_ent = true then
-    --WriteLn(g_ciPrinter, "Air Entrainment: " + RealToString(t_air_ent,6,2));
-  --end if;
-  
-  --if bRetarder = true then
-    --WriteLn(g_ciPrinter, "Retarder: " + RealToString(t_retard,6,2));
-  --end if;
-
 
   -- *** optimized to be tested **
 
@@ -1130,8 +1180,8 @@ begin
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(15) + "By signing this ticket buyer has agreed to the Terms and Conditions");
-  WriteLn(g_ciPrinter, Space$(15) + "which are located at www.shortloadconcrete.net");
+  WriteLn(g_ciPrinter, Space$(13) + "By signing this ticket buyer has agreed to the Terms and Conditions");
+  WriteLn(g_ciPrinter, Space$(13) + "which are located at www.shortloadconcrete.net");
 
 
 
@@ -1178,7 +1228,7 @@ handler WidgetClicked;
       SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if t_order <> Blank then
+      if t_phonenum <> Blank then
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
           if g_sysResult <> SysOk then
@@ -1324,7 +1374,7 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget = lbl224 then
-      PromptForEntry("Enter Order Number", EnterOrderMode, Blank,1);
+      PromptForEntry("Enter Order Number", EnterPhoneMode, Blank,1);
 
     elsif g_iWidget = lbl225 then
       PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
@@ -1340,6 +1390,18 @@ handler WidgetClicked;
 
     elsif g_iWidget = lbl229 then
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
+    
+    elsif g_iWidget = lbl330 then
+      PromptForEntry("Enter Street", EnterShipStreetMode, Blank,1);
+
+    elsif g_iWidget = lbl331 then
+      PromptForEntry("Enter Town", EnterShipTownMode, Blank,1);
+    
+    elsif g_iWidget = lbl332 then
+      PromptForEntry("Enter State", EnterShipStateMode, Blank,1);
+    
+    elsif g_iWidget = lbl333 then
+      PromptForEntry("Enter ZipCode", EnterShipZipCodeMode, Blank,2);
     
     elsif g_iWidget = btnAdd then
       EntryMode := CustomerProcessMode;

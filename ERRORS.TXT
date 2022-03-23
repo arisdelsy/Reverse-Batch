@@ -1,0 +1,6 @@
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:510:8:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:948:42:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:1133:48:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:1134:61:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:1134:77:: Undefined identifier
+C:\Users\Steve\Documents\GitHub\cavalier\reverse.src:1188:5:: syntax error
