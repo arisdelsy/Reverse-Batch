@@ -5,7 +5,7 @@ program reverse;
 --Screens
   g_ciMain    : constant integer := 14;
   g_ciCust    : constant integer := 2;
-  g_ciShip : constant integer := 3;
+  g_ciShip    : constant integer := 3;
   g_ciProduct : constant integer := 4;
   g_ciYN      : constant integer := 5;
   g_ciSetup   : constant integer := 10;
@@ -276,7 +276,7 @@ program reverse;
     --This is only going to show up for new customer entries
     if g_Entrymode = EnterPhoneMode then 
       if sTemp = Blank then
-        PromptForEntry("Invalid Order Number - Retry", EnterPhoneMode, Blank, 1);
+        PromptForEntry("Invalid Order Number - Retry", EnterPhoneMode, Blank, 2);
       end if;
       t_phonenum := sTemp;
       SetLabelText(lbl224, t_phonenum);
@@ -329,12 +329,20 @@ program reverse;
     
     elsif g_Entrymode = EnterOnsiteTelMode then
       if sTemp = Blank then
-        PromptForEntry("Invalid Phone Number Entry - Retry", EnterOnsiteTelMode, Blank, 1); 
+        PromptForEntry("Invalid Phone Number Entry - Retry", EnterOnsiteTelMode, Blank, 2); 
       end if;
       SetLabelText(lbl328, sTemp);
       ts_onsite := sTemp;
       EntryMode := ShippingMode;
-    
+
+    elsif g_EntryMode = EnterShipCustomerMode then
+      if sTemp = Blank then
+        PromptForEntry("Invalid Customer Entry - Retry", EnterShipCustomerMode, Blank, 1);
+      end if;
+      SetLabelText(lbl335, sTemp);
+      ts_customer := sTemp;
+      EntryMode := ShippingMode; 
+
     elsif g_Entrymode = EnterShipStreetMode then 
       if sTemp = Blank then
         PromptForEntry("Invalid Street Entry - Retry", EnterShipStreetMode, Blank, 1);
@@ -345,7 +353,6 @@ program reverse;
 
     elsif g_Entrymode = EnterShipTownMode then
       if sTemp = Blank then
-      
         PromptForEntry("Invalid Town Entry - Retry", EnterShipTownMode, Blank, 1);
       end if; 
       SetLabelText(lbl331, sTemp);
@@ -354,7 +361,6 @@ program reverse;
     
     elsif g_Entrymode = EnterShipStateMode then 
       if sTemp = Blank then
-      
         PromptForEntry("Invalid State Entry - Retry", EnterShipStateMode, Blank, 1);
       end if;
       SetLabelText(lbl332, sTemp);
@@ -376,21 +382,21 @@ program reverse;
     -- we choose function because it returns a value 
     i : integer;    
     begin
-        if g_iSelect = 53 or g_iSelect = 54 then   
+        if g_iSelect = 53 then   
           g_iWidgetNum := 1;
-        elsif g_iSelect = 55 or g_iSelect = 56 then
+        elsif g_iSelect = 54 then
           g_iWidgetnum := 2;
-        elsif g_iSelect = 57 or g_iSelect = 58 then
+        elsif g_iSelect = 55 then
           g_iWidgetNum := 3;
-        elsif g_iSelect = 59 or g_iSelect = 60 then
+        elsif g_iSelect = 56 then
           g_iWidgetNum := 4;
-        elsif g_iSelect = 61 or g_iSelect = 62 then
+        elsif g_iSelect = 57 then
           g_iWidgetNum := 5;
-        elsif g_iSelect = 63 or g_iSelect = 64 then
+        elsif g_iSelect = 58 then
           g_iWidgetNum := 6;
-        elsif g_iSelect = 65 or g_iSelect = 66 then
+        elsif g_iSelect = 59 then
           g_iWidgetNum := 7;
-        elsif g_iSelect = 67 or g_iSelect = 68 then
+        elsif g_iSelect = 60 then
           g_iWidgetNum := 8;
 
         end if;
@@ -623,9 +629,8 @@ program reverse;
     -- Populate Screen
     while g_arDisplay[j].sPhoneNum <> Blank and j <= g_ciMaxPerSelectScreen   
     loop    
-      SetLabelText(i, g_arDisplay[j].sPhoneNum);
-      SetLabelText(i + 1, g_arDisplay[j].sName);  
-      i := i + 2;
+      SetLabelText(i, g_arDisplay[j].sName); 
+      i := i + 1;
       j := j + 1;   
     end loop;                            
 
@@ -670,9 +675,8 @@ program reverse;
     for a := i to j
     loop  
       if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sPhoneNum <> Blank then
-        SetLabelText(b, g_arDisplay[a].sPhoneNum);
-        SetLabelText(b + 1, g_arDisplay[a].sName);  
-        b := b + 2; 
+        SetLabelText(b, g_arDisplay[a].sName); 
+        b := b + 1; 
       end if; 
     end loop;
        
@@ -838,23 +842,7 @@ program reverse;
   i : integer;
   begin
     
-    --FOR TEST SCREEN
-    --for i := testpsi to testanti
-    --loop
-      --SetLabelText(i, Chr$(08));
-    --end loop;
-    
     if g_iProductRow <> 0 then
-      --FOR TEST SCREEN
-      --SetLabelText(testpsi, g_arProduct[g_iProductRow].sPSI);
-      --SetLabelText(testcon, g_arProduct[g_iProductRow].sQTY_CONC);
-      --SetLabelText(testmix, g_arProduct[g_iProductRow].sSAND_MIX);
-      --SetLabelText(testcem, g_arProduct[g_iProductRow].sCEMENT);
-      --SetLabelText(testwat, g_arProduct[g_iProductRow].sWAT_GALL);
-      --SetLabelText(testcal, g_arProduct[g_iProductRow].sCALCIUM);
-      --SetLabelText(testair, g_arProduct[g_iProductRow].sAIR_ENT);
-      --SetLabelText(testanti, g_arProduct[g_iProductRow].sANTIHYDR);
-      --SetLabelText(testret, g_arProduct[g_iProductRow].sRETARDER);
       t_psi       := g_arProduct[g_iProductRow].sPSI;
       t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
       t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
@@ -899,26 +887,43 @@ program reverse;
 
   end;
 
-
-  procedure SelectCustomer;
-    iTouch : integer;
-    i : integer;
+  procedure DeleteCustomer;
   begin
 
-    iTouch := g_iWidget mod 2; --there is two columns on the screen so we are dividing by 2  
+    if g_iSelect <> 0 then
+      if EntryMode = CustomerSelectMode then
+        CustomersDB.Name := g_arDisplay[GetSelection].sName;
+        if CustomersDB.FindFirst(2) = SysOk then        
+          SelectScreen(g_ciYN);         
+          Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
+          --EntryMode := YNClearOneInbound;
+        else 
+          DisplayStatus("Error: Invalid ID");
+        end if;
+      end if;
+    else
+      Displaystatus("Select One to Delete");
+    end if;
+
+  end;
+
+  procedure SelectCustomer;
+    i : integer;
+  begin
     for i := minL2 to maxL2
     loop
       SetwidgetColor(i, "Black");
     end loop;
   -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
-    if iTouch = 0 then
+    
+    if g_iWidget <> g_iSelect and g_iSelect <> 0 then
+      SetWidgetColor(g_iSelect, "Black");
+      SetWidgetColor(g_iWidget, "#BB0000");
+      g_iSelect := g_iWidget;
+    else
       Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget - 1, "#BB0000");
-    elsif iTouch = 1 then
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      SetwidgetColor(g_iWidget + 1, "#BB0000");
+      g_iSelect := g_iWidget;
     end if;
-    g_iSelect := g_iWidget;
     ProcessSelection;
   end;
 
@@ -945,7 +950,7 @@ begin
     CustomersDB.State := t_state;
     CustomersDB.ZipCode := t_zip;
 
-    g_sysResult := CustomersDB.FindFirst(Customer_PhoneNum); --This will equal SysOk if found in DB
+    g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
     end if;
@@ -1061,7 +1066,7 @@ end;
     else
       ProcessPromptCancel;
     end if;
-  --ProcessingCustomerEntry;
+
 end;
 
 
@@ -1110,8 +1115,16 @@ end;
 
 procedure TicketOutput;
   dTime : datetime := SystemTime;
-  temp2 : string;
-  length_s : integer;
+  line1 : string;
+  line2 : string;
+  line3 : string;
+  line4 : string;
+  line5 : string;
+  length1 : integer;
+  length2 : integer;
+  length3 : integer;
+  length4 : integer;
+  length5 : integer;
 begin
   DisplayStatus("Printing...");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
@@ -1121,15 +1134,32 @@ begin
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
-  temp2 := "Customer: " + t_customer;
-  length_s := Len(temp2);
-  if length_s < 45 then
-    WriteLn(g_ciPrinter, temp2 + Space$(45-length_s) + "Billing Info.");
+  line1 := "Customer: " + t_customer;
+  length1 := Len(line1);
+  if length1 < 45 then
+    WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "Billing Info.");
   end if;
 
+  line2 := "Phone #: " + t_phonenum;
+  length2 := Len(line2);
+  if length2 < 45 then
+    WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
+  end if;
+  
+  line3 := "Shipping Address: ";
+  length3 := Len(line3);
+  if length3 < 45 then
+    WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
+  end if;
+  
   --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
-  WriteLn(g_ciPrinter, "Order #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
-  WriteLn(g_ciPrinter, "Shipping Address:" + Space$(15) + "Billing Address: ");
+  --WriteLn(g_ciPrinter, "Phone #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
+  --WriteLn(g_ciPrinter, "Shipping Address:" + Space$(45) + "Billing Address: ");
+  --line4 := "Shipping Address: ";
+  --length3 := Len(line3);
+  --if length3 < 45 then
+    --WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
+  --end if;
   
   WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
   WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
@@ -1212,44 +1242,62 @@ handler WidgetClicked;
     if g_iWidget = btnStrt then
       EntryMode := CustomerSelectMode;
       DisplayCustomersDB;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        SetImageWidgetPath(btnNxt2, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt2, "local://10.png");
+      end if;
       SelectScreen(g_ciCust);
 
     -- this allows for a range of widget numbers for a selection screen (for Customer Selection Screen)
     elsif g_iWidget >= MinL2 and g_iWidget <= MaxL2 then
       SelectCustomer;
-      if FileExists("/sdimages/next.png", SDCard) = SysOk then
-        SetImageWidgetPath(btnNxt, "/next.png");
-      else
-        SetImageWidgetPath(btnNxt, "local://10.png");
+    
+    elsif g_iWidget = btnNxt2 then
+      if g_iSelect <> 0 then
+        EntryMode := ShippingMode;
+        SelectScreen(g_ciShip);
       end if;
-      EntryMode := ProductSelectMode;
-      SetWidgetVisibility(btnNxt, Voff);
-      ResetProduct;
-      FillProductArray;
-      SelectScreen(g_ciProduct);
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if t_phonenum <> Blank then
+      if t_phonenum <> Blank and t_customer <> Blank and t_zip <> 0 and t_street <> Blank and t_state <> Blank and t_town <> Blank then
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
           if g_sysResult <> SysOk then
-            EntryMode := ProductSelectMode;
-            if FileExists("/sdimages/next.png", SDCard) = SysOk then
-              SetImageWidgetPath(btnNxt, "/next.png");
-            else
-              SetImageWidgetPath(btnNxt, "local://10.png");
-            end if;
-            --SetImageWidgetPath(btnNxt, "/sdimages/next.png");
-            SetWidgetVisibility(btnNxt, Voff);
-            ResetProduct;
-            FillProductArray;
-            SelectScreen(g_ciProduct);
+            EntryMode := ShippingMode;
+            SelectScreen(g_ciShip);            
           else
-            DisplayStatus("ERROR! ENTRY ALREADY EXISTS! PLEASE USE A NEW ORDER NUMBER!");
+            DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
         end if;
       else
-        DisplayStatus("ERROR: Please enter an order number!");
+        DisplayStatus("ERROR! PLEASE FILL OUT ALL FIELDS TO CONTINUE!");
+      end if;
+
+    elsif g_iWidget = btnSub1 or g_iWidget = btnSub2 then
+      if ts_customer = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT CUSTOMER FIELD!");
+      elsif ts_zip = 0 or len(IntegerToString(ts_zip,0)) < 5 then
+        DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
+      elsif ts_state = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT STATE FIELD!");
+      elsif ts_street = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT STREET FIELD!");
+      elsif ts_onsite = Blank or len(ts_onsite) < 10 then
+        DisplayStatus("ERROR! INVALID ONSITE TEL. FIELD!");
+      elsif ts_town = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT TOWN FIELD!");
+      else
+        EntryMode := ProductSelectMode;
+        if FileExists("/sdimages/next.png", SDCard) = SysOk then
+          SetImageWidgetPath(btnNxt, "/next.png");
+        else
+          SetImageWidgetPath(btnNxt, "local://10.png");
+        end if;
+        SetWidgetVisibility(btnNxt, Voff);
+        ResetProduct;
+        FillProductArray;
+        SelectScreen(g_ciProduct);
       end if;
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
@@ -1278,16 +1326,16 @@ handler WidgetClicked;
       SelectScreen(g_ciMain);
     
     elsif g_iWidget = btnExt12 then
-      EntryMode := NoMode;
-      SelectScreen(g_ciMain);
+      EntryMode := CustomerSelectMode;
+      SelectScreen(g_ciCust);
 
     elsif g_iWidget = btnExt10 then
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
     elsif g_iWidget = btnExt3 then
-      EntryMode := NoMode;
-      SelectScreen(g_ciMain);
+      EntryMode := CustomerSelectMode;
+      SelectScreen(g_ciCust);
     
     elsif g_iWidget = btnSetup then
       EntryMode:= SetupMenuMode;
@@ -1379,7 +1427,7 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget = lbl224 then
-      PromptForEntry("Enter Phone Number", EnterPhoneMode, Blank,1);
+      PromptForEntry("Enter Phone Number", EnterPhoneMode, Blank,2);
 
     elsif g_iWidget = lbl225 then
       PromptForEntry("Enter Customer Name", EnterNameMode, Blank,1);
@@ -1397,7 +1445,7 @@ handler WidgetClicked;
       PromptForEntry("Enter Zipcode", EnterZipCodeMode, Blank,2);
     
     elsif g_iWidget = lbl328 then
-      PromptForEntry("Enter Onsite Phone", EnterOnsiteTelMode, Blank,1);
+      PromptForEntry("Enter Onsite Phone", EnterOnsiteTelMode, Blank,2);
     
     elsif g_iWidget = lbl335 then
       PromptForEntry("Enter Customer Name", EnterShipCustomerMode, Blank,1);
