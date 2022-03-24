@@ -1152,6 +1152,18 @@ begin
     WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
   end if;
   
+  line4 := t_street;
+  length4 := Len(line4);
+  if length4 < 45 then
+    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + "Billing Address: ");
+  end if;
+  
+  line5 := t_town + "," + t_state;
+  length5 := Len(line5);
+  if length5 < 45 then
+    WriteLn(g_ciPrinter, line5 + Space$(45-length5) + ts_town + "," + ts_state);
+  end if;
+  
   --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
   --WriteLn(g_ciPrinter, "Phone #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
   --WriteLn(g_ciPrinter, "Shipping Address:" + Space$(45) + "Billing Address: ");
@@ -1161,8 +1173,8 @@ begin
     --WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
   --end if;
   
-  WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
-  WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
+  --WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
+  --WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
 
   
   WriteLn(g_ciPrinter, "********************************************************************************");
