@@ -63,6 +63,9 @@ program reverse;
   BatchCompleteMode   : constant integer := 1008;
   AddOnsMode          : constant integer := 1015;
   ShippingMode        : constant integer := 1022;
+  YNClearOneMode      : constant integer := 1023;
+  --DeleteCustomerMode      : constant integer := 1023;
+
 
 -- Entry Modes for customer entry
   EnterPhoneMode          : constant integer := 1009;
@@ -374,8 +377,28 @@ program reverse;
       SetLabelText(lbl333, sTemp);
       ts_zip := StringToInteger(sTemp);
       EntryMode := ShippingMode;
+
+    elsif g_EntryMode = YNClearOneMode then
+      if sTemp = "Y" then
+        g_sysResult := CustomersDB.Delete;
+        if g_sysResult = SysOk then
+          g_EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB; 
+          DisplayStatus("Selection Deleted");  
+        else    
+          EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB;     
+          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
+        end if;             
+      else
+        g_EntryMode := CustomerSelectMode;
+        DisplayStatus("Loading Customers...");
+        DisplayCustomersDB;     
+        DisplayStatus("Selection NOT Cleared");      
+      end if;
     end if;
-  --------------------------------------------------
   end;
 
    function GetSelection : integer;  -- Returns the current selected record in the display list    
@@ -896,7 +919,7 @@ program reverse;
         if CustomersDB.FindFirst(2) = SysOk then        
           SelectScreen(g_ciYN);         
           Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
-          --EntryMode := YNClearOneInbound;
+          EntryMode := YNClearOneMode;
         else 
           DisplayStatus("Error: Invalid ID");
         end if;
@@ -1120,11 +1143,19 @@ procedure TicketOutput;
   line3 : string;
   line4 : string;
   line5 : string;
+  line6 : string;
+  line7 : string;
+  line8 : string;
+  line9 : string;
   length1 : integer;
   length2 : integer;
   length3 : integer;
   length4 : integer;
   length5 : integer;
+  length6 : integer;
+  length7 : integer;
+  length8 : integer;
+  length9 : integer;
 begin
   DisplayStatus("Printing...");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
@@ -1155,7 +1186,7 @@ begin
   line4 := t_street;
   length4 := Len(line4);
   if length4 < 45 then
-    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + "Billing Address: ");
+    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + ts_street);
   end if;
   
   line5 := t_town + "," + t_state;
@@ -1177,11 +1208,11 @@ begin
   --WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
 
   
-  WriteLn(g_ciPrinter, "********************************************************************************");
+  --WriteLn(g_ciPrinter, "********************************************************************************");
   --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "***************************");
+  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "***********************************");
   --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
   --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
   --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
@@ -1192,30 +1223,45 @@ begin
   --WriteLn(g_ciPrinter, Space$(25) + "**************************");
 
   -- *** optimized to be tested **
+  line6 :="PSI: " + IntegerToString(t_psi,0);
+  length6 := Len(line6);
+  if bCalcium = true then 
+    if length6 < 45 then
+      WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
+    end if;
+  else 
+    WriteLn(g_ciPrinter, line6);
+  end if;   
 
-   if bCalcium = true then 
-    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0) + Space$(44) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
-   else 
-    WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-   end if;   
+  line7 := "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.";
+  length7 := Len(line7);
+  if bAnti_hydro = true then 
+    if length7 < 45 then
+      WriteLn(g_ciPrinter, line7 + Space$(45-length7) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
+    end if;
+  else 
+    WriteLn(g_ciPrinter, line7);
+  end if;   
 
-   if bAnti_hydro = true then 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds." + Space$(20) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
-   else 
-    WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.");
-   end if;   
+  line8 := "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.";
+  length8 := Len(line8);
+  if bAir_ent = true then 
+    if length8 < 45 then
+      WriteLn(g_ciPrinter, line8 + Space$(45 - length8) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
+    end if;
+  else 
+    WriteLn(g_ciPrinter, line8 );
+  end if;   
 
-   if bAir_ent = true then 
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb." + Space$(24) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
-   else 
-    WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.");
-   end if;   
-
-   if bRetarder = true then 
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb." + Space$(35) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
-   else 
-    WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 4, 0) + " lb.");
-   end if;   
+  line9 := "Cement: " + RealToString(t_cement, 4, 0) + " lb.";
+  length9 := Len(line9);
+  if bRetarder = true then 
+    if length9 < 45 then
+      WriteLn(g_ciPrinter, line9 + Space$(45 - length9) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
+    end if;
+  else 
+    WriteLn(g_ciPrinter, line9);
+  end if;   
 
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
   WriteLn(g_ciPrinter, Blank);
@@ -1223,8 +1269,8 @@ begin
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(13) + "By signing this ticket buyer has agreed to the Terms and Conditions");
-  WriteLn(g_ciPrinter, Space$(13) + "which are located at www.shortloadconcrete.net");
+  WriteLn(g_ciPrinter, Space$(5) + "By signing this ticket buyer has agreed to the Terms and Conditions");
+  WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
 
 
 
@@ -1491,6 +1537,19 @@ handler WidgetClicked;
       EntryMode := NoMode;
       --DefaultsForAddOns;
       SelectScreen(g_ciMain);
+
+    elsif g_iWidget = btnYes5 then
+      ProcessDataEntry("Y");
+      g_iSelect := 0;
+
+    elsif g_iWidget = btnNo5 then
+      ProcessDataEntry("N");
+      g_iSelect := 0;
+
+    elsif g_iWidget = btnDelet then
+      DeleteCustomer;
+      
+
     end if;
 
     EnableHandler(WidgetClicked); 

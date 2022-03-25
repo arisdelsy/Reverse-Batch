@@ -1,0 +1,3 @@
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:387:11:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:392:11:: Undefined identifier
+C:\Users\Aris\Documents\GitHub\cavalier\reverse.src:398:9:: Undefined identifier
