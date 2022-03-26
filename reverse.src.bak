@@ -3,16 +3,17 @@ program reverse;
 #include reverse.iri 
 
 --Screens
-  g_ciMain    : constant integer := 14;
-  g_ciCust    : constant integer := 2;
-  g_ciShip    : constant integer := 3;
-  g_ciProduct : constant integer := 4;
-  g_ciYN      : constant integer := 5;
-  g_ciSetup   : constant integer := 10;
-  g_ciBatch   : constant integer := 1;
-  g_ciaddcust : constant integer := 8;
-  g_ciScales  : constant integer := 9;
-  g_ciAddOns  : constant integer := 13;
+  g_ciMain       : constant integer := 14;
+  g_ciCust       : constant integer := 2;
+  g_ciShip       : constant integer := 3;
+  g_ciProduct    : constant integer := 4;
+  g_ciYN         : constant integer := 5;
+  g_ciSetup      : constant integer := 10;
+  g_ciBatch      : constant integer := 1;
+  g_ciaddcust    : constant integer := 8;
+  g_ciScales     : constant integer := 9;
+  g_ciAddOns     : constant integer := 13;
+  g_ciBatchReady : constant integer := 12;
   --Testing screen
   --g_ciTest    : constant integer := 99;
 
@@ -64,7 +65,7 @@ program reverse;
   AddOnsMode          : constant integer := 1015;
   ShippingMode        : constant integer := 1022;
   YNClearOneMode      : constant integer := 1023;
-  --DeleteCustomerMode      : constant integer := 1023;
+  BatchReadyMode      : constant integer := 1024;
 
 
 -- Entry Modes for customer entry
@@ -272,7 +273,91 @@ program reverse;
         EntryMode := NoMode;  
       end if;
       
-    end;  
+    end; 
+
+  procedure ClearDisplayListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciMaxRecords 
+    loop
+      if g_arDisplay[i].sPhoneNum = Blank then  
+        return;
+      end if;
+
+      g_arDisplay[i].sPhoneNum := Blank;
+      g_arDisplay[i].sName := Blank; 
+      g_arDisplay[i].sStreet := Blank;
+      g_arDisplay[i].sTown := Blank;
+      g_arDisplay[i].sState := Blank;
+      g_arDisplay[i].iZip := 0;
+
+    end loop;
+         
+  end;
+
+    procedure DisplayCustomersDB; 
+    i : integer;
+    j : integer;
+    begin 
+      
+      --Makes all selections black
+      for i := minL2 to maxL2
+      loop
+        SetwidgetColor(i, "Black");
+      end loop;
+
+      -- Clear Array
+      ClearDisplayListArray; 
+      
+      -- Sort DB or Get Based of Criteria                                       
+      CustomersDB.Sort(2);                                    
+      i := 1; 
+      
+      -- FillArray
+      if CustomersDB.GetFirst = SysOk then  
+
+        g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;  -- for item 
+        g_arDisplay[i].sName := CustomersDB.Name; 
+        g_arDisplay[i].sStreet := CustomersDB.Street;
+        g_arDisplay[i].sTown := CustomersDB.Town;
+        g_arDisplay[i].sState := CustomersDB.State;
+        g_arDisplay[i].iZip := CustomersDB.ZipCode;
+
+        i := 2;            
+  
+        while CustomersDB.GetNext = SysOk  
+        loop         
+          if i <= g_ciMaxRecords then             
+            g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;
+            g_arDisplay[i].sName := CustomersDB.Name; 
+            g_arDisplay[i].sStreet := CustomersDB.Street;
+            g_arDisplay[i].sTown := CustomersDB.Town;
+            g_arDisplay[i].sState := CustomersDB.State;
+            g_arDisplay[i].iZip := CustomersDB.ZipCode;                     
+            i := i + 1;                          
+          end if;       
+        end loop; 
+      end if; 
+      
+      -- Select Screen, Enable Handlers, Clear Screen and initialize variables                                   
+      i := MinL2;  
+      SetSymbolState(g_iWidgetNum, 1);
+      g_iPage := 1;          
+      j := 1;   
+      
+      -- Populate Screen
+      while j <= g_ciMaxPerSelectScreen   
+      loop    
+        SetLabelText(i, g_arDisplay[j].sName); 
+        i := i + 1;
+        j := j + 1;   
+      end loop;                            
+
+      SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
+      SelectScreen(g_ciCust); 
+    
+    end;    
 
   procedure ProcessDataEntry(sTemp : string);
   begin
@@ -378,11 +463,11 @@ program reverse;
       ts_zip := StringToInteger(sTemp);
       EntryMode := ShippingMode;
 
-    elsif g_EntryMode = YNClearOneMode then
+    elsif EntryMode = YNClearOneMode then
       if sTemp = "Y" then
         g_sysResult := CustomersDB.Delete;
         if g_sysResult = SysOk then
-          g_EntryMode := CustomerSelectMode;
+          EntryMode := CustomerSelectMode;
           DisplayStatus("Loading Customers...");
           DisplayCustomersDB; 
           DisplayStatus("Selection Deleted");  
@@ -393,7 +478,7 @@ program reverse;
           DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
         end if;             
       else
-        g_EntryMode := CustomerSelectMode;
+        EntryMode := CustomerSelectMode;
         DisplayStatus("Loading Customers...");
         DisplayCustomersDB;     
         DisplayStatus("Selection NOT Cleared");      
@@ -429,27 +514,6 @@ program reverse;
       return i;
 
     end;
-
-  procedure ClearDisplayListArray;  -- Clear Display List Array
-    i : integer;
-  begin 
-  
-    for i := 1 to g_ciMaxRecords 
-    loop
-      if g_arDisplay[i].sPhoneNum = Blank then  
-        return;
-      end if;
-
-      g_arDisplay[i].sPhoneNum := Blank;
-      g_arDisplay[i].sName := Blank; 
-      g_arDisplay[i].sStreet := Blank;
-      g_arDisplay[i].sTown := Blank;
-      g_arDisplay[i].sState := Blank;
-      g_arDisplay[i].iZip := 0;
-
-    end loop;
-         
-  end;
 
   procedure ClearProductListArray;  -- Clear Display List Array
     i : integer;
@@ -522,6 +586,25 @@ program reverse;
 
   end;
 
+  procedure ClearBillingScreen;
+  begin
+    SetLabelText(lbl224, Blank);
+    SetLabelText(lbl225, Blank);
+    SetLabelText(lbl226, Blank);
+    SetLabelText(lbl227, Blank);
+    SetLabelText(lbl228, Blank);
+    SetLabelText(lbl229, Blank);
+  end;
+
+  procedure ClearShippingScreen;
+  begin
+    SetLabelText(lbl328, Blank);
+    SetLabelText(lbl335, Blank);
+    SetLabelText(lbl330, Blank);
+    SetLabelText(lbl331, Blank);
+    SetLabelText(lbl332, Blank);
+    SetLabelText(lbl333, Blank);
+  end;
   
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion1 : integer; 
@@ -597,69 +680,6 @@ program reverse;
     end if;
 
   end;
-
-  procedure DisplayCustomersDB; 
-    i : integer;
-    j : integer;
-  begin 
-    
-    --Makes all selections black
-    for i := minL2 to maxL2
-    loop
-      SetwidgetColor(i, "Black");
-    end loop;
-
-    -- Clear Array
-    ClearDisplayListArray; 
-    
-    -- Sort DB or Get Based of Criteria                                       
-    CustomersDB.Sort(1);                                    
-    i := 1; 
-    
-    -- FillArray
-    if CustomersDB.GetFirst = SysOk then  
-
-      g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;  -- for item 
-      g_arDisplay[i].sName := CustomersDB.Name; 
-      g_arDisplay[i].sStreet := CustomersDB.Street;
-      g_arDisplay[i].sTown := CustomersDB.Town;
-      g_arDisplay[i].sState := CustomersDB.State;
-      g_arDisplay[i].iZip := CustomersDB.ZipCode;
-
-      i := 2;            
- 
-      while CustomersDB.GetNext = SysOk  
-      loop         
-        if i <= g_ciMaxRecords then             
-          g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;
-          g_arDisplay[i].sName := CustomersDB.Name; 
-          g_arDisplay[i].sStreet := CustomersDB.Street;
-          g_arDisplay[i].sTown := CustomersDB.Town;
-          g_arDisplay[i].sState := CustomersDB.State;
-          g_arDisplay[i].iZip := CustomersDB.ZipCode;                     
-          i := i + 1;                          
-        end if;       
-      end loop; 
-    end if; 
-    
-    -- Select Screen, Enable Handlers, Clear Screen and initialize variables
-    SelectScreen(g_ciCust);                                       
-    i := MinL2;  
-    SetSymbolState(g_iWidgetNum, 1);
-    g_iPage := 1;          
-    j := 1;   
-    
-    -- Populate Screen
-    while g_arDisplay[j].sPhoneNum <> Blank and j <= g_ciMaxPerSelectScreen   
-    loop    
-      SetLabelText(i, g_arDisplay[j].sName); 
-      i := i + 1;
-      j := j + 1;   
-    end loop;                            
-
-    SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
-
-  end;   
 
   procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
     a : integer;
@@ -921,7 +941,7 @@ program reverse;
           Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
           EntryMode := YNClearOneMode;
         else 
-          DisplayStatus("Error: Invalid ID");
+          DisplayStatus("Error: Invalid CUSTOMER");
         end if;
       end if;
     else
@@ -1039,6 +1059,12 @@ begin
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       EntryMode := NoMode;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        SetImageWidgetPath(btnNxt9, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt9, "local://10.png");
+      end if;
+      SetWidgetVisibility(btnNxt9, Von);
     end if;
 
   end loop;
@@ -1065,12 +1091,17 @@ begin
 
   if g_rInitial1 < t_cement then
     Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
+    SetLabelText(lbStat, "Please put " + RealToString(t_cement, 0, 2) + " on cement scale!");
+    SetWidgetVisibility(lbStat, Von);
   elsif g_rInitial2 < t_sand then
     DisplayStatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 2!");
+    SetLabelText(lbStat, "Please put " + RealToString(t_sand, 0, 2) + " on aggregate scale!");
+    SetWidgetVisibility(lbStat, Von);
   else
     SetWidgetVisibility(barS1, Voff);
     SetWidgetVisibility(barS2, VOff);
     EntryMode := BatchMode;
+    SetWidgetVisibility(btnNxt9, Voff);
     SelectScreen(g_ciScales);
     RunBatch;
   end if;
@@ -1370,6 +1401,7 @@ handler WidgetClicked;
 
     elsif g_iWidget = btnExt4 then
       EntryMode := NoMode;
+      ClearProductTemp;
       SelectScreen(g_ciMain);
  
     elsif g_iWidget = btnPrint then  
@@ -1385,6 +1417,8 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnExt12 then
       EntryMode := CustomerSelectMode;
+      ClearCustomerTemp;
+      ClearBillingScreen;
       SelectScreen(g_ciCust);
 
     elsif g_iWidget = btnExt10 then
@@ -1393,6 +1427,8 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnExt3 then
       EntryMode := CustomerSelectMode;
+      ClearShipTemp;
+      ClearShippingScreen;
       SelectScreen(g_ciCust);
     
     elsif g_iWidget = btnSetup then
@@ -1416,10 +1452,16 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
-      CheckBatch;
+      EntryMode := BatchReadyMode;
+      SetWidgetVisibility(lbStat, VOff);
+      SelectScreen(g_ciBatchReady);
 
-    elsif g_iWidget = bar123 then
-      --TESTING BELOW
+    elsif g_iWidget = btnBatch then
+      if EntryMode = BatchReadyMode then
+        CheckBatch;
+      end if;
+
+    elsif g_iWidget = btnNxt9 then
       EntryMode := BatchCompleteMode;
       DisplayBatchComplete;
       SelectScreen(g_ciBatch);
@@ -1538,17 +1580,16 @@ handler WidgetClicked;
       --DefaultsForAddOns;
       SelectScreen(g_ciMain);
 
+    elsif g_iWidget = btnDelet then
+      DeleteCustomer;
+
     elsif g_iWidget = btnYes5 then
       ProcessDataEntry("Y");
       g_iSelect := 0;
 
     elsif g_iWidget = btnNo5 then
       ProcessDataEntry("N");
-      g_iSelect := 0;
-
-    elsif g_iWidget = btnDelet then
-      DeleteCustomer;
-      
+      g_iSelect := 0;      
 
     end if;
 
