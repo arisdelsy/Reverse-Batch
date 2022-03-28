@@ -24,7 +24,9 @@ type TransDatabase is database ("Trans")
    Product: String;
      Yards: String;
      T_Cem: String;
+   Act_Cem: String;
     T_Sand: String;
+  Act_Sand: String;
         DT: DateTime;
   TonAccum: Real;
 end database;
@@ -34,7 +36,7 @@ type CustomerDatabase is database ("Customer")
     Street: String;
       Town: String;
      State: String;
-   ZipCode: Integer;
+   ZipCode: String;
 end database;
 type ReportsDatabase is database ("Reports")
      R_num: Integer;
@@ -56,9 +58,11 @@ Trans_Customer : constant integer := 2;
 Trans_Product  : constant integer := 3;
 Trans_Yards    : constant integer := 4;
 Trans_T_Cem    : constant integer := 5;
-Trans_T_Sand   : constant integer := 6;
-Trans_DT       : constant integer := 7;
-Trans_TonAccum : constant integer := 8;
+Trans_Act_Cem  : constant integer := 6;
+Trans_T_Sand   : constant integer := 7;
+Trans_Act_Sand : constant integer := 8;
+Trans_DT       : constant integer := 9;
+Trans_TonAccum : constant integer := 10;
 
 Customer_PhoneNum : constant integer := 1;
 Customer_Name     : constant integer := 2;

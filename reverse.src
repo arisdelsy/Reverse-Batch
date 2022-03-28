@@ -34,7 +34,7 @@ program reverse;
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
   g_ciMaxPerScreen :integer;
-  g_iWaitSSScale : integer;
+  --g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
   r1current_select : integer;   
@@ -57,8 +57,8 @@ program reverse;
   RecipeSelectMode    : constant integer := 1001;
   SetupMenuMode       : constant integer := 1002;
   BatchMode           : constant integer := 1003;
-  AutoPrintMode       : constant integer := 1004;
-  ManualPrintMode     : constant integer := 1005;
+  PrintMode           : constant integer := 1004;
+  --ManualPrintMode     : constant integer := 1005;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
@@ -102,14 +102,14 @@ program reverse;
   t_street    : string;
   t_town      : string;
   t_state     : string;
-  t_zip       : integer;
+  t_zip       : string;
 
   ts_onsite   : string;
   ts_customer : string;
   ts_street   : string;
   ts_town     : string;
   ts_state    : string;
-  ts_zip      : integer;  
+  ts_zip      : string;  
 
   --Temp variables for product information
   t_psi       : integer;
@@ -138,7 +138,7 @@ program reverse;
       sStreet   : string;
       sTown     : string;
       sState    : string;
-      iZip      : integer;
+      sZip      : string;
     end record;     
 
   type ProductRecord is
@@ -175,10 +175,9 @@ program reverse;
     
   end; 
 
-  procedure WaitSS(iScale : integer);
+  procedure WaitSS;
   begin
-    
-    g_iWaitSSScale := iScale;
+
     SetupStartTimer(25, 10, TimerContinuous);
   
   end;   
@@ -196,6 +195,35 @@ program reverse;
      return iDecimal; 
      
   end;
+
+  procedure Delete25Percent;  
+    i : integer;  
+    dbCustSave : CustomerDatabase;   
+  begin
+    
+    dbCustSave := CustomersDB; 
+    CustomersDB.Sort(Customer_Name);
+    CustomersDB.GetFirst;
+    CustomersDB.Delete;
+    
+    for i := 1 to g_ciMaxRecords * 0.25
+    loop
+      CustomersDB.GetNext;
+      CustoemrsDB.Delete; 
+      DisplayStatus("Auto Deleting Customer Database");      
+    end loop;       
+    
+    CustomersDB.Name := SystemTime;
+    CustomersDB := dbCustSave;   
+    g_sysResult1 := CustomersDB.Add;
+    
+    if g_sysResult1 <> SysOk then
+      DisplayStatus("Error: Customer Database"); 
+    else
+      DisplayStatus(Blank);
+    end if;
+
+  end;      
 
   procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
   begin
@@ -246,7 +274,7 @@ program reverse;
         SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterZipCodeMode then 
         EntryMode := CustomerProcessMode;
-        t_zip := 0;
+        t_zip := Blank;
         SelectScreen(g_ciaddcust);
       elsif Entrymode = EnterOnsiteTelMode then 
         EntryMode := ShippingMode;
@@ -266,7 +294,7 @@ program reverse;
         SelectScreen(g_ciShip);
       elsif Entrymode = EnterShipZipCodeMode then 
         EntryMode := ShippingMode;
-        ts_zip := 0;
+        ts_zip := Blank;
         SelectScreen(g_ciShip);
       else   
         DisplayStatus(Blank); 
@@ -290,7 +318,7 @@ program reverse;
       g_arDisplay[i].sStreet := Blank;
       g_arDisplay[i].sTown := Blank;
       g_arDisplay[i].sState := Blank;
-      g_arDisplay[i].iZip := 0;
+      g_arDisplay[i].sZip := Blank;
 
     end loop;
          
@@ -336,7 +364,7 @@ program reverse;
       g_arDisplay[i].sStreet := CustomersDB.Street;
       g_arDisplay[i].sTown := CustomersDB.Town;
       g_arDisplay[i].sState := CustomersDB.State;
-      g_arDisplay[i].iZip := CustomersDB.ZipCode;
+      g_arDisplay[i].sZip := CustomersDB.ZipCode;
 
       i := 2;            
 
@@ -348,7 +376,7 @@ program reverse;
           g_arDisplay[i].sStreet := CustomersDB.Street;
           g_arDisplay[i].sTown := CustomersDB.Town;
           g_arDisplay[i].sState := CustomersDB.State;
-          g_arDisplay[i].iZip := CustomersDB.ZipCode;                     
+          g_arDisplay[i].sZip := CustomersDB.ZipCode;                     
           i := i + 1;                          
         end if;       
       end loop; 
@@ -383,8 +411,6 @@ program reverse;
       t_phonenum := sTemp;
       SetLabelText(lbl224, t_phonenum);
       EntryMode := CustomerProcessMode;
-      --SetLabelText(lbl224, sTemp);
-      --t_phonenum := StringToInteger(sTemp); -- will this be used for printing, variable t_phonenum?
         
     elsif g_Entrymode = EnterNameMode then 
       if sTemp = Blank then
@@ -426,7 +452,7 @@ program reverse;
         PromptForEntry("Invalid Zip Code Entry - Retry", EnterZipCodeMode, Blank, 2); 
       end if;
       SetLabelText(lbl229, sTemp);
-      t_zip := StringToInteger(sTemp);
+      t_zip := sTemp;
       EntryMode := CustomerProcessMode;
     
     elsif g_Entrymode = EnterOnsiteTelMode then
@@ -474,7 +500,7 @@ program reverse;
         PromptForEntry("Invalid Zip Code Entry - Retry", EnterShipZipCodeMode, Blank, 2); 
       end if;
       SetLabelText(lbl333, sTemp);
-      ts_zip := StringToInteger(sTemp);
+      ts_zip := sTemp;
       EntryMode := ShippingMode;
 
     elsif EntryMode = YNClearOneMode then
@@ -557,7 +583,7 @@ program reverse;
     ts_street   := Blank;
     ts_town     := Blank;
     ts_state    := Blank;
-    ts_zip      := 0;  
+    ts_zip      := Blank;  
 
   end;
 
@@ -569,7 +595,7 @@ program reverse;
     t_street    := Blank;
     t_town      := Blank;
     t_state     := Blank;
-    t_zip       := 0;
+    t_zip       := Blank;
 
   end;
 
@@ -636,13 +662,11 @@ program reverse;
       if g_sysResult1 <> SysOk then
         DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult1));  
 			  return;
-      else
-        GetGross(1, Primary, rGrossWgt1);
       end if;
 			
 			-- Check In Range
-      if g_sysResult2 <> SysOk then
-        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult2));  
+      if g_sysResult3 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult3));  
 			  return;
       end if;			
 			
@@ -657,7 +681,7 @@ program reverse;
 				return;
 		 end if;
       
-     if EntryMode = ManualPrintMode then  -- Weigh In
+     if EntryMode = BatchCompleteMode then  -- Print Screen
         
         TransDB.DT := SystemTime; 
         TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
@@ -918,7 +942,7 @@ program reverse;
           t_street   := g_arDisplay[GetSelection].sStreet;
           t_town     := g_arDisplay[GetSelection].sTown;
           t_state    := g_arDisplay[GetSelection].sState;
-          t_zip      := g_arDisplay[GetSelection].iZip;
+          t_zip      := g_arDisplay[GetSelection].sZip;
         else 
           DisplayStatus("Error: Please Enter A Customer");
           g_iSelect := 0;
@@ -939,9 +963,9 @@ program reverse;
       if EntryMode = CustomerSelectMode then
         CustomersDB.Name := g_arDisplay[GetSelection].sName;
         if CustomersDB.FindFirst(2) = SysOk then        
+          EntryMode := YNClearOneMode;
           SelectScreen(g_ciYN);         
           Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
-          EntryMode := YNClearOneMode;
         else 
           DisplayStatus("Error: Invalid CUSTOMER");
         end if;
@@ -1012,7 +1036,8 @@ begin
 
   --Batching concrete
   --Calculation for target weight
-  GetGross(1,Primary,g_rInitial1);
+  WaitSS;
+  --GetGross(1,Primary,g_rInitial1);
   g_rActive1 := g_rInitial1;
 
   g_rtarget1 := g_rActive1 - t_cement;
@@ -1020,7 +1045,7 @@ begin
   --while(g_rActive1 > g_rtarget1)
 
   --Batching sand mix
-  GetGross(2,Primary,g_rInitial2);
+  --GetGross(2,Primary,g_rInitial2);
   g_rActive2 := g_rInitial2;
 
   g_rtarget2 := g_rActive2 - t_sand;
@@ -1106,7 +1131,6 @@ end;
 end;
 
 
-
 procedure Ready;  -- Initialization procedure
 begin
 
@@ -1180,13 +1204,13 @@ begin
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
-  line1 := "Customer: " + t_customer;
+  line1 := "Customer: " + ts_customer;
   length1 := Len(line1);
   if length1 < 45 then
     WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "Billing Info.");
   end if;
 
-  line2 := "Phone #: " + t_phonenum;
+  line2 := "Phone #: " + ts_onsite;
   length2 := Len(line2);
   if length2 < 45 then
     WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
@@ -1198,46 +1222,21 @@ begin
     WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
   end if;
   
-  line4 := t_street;
+  line4 := ts_street;
   length4 := Len(line4);
   if length4 < 45 then
-    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + ts_street);
+    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + t_street);
   end if;
   
-  line5 := t_town + "," + t_state;
+  line5 := ts_town + "," + ts_state;
   length5 := Len(line5);
   if length5 < 45 then
-    WriteLn(g_ciPrinter, line5 + Space$(45-length5) + ts_town + "," + ts_state);
+    WriteLn(g_ciPrinter, line5 + Space$(45-length5) + t_town + "," + t_state);
   end if;
-  
-  --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
-  --WriteLn(g_ciPrinter, "Phone #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
-  --WriteLn(g_ciPrinter, "Shipping Address:" + Space$(45) + "Billing Address: ");
-  --line4 := "Shipping Address: ";
-  --length3 := Len(line3);
-  --if length3 < 45 then
-    --WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
-  --end if;
-  
-  --WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
-  --WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
-
-  
-  --WriteLn(g_ciPrinter, "********************************************************************************");
-  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(27) + "***********************************");
-  --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-  --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
-  --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
-  --WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + "lb.");
-  --WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + "gal.");
+  WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
 
-  --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
-  --WriteLn(g_ciPrinter, Space$(25) + "**************************");
-
-  -- *** optimized to be tested **
   line6 :="PSI: " + IntegerToString(t_psi,0);
   length6 := Len(line6);
   if bCalcium = true then 
@@ -1296,10 +1295,10 @@ begin
   if EntryMode = BatchCompleteMode then
 
     --dTime := SystemTime;
-    SetLabelText(lblCust, t_customer);
-    SetLabelText(lblShp1, t_street);
-    SetLabelText(lblShp2, t_town);
-    SetLabelText(lblShp3, t_state);
+    SetLabelText(lblCust, ts_customer);  -- Shipping or Billing Customer Variable?
+    SetLabelText(lblShp1, ts_street);
+    SetLabelText(lblShp2, ts_town);
+    SetLabelText(lblShp3, ts_state);
     SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
     SetLabelText(lbl275, RealToString(t_qtyconc,1,1) + " Yards");
   end if;
@@ -1333,7 +1332,19 @@ handler WidgetClicked;
       end if;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
-      if t_phonenum <> Blank and t_customer <> Blank and t_zip <> 0 and t_street <> Blank and t_state <> Blank and t_town <> Blank then
+      if t_phonenum = Blank or len(t_phonenum) < 10 then
+        DisplayStatus("ERROR! INVALID ONSITE TEL. FIELD!");
+      elsif t_customer = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT CUSTOMER FIELD!");
+      elsif t_street = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT STREET FIELD!");  
+      elsif t_town = Blank then
+        DisplayStatus("ERROR! PLEASE FILL OUT TOWN FIELD!");
+      elsif t_state = Blank or len(t_state) <> 2 then
+        DisplayStatus("ERROR! PLEASE FILL OUT STATE FIELD WITH THE APPROPRIATE ABBREVIATION!");      
+      elsif len(t_zip) < 5 then
+        DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
+      else
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
           if g_sysResult <> SysOk then
@@ -1343,23 +1354,21 @@ handler WidgetClicked;
             DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
         end if;
-      else
-        DisplayStatus("ERROR! PLEASE FILL OUT ALL FIELDS TO CONTINUE!");
       end if;
 
     elsif g_iWidget = btnSub1 or g_iWidget = btnSub2 then
-      if ts_customer = Blank then
+      if ts_onsite = Blank or len(ts_onsite) < 10 then
+        DisplayStatus("ERROR! INVALID ONSITE TEL. FIELD!");
+      elsif ts_customer = Blank then
         DisplayStatus("ERROR! PLEASE FILL OUT CUSTOMER FIELD!");
-      elsif ts_zip = 0 or len(IntegerToString(ts_zip,0)) < 5 then
-        DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
-      elsif ts_state = Blank then
-        DisplayStatus("ERROR! PLEASE FILL OUT STATE FIELD!");
       elsif ts_street = Blank then
         DisplayStatus("ERROR! PLEASE FILL OUT STREET FIELD!");
-      elsif ts_onsite = Blank or len(ts_onsite) < 10 then
-        DisplayStatus("ERROR! INVALID ONSITE TEL. FIELD!");
       elsif ts_town = Blank then
         DisplayStatus("ERROR! PLEASE FILL OUT TOWN FIELD!");
+      elsif ts_state = Blank or len(ts_state) <> 2 then
+        DisplayStatus("ERROR! PLEASE FILL OUT STATE FIELD!");
+      elsif len(ts_zip) < 5 then
+        DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
       else
         EntryMode := ProductSelectMode;
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
@@ -1390,8 +1399,6 @@ handler WidgetClicked;
  
     elsif g_iWidget = btnPrint then  
       TicketOutput;
-      --Print(GrossFmt); -- test purposes?
-      -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
       ClearCustomerTemp;
@@ -1590,22 +1597,5 @@ begin
 
 end reverse; 
 
--- Used for printing values from batch selection
--- IntegerToString(g_arProduct[i].sPSI, 0);
--- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
--- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
--- RealToString(g_arProduct[i].sCEMENT, 6, 1);
--- RealToString(g_arProduct[i].sWAT_GALL, 6, 1);
--- IntegerToString(g_arProduct[i].sCALCIUM, 0);
--- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
--- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
--- RealToString(g_arProduct[i].sRETARDER, 6, 1);
-
-
 --setpoints are a value that are user defined, active if enabled or Disabled
 --we only want is enabled if we are running a batch and disabled otherwise 
-
---the first setpoint will trigger the bar graph to turn yellow (100 pounds before the target is reached)
- 
-
---target val + 75 
