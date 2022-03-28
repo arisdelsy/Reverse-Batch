@@ -296,68 +296,82 @@ program reverse;
          
   end;
 
-    procedure DisplayCustomersDB; 
+  procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
     i : integer;
-    j : integer;
-    begin 
-      
-      --Makes all selections black
-      for i := minL2 to maxL2
-      loop
-        SetwidgetColor(i, "Black");
-      end loop;
+  begin  
 
-      -- Clear Array
-      ClearDisplayListArray; 
-      
-      -- Sort DB or Get Based of Criteria                                       
-      CustomersDB.Sort(2);                                    
-      i := 1; 
-      
-      -- FillArray
-      if CustomersDB.GetFirst = SysOk then  
+    for i := MinL2 to MaxL2 
+    loop
+      SetLabelText(i, Chr$(08)); -- 
+    end loop;
 
-        g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;  -- for item 
-        g_arDisplay[i].sName := CustomersDB.Name; 
-        g_arDisplay[i].sStreet := CustomersDB.Street;
-        g_arDisplay[i].sTown := CustomersDB.Town;
-        g_arDisplay[i].sState := CustomersDB.State;
-        g_arDisplay[i].iZip := CustomersDB.ZipCode;
+  end; 
 
-        i := 2;            
-  
-        while CustomersDB.GetNext = SysOk  
-        loop         
-          if i <= g_ciMaxRecords then             
-            g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;
-            g_arDisplay[i].sName := CustomersDB.Name; 
-            g_arDisplay[i].sStreet := CustomersDB.Street;
-            g_arDisplay[i].sTown := CustomersDB.Town;
-            g_arDisplay[i].sState := CustomersDB.State;
-            g_arDisplay[i].iZip := CustomersDB.ZipCode;                     
-            i := i + 1;                          
-          end if;       
-        end loop; 
-      end if; 
-      
-      -- Select Screen, Enable Handlers, Clear Screen and initialize variables                                   
-      i := MinL2;  
-      SetSymbolState(g_iWidgetNum, 1);
-      g_iPage := 1;          
-      j := 1;   
-      
-      -- Populate Screen
-      while j <= g_ciMaxPerSelectScreen   
-      loop    
-        SetLabelText(i, g_arDisplay[j].sName); 
-        i := i + 1;
-        j := j + 1;   
-      end loop;                            
-
-      SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
-      SelectScreen(g_ciCust); 
+  procedure DisplayCustomersDB; 
+  i : integer;
+  j : integer;
+  begin 
     
-    end;    
+    --Makes all selections black
+    for i := minL2 to maxL2
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
+
+    -- Clear Array
+    ClearDisplayListArray; 
+    
+    --Clear the widgets from MinL2 to MaxL2
+    ClearWidgetsData;
+
+    -- Sort DB or Get Based of Criteria                                       
+    CustomersDB.Sort(2);                                    
+    i := 1; 
+    
+    -- FillArray
+    if CustomersDB.GetFirst = SysOk then  
+
+      g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;  -- for item 
+      g_arDisplay[i].sName := CustomersDB.Name; 
+      g_arDisplay[i].sStreet := CustomersDB.Street;
+      g_arDisplay[i].sTown := CustomersDB.Town;
+      g_arDisplay[i].sState := CustomersDB.State;
+      g_arDisplay[i].iZip := CustomersDB.ZipCode;
+
+      i := 2;            
+
+      while CustomersDB.GetNext = SysOk  
+      loop         
+        if i <= g_ciMaxRecords then             
+          g_arDisplay[i].sPhoneNum := CustomersDB.PhoneNum;
+          g_arDisplay[i].sName := CustomersDB.Name; 
+          g_arDisplay[i].sStreet := CustomersDB.Street;
+          g_arDisplay[i].sTown := CustomersDB.Town;
+          g_arDisplay[i].sState := CustomersDB.State;
+          g_arDisplay[i].iZip := CustomersDB.ZipCode;                     
+          i := i + 1;                          
+        end if;       
+      end loop; 
+    end if; 
+    
+    -- Select Screen, Enable Handlers, Clear Screen and initialize variables                                   
+    i := MinL2;  
+    SetSymbolState(g_iWidgetNum, 1);
+    g_iPage := 1;          
+    j := 1;   
+    
+    -- Populate Screen
+    while j <= g_ciMaxPerSelectScreen   
+    loop    
+      SetLabelText(i, g_arDisplay[j].sName); 
+      i := i + 1;
+      j := j + 1;   
+    end loop;                            
+
+    SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
+    SelectScreen(g_ciCust); 
+  
+  end;    
 
   procedure ProcessDataEntry(sTemp : string);
   begin
@@ -535,18 +549,6 @@ program reverse;
     end loop;
          
   end;
-
-  --WHY IS THIS NOT BEING CALLED?
-  procedure ClearWidgetsData;  -- Clear Display  List Screen text boxes
-    i : integer;
-  begin  
-  
-    for i := MinL2 to MaxL2 
-    loop
-      SetLabelText(i, Chr$(08)); -- 
-    end loop;
-
-  end; 
 
   procedure ClearShipTemp;
   begin
@@ -1016,7 +1018,6 @@ begin
   g_rtarget1 := g_rActive1 - t_cement;
   SetBargraphLevel(barS1, 100);
   SetWidgetColor(barS1, "Red");
-  SetWidgetVisibility(barS1,Von);
   x := g_rActive1 - g_rtarget1;
   --while(g_rActive1 > g_rtarget1)
 
@@ -1027,7 +1028,6 @@ begin
   g_rtarget2 := g_rActive2 - t_sand;
   SetBargraphLevel(barS2, 100);
   SetWidgetColor(barS2, "Red");
-  SetWidgetVisibility(barS2,Von);
   y := g_rActive2 - g_rtarget2;
 
   while EntryMode = BatchMode
@@ -1046,9 +1046,9 @@ begin
     SetLabelText(tarAg, IntegerToString(y,0));
 
     if bar_percentage2 <= 25 then
-      SetWidgetColor(barS1, "Yellow");
+      SetWidgetColor(barS2, "Yellow");
     elsif bar_percentage2 = 0 then
-      SetWidgetColor(barS1, "Green");
+      SetWidgetColor(barS2, "Green");
     end if;
 
     if bar_percentage1 <= 25 then
@@ -1078,7 +1078,7 @@ begin
 
   --end loop;
 
-  DisplayStatus("HI");
+  DisplayStatus("Batch Complete!");
 
 
 end;
@@ -1091,15 +1091,13 @@ begin
 
   if g_rInitial1 < t_cement then
     Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
-    SetLabelText(lbStat, "Please put " + RealToString(t_cement, 0, 2) + " on cement scale!");
+    SetLabelText(lbStat, "Please put " + RealToString(t_cement, 0, 0) + " on cement scale!");
     SetWidgetVisibility(lbStat, Von);
   elsif g_rInitial2 < t_sand then
     DisplayStatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 2!");
-    SetLabelText(lbStat, "Please put " + RealToString(t_sand, 0, 2) + " on aggregate scale!");
+    SetLabelText(lbStat, "Please put " + RealToString(t_sand, 0, 0) + " on aggregate scale!");
     SetWidgetVisibility(lbStat, Von);
   else
-    SetWidgetVisibility(barS1, Voff);
-    SetWidgetVisibility(barS2, VOff);
     EntryMode := BatchMode;
     SetWidgetVisibility(btnNxt9, Voff);
     SelectScreen(g_ciScales);
