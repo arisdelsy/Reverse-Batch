@@ -209,11 +209,11 @@ program reverse;
     for i := 1 to g_ciMaxRecords * 0.25
     loop
       CustomersDB.GetNext;
-      CustoemrsDB.Delete; 
+      CustomersDB.Delete; 
       DisplayStatus("Auto Deleting Customer Database");      
     end loop;       
     
-    CustomersDB.Name := SystemTime;
+    --CustomersDB.Name := SystemTime;
     CustomersDB := dbCustSave;   
     g_sysResult1 := CustomersDB.Add;
     
@@ -1022,6 +1022,8 @@ begin
     g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
+    elsif g_sysResult = SysDatabaseFull then
+      Delete25Percent;
     end if;
   
 end;

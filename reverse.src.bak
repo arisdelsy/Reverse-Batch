@@ -34,7 +34,7 @@ program reverse;
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
   g_ciMaxPerScreen :integer;
-  g_iWaitSSScale : integer;
+  --g_iWaitSSScale : integer;
   g_iUpdate : integer;
   g_iPage : integer;
   r1current_select : integer;   
@@ -57,8 +57,8 @@ program reverse;
   RecipeSelectMode    : constant integer := 1001;
   SetupMenuMode       : constant integer := 1002;
   BatchMode           : constant integer := 1003;
-  AutoPrintMode       : constant integer := 1004;
-  ManualPrintMode     : constant integer := 1005;
+  PrintMode           : constant integer := 1004;
+  --ManualPrintMode     : constant integer := 1005;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
@@ -175,10 +175,9 @@ program reverse;
     
   end; 
 
-  procedure WaitSS(iScale : integer);
+  procedure WaitSS;
   begin
-    
-    g_iWaitSSScale := iScale;
+
     SetupStartTimer(25, 10, TimerContinuous);
   
   end;   
@@ -196,6 +195,35 @@ program reverse;
      return iDecimal; 
      
   end;
+
+  procedure Delete25Percent;  
+    i : integer;  
+    dbCustSave : CustomerDatabase;   
+  begin
+    
+    dbCustSave := CustomersDB; 
+    CustomersDB.Sort(Customer_Name);
+    CustomersDB.GetFirst;
+    CustomersDB.Delete;
+    
+    for i := 1 to g_ciMaxRecords * 0.25
+    loop
+      CustomersDB.GetNext;
+      CustomersDB.Delete; 
+      DisplayStatus("Auto Deleting Customer Database");      
+    end loop;       
+    
+    --CustomersDB.Name := SystemTime;
+    CustomersDB := dbCustSave;   
+    g_sysResult1 := CustomersDB.Add;
+    
+    if g_sysResult1 <> SysOk then
+      DisplayStatus("Error: Customer Database"); 
+    else
+      DisplayStatus(Blank);
+    end if;
+
+  end;      
 
   procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
   begin
@@ -383,8 +411,6 @@ program reverse;
       t_phonenum := sTemp;
       SetLabelText(lbl224, t_phonenum);
       EntryMode := CustomerProcessMode;
-      --SetLabelText(lbl224, sTemp);
-      --t_phonenum := StringToInteger(sTemp); -- will this be used for printing, variable t_phonenum?
         
     elsif g_Entrymode = EnterNameMode then 
       if sTemp = Blank then
@@ -636,13 +662,11 @@ program reverse;
       if g_sysResult1 <> SysOk then
         DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult1));  
 			  return;
-      else
-        GetGross(1, Primary, rGrossWgt1);
       end if;
 			
 			-- Check In Range
-      if g_sysResult2 <> SysOk then
-        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult2));  
+      if g_sysResult3 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult3));  
 			  return;
       end if;			
 			
@@ -657,7 +681,7 @@ program reverse;
 				return;
 		 end if;
       
-     if EntryMode = ManualPrintMode then  -- Weigh In
+     if EntryMode = BatchCompleteMode then  -- Print Screen
         
         TransDB.DT := SystemTime; 
         TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
@@ -998,6 +1022,8 @@ begin
     g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
+    elsif g_sysResult = SysDatabaseFull then
+      Delete25Percent;
     end if;
   
 end;
@@ -1012,7 +1038,8 @@ begin
 
   --Batching concrete
   --Calculation for target weight
-  GetGross(1,Primary,g_rInitial1);
+  WaitSS;
+  --GetGross(1,Primary,g_rInitial1);
   g_rActive1 := g_rInitial1;
 
   g_rtarget1 := g_rActive1 - t_cement;
@@ -1020,7 +1047,7 @@ begin
   --while(g_rActive1 > g_rtarget1)
 
   --Batching sand mix
-  GetGross(2,Primary,g_rInitial2);
+  --GetGross(2,Primary,g_rInitial2);
   g_rActive2 := g_rInitial2;
 
   g_rtarget2 := g_rActive2 - t_sand;
@@ -1208,35 +1235,10 @@ begin
   if length5 < 45 then
     WriteLn(g_ciPrinter, line5 + Space$(45-length5) + t_town + "," + t_state);
   end if;
-  
-  --WriteLn(g_ciPrinter, "Customer: " + UCase$(t_customer) + Space$(15) + "Billing Info.");
-  --WriteLn(g_ciPrinter, "Phone #: " + t_phonenum + Space$(15) + "Customer: " + t_customer);
-  --WriteLn(g_ciPrinter, "Shipping Address:" + Space$(45) + "Billing Address: ");
-  --line4 := "Shipping Address: ";
-  --length3 := Len(line3);
-  --if length3 < 45 then
-    --WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
-  --end if;
-  
-  --WriteLn(g_ciPrinter, t_street + Space$(15) + ts_state );
-  --WriteLn(g_ciPrinter, t_town + "," + t_state + Space$(15)+ ts_town + "," + ts_state);
-
-  
-  --WriteLn(g_ciPrinter, "********************************************************************************");
-  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
-  --WriteLn(g_ciPrinter, "PSI: " + IntegerToString(t_psi,0));
-  --WriteLn(g_ciPrinter, "Quantity of Concrete: " + RealToString(t_qtyconc, 6, 2) + "yds.");
-  --WriteLn(g_ciPrinter, "Sand & Stone Mix: " + RealToString(t_sand, 6, 2) + "lb.");
-  --WriteLn(g_ciPrinter, "Cement: " + RealToString(t_cement, 6, 2) + "lb.");
-  --WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 6, 2) + "gal.");
 
-  --WriteLn(g_ciPrinter, Space$(34) + "ADD ONS");
-  --WriteLn(g_ciPrinter, Space$(25) + "**************************");
-
-  -- *** optimized to be tested **
   line6 :="PSI: " + IntegerToString(t_psi,0);
   length6 := Len(line6);
   if bCalcium = true then 
@@ -1399,8 +1401,6 @@ handler WidgetClicked;
  
     elsif g_iWidget = btnPrint then  
       TicketOutput;
-      --Print(GrossFmt); -- test purposes?
-      -- EntryMode := ManualPrintMode;
 
     elsif g_iWidget = btnDone then
       ClearCustomerTemp;
@@ -1599,22 +1599,5 @@ begin
 
 end reverse; 
 
--- Used for printing values from batch selection
--- IntegerToString(g_arProduct[i].sPSI, 0);
--- RealToString(g_arProduct[i].sQTY_CONC, 6, 1);  
--- RealToString(g_arProduct[i].sSAND_MIX, 6, 1);
--- RealToString(g_arProduct[i].sCEMENT, 6, 1);
--- RealToString(g_arProduct[i].sWAT_GALL, 6, 1);
--- IntegerToString(g_arProduct[i].sCALCIUM, 0);
--- RealToString(g_arProduct[i].sAIR_ENT, 6, 1);
--- RealToString(g_arProduct[i].sANTIHYDR, 6, 1);
--- RealToString(g_arProduct[i].sRETARDER, 6, 1);
-
-
 --setpoints are a value that are user defined, active if enabled or Disabled
 --we only want is enabled if we are running a batch and disabled otherwise 
-
---the first setpoint will trigger the bar graph to turn yellow (100 pounds before the target is reached)
- 
-
---target val + 75 
