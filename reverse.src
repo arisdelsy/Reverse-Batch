@@ -1024,6 +1024,7 @@ begin
       CustomersDB.Add;
     elsif g_sysResult = SysDatabaseFull then
       Delete25Percent;
+      CustomersDB.Add;
     end if;
   
 end;
