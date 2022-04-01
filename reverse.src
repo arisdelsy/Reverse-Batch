@@ -50,6 +50,11 @@ program reverse;
   -- Printer port
   g_ciPrinter : constant integer := 1;
 
+  --Accumulators
+  g_sYards : stored integer := 0;
+  g_sAgg   : stored integer := 0;
+  g_sCem   : stored integer := 0;
+
   --Entry Modes are made to prevent deadlock 
   -- If you dont have them the program is vulnerable and could lock up
   NoMode              : constant integer := 0;
@@ -58,7 +63,6 @@ program reverse;
   SetupMenuMode       : constant integer := 1002;
   BatchMode           : constant integer := 1003;
   PrintMode           : constant integer := 1004;
-  --ManualPrintMode     : constant integer := 1005;
   CustomerProcessMode : constant integer := 1006;
   ProductSelectMode   : constant integer := 1007;
   BatchCompleteMode   : constant integer := 1008;
@@ -633,7 +637,7 @@ program reverse;
     SetLabelText(lbl332, Blank);
     SetLabelText(lbl333, Blank);
   end;
-  
+
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion1 : integer; 
     iMotion2 : integer;   
@@ -681,7 +685,7 @@ program reverse;
 				return;
 		 end if;
       
-     if EntryMode = BatchCompleteMode then  -- Print Screen
+     if EntryMode = PrintMode then  -- Print Screen
         
         TransDB.DT := SystemTime; 
         TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
@@ -693,6 +697,7 @@ program reverse;
         if g_sysResult = SysOk then      
           
           EntryMode := NoMode;
+          DisplayStatus(RealToString(rGrossWgt1, 0, 2));
           SelectScreen(g_ciMain);
 
         else 
@@ -1038,8 +1043,8 @@ procedure RunBatch;
 begin
 
   --Batching concrete
+
   --Calculation for target weight
-  WaitSS;
   --GetGross(1,Primary,g_rInitial1);
   g_rActive1 := g_rInitial1;
 
@@ -1048,6 +1053,7 @@ begin
   --while(g_rActive1 > g_rtarget1)
 
   --Batching sand mix
+  
   --GetGross(2,Primary,g_rInitial2);
   g_rActive2 := g_rInitial2;
 
@@ -1189,6 +1195,7 @@ procedure TicketOutput;
   line7 : string;
   line8 : string;
   line9 : string;
+  line10: string;
   length1 : integer;
   length2 : integer;
   length3 : integer;
@@ -1198,22 +1205,25 @@ procedure TicketOutput;
   length7 : integer;
   length8 : integer;
   length9 : integer;
+  length10: integer;
 begin
+
   DisplayStatus("Printing...");
+  SetupStartTimer(3,500,TimerOneShot);
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  WriteLn(g_ciPrinter, Space$(26) + "CAVALIERE/SHORT LOAD CONCRETE");
+  WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
-  line1 := "Customer: " + ts_customer;
+  line1 := "SHIPPING INFO";
   length1 := Len(line1);
   if length1 < 45 then
-    WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "Billing Info.");
+    WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "BILLING INFO");
   end if;
 
-  line2 := "Phone #: " + ts_onsite;
+  line2 := "Customer: " + ts_customer;
   length2 := Len(line2);
   if length2 < 45 then
     WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
@@ -1236,49 +1246,60 @@ begin
   if length5 < 45 then
     WriteLn(g_ciPrinter, line5 + Space$(45-length5) + t_town + "," + t_state);
   end if;
+
+  line6 :="Onsite #: " + ts_onsite;
+  length6 := Len(line6);
+  if length6 < 45 then
+    WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Phone: " + t_phonenum);
+  end if;
+    
+
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(41) + "ADD ONS");
+  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
 
-  line6 :="PSI: " + IntegerToString(t_psi,0);
-  length6 := Len(line6);
-  if bCalcium = true then 
-    if length6 < 45 then
-      WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
-    end if;
-  else 
-    WriteLn(g_ciPrinter, line6);
-  end if;   
-
-  line7 := "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.";
+  line7 :="PSI: " + IntegerToString(t_psi,0);
   length7 := Len(line7);
-  if bAnti_hydro = true then 
+  if bCalcium = true then 
     if length7 < 45 then
-      WriteLn(g_ciPrinter, line7 + Space$(45-length7) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
+      WriteLn(g_ciPrinter, line7 + Space$(45-length7) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
     end if;
   else 
     WriteLn(g_ciPrinter, line7);
   end if;   
 
-  line8 := "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.";
+  line8 := "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.";
   length8 := Len(line8);
-  if bAir_ent = true then 
+  if bAnti_hydro = true then 
     if length8 < 45 then
-      WriteLn(g_ciPrinter, line8 + Space$(45 - length8) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
+      WriteLn(g_ciPrinter, line8 + Space$(45-length8) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
     end if;
   else 
-    WriteLn(g_ciPrinter, line8 );
+    WriteLn(g_ciPrinter, line8);
   end if;   
 
-  line9 := "Cement: " + RealToString(t_cement, 4, 0) + " lb.";
+  line9 := "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.";
   length9 := Len(line9);
-  if bRetarder = true then 
+  if bAir_ent = true then 
     if length9 < 45 then
-      WriteLn(g_ciPrinter, line9 + Space$(45 - length9) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
+      WriteLn(g_ciPrinter, line9 + Space$(45-length9) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
     end if;
   else 
-    WriteLn(g_ciPrinter, line9);
+    WriteLn(g_ciPrinter, line9 );
   end if;   
+
+  line10 := "Cement: " + RealToString(t_cement, 4, 0) + " lb.";
+  length10 := Len(line10);
+  if bRetarder = true then 
+    if length10 < 45 then
+      WriteLn(g_ciPrinter, line10 + Space$(45-length10) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
+    end if;
+  else 
+    WriteLn(g_ciPrinter, line10);
+  end if;   
+
+  
+  
 
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
   WriteLn(g_ciPrinter, Blank);
@@ -1290,7 +1311,11 @@ begin
   WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
 
 
+end;
 
+handler Timer3Trip;
+begin
+  DisplayStatus(Blank);
 end;
 
 procedure DisplayBatchComplete;
