@@ -684,8 +684,9 @@ program reverse;
         DisplayStatus("Scale 2 NOT In Range");  
 				return;
 		 end if;
-      
-     if EntryMode = PrintMode then  -- Print Screen
+    
+
+     if EntryMode = BatchCompleteMode then  -- Print Screen
         
         TransDB.DT := SystemTime; 
         TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
@@ -696,14 +697,16 @@ program reverse;
         
         if g_sysResult = SysOk then      
           
-          EntryMode := NoMode;
+          --EntryMode := NoMode;
           DisplayStatus(RealToString(rGrossWgt1, 0, 2));
-          SelectScreen(g_ciMain);
+          --SelectScreen(g_ciMain);
 
         else 
           DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
         end if;  
-        
+      elsif EntryMode = BatchReadyMode then
+        g_rInitial1 = rGrossWgt1;
+        g_rInitial2 = rGrossWgt2;
       end if;  
       
     else
@@ -1104,8 +1107,9 @@ end;
 procedure CheckBatch;
 begin
 
-  GetGross(1,Primary,g_rInitial1);
-  GetGross(2,Primary,g_rInitial2);
+  --GetGross(1,Primary,g_rInitial1);
+  --GetGross(2,Primary,g_rInitial2);
+  WaitSS;
 
   if g_rInitial1 < t_cement then
     Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
