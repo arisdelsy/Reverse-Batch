@@ -686,7 +686,7 @@ program reverse;
 		 end if;
     
 
-     if EntryMode = BatchCompleteMode then  -- Print Screen
+      if EntryMode = BatchCompleteMode then  -- Print Screen
         
         TransDB.DT := SystemTime; 
         TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
@@ -703,14 +703,23 @@ program reverse;
 
         else 
           DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
-        end if;  
+        end if; 
+
       elsif EntryMode = BatchReadyMode then
-        g_rInitial1 = rGrossWgt1;
-        g_rInitial2 = rGrossWgt2;
+        g_rInitial1 := rGrossWgt1;
+        g_rInitial2 := rGrossWgt2;
+      elsif EntryMode = BatchMode then
+        if FileExists("/sdimages/next.png", SDCard) = SysOk then
+          SetImageWidgetPath(btnNxt9, "/next.png");
+        else
+          SetImageWidgetPath(btnNxt9, "local://10.png");
+        end if;
+        SetWidgetVisibility(btnNxt9, Von); 
+        DisplayStatus("Batch Complete!");
+        EntryMode := NoMode;
       end if;  
-      
     else
-      DisplayStatus("...In Motion...");
+      DisplayStatus("...In Motion...");  
     end if;
 
   end;
@@ -1042,6 +1051,7 @@ procedure RunBatch;
   bar_percentage2 : integer := 0;
   x : integer;
   y : integer;
+  sw : integer := 1;
 
 begin
 
@@ -1063,7 +1073,7 @@ begin
   g_rtarget2 := g_rActive2 - t_sand;
   y := g_rActive2 - g_rtarget2;
 
-  while EntryMode = BatchMode
+  while sw = 1
   loop
 
     GetGross(1,Primary,g_rActive1);
@@ -1079,27 +1089,19 @@ begin
     SetLabelText(tarAg, IntegerToString(y,0));
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
-      EntryMode := NoMode;
-      if FileExists("/sdimages/next.png", SDCard) = SysOk then
-        SetImageWidgetPath(btnNxt9, "/next.png");
-      else
-        SetImageWidgetPath(btnNxt9, "local://10.png");
-      end if;
-      SetWidgetVisibility(btnNxt9, Von);
+      sw := 0;
+      --if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        --SetImageWidgetPath(btnNxt9, "/next.png");
+      --else
+        --SetImageWidgetPath(btnNxt9, "local://10.png");
+      --end if;
+      --SetWidgetVisibility(btnNxt9, Von);
     end if;
 
   end loop;
+    WaitSS;
 
-
-  --while(g_rActive1 > g_rtarget1)
-  --while(y > 0)
-  --loop
-
-
-
-  --end loop;
-
-  DisplayStatus("Batch Complete!");
+  --DisplayStatus("Batch Complete!");
 
 
 end;
@@ -1219,7 +1221,7 @@ begin
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
 
   line1 := "SHIPPING INFO";
   length1 := Len(line1);
@@ -1254,11 +1256,11 @@ begin
   line6 :="Onsite #: " + ts_onsite;
   length6 := Len(line6);
   if length6 < 45 then
-    WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Phone: " + t_phonenum);
+    WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Phone #: " + t_phonenum);
   end if;
     
 
-  WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
 
@@ -1306,11 +1308,11 @@ begin
   
 
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
-  WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
-  WriteLn(g_ciPrinter, Blank);
+  --WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "By signing this ticket buyer has agreed to the Terms and Conditions");
   WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
 
