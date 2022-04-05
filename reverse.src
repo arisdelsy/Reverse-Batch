@@ -47,6 +47,12 @@ program reverse;
   g_rtarget2  : real;
   g_rActive1 : real;
   g_rActive2 : real;
+  --
+  g_initial1 : real;
+  g_initial2 : real;
+  g_endCount : real;
+  --g_endCount : real;
+  -- 
   -- Printer port
   g_ciPrinter : constant integer := 1;
 
@@ -1216,6 +1222,7 @@ begin
 
   DisplayStatus("Printing...");
   SetupStartTimer(3,500,TimerOneShot);
+
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
@@ -1229,12 +1236,12 @@ begin
     WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "BILLING INFO");
   end if;
 
-  line2 := "Customer: " + ts_customer;
-  length2 := Len(line2);
-  if length2 < 45 then
-    WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
-  end if;
-  
+  --line2 := "Customer: " + ts_customer;
+  --length2 := Len(line2);
+  --if length2 < 45 then
+    --WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
+  --end if;
+  --WriteLn(g_ciPrinter, "TESTING HELLO");
   line3 := "Shipping Address: ";
   length3 := Len(line3);
   if length3 < 45 then
