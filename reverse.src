@@ -1236,11 +1236,11 @@ begin
     WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "BILLING INFO");
   end if;
 
-  --line2 := "Customer: " + ts_customer;
-  --length2 := Len(line2);
-  --if length2 < 45 then
-    --WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
-  --end if;
+  line2 := "Customer: " + ts_customer;
+  length2 := Len(line2);
+  if length2 < 45 then
+    WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
+  end if;
   --WriteLn(g_ciPrinter, "TESTING HELLO");
   line3 := "Shipping Address: ";
   length3 := Len(line3);
