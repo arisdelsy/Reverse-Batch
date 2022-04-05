@@ -50,8 +50,10 @@ program reverse;
   --
   g_initial1 : real;
   g_initial2 : real;
-  g_endCount : real;
-  --g_endCount : real;
+  g_rEnd1 : real;
+  g_rEnd2 : real;
+  g_rcembatch : real;
+  g_rsandbatch : real;
   -- 
   -- Printer port
   g_ciPrinter : constant integer := 1;
@@ -720,6 +722,10 @@ program reverse;
         else
           SetImageWidgetPath(btnNxt9, "local://10.png");
         end if;
+        g_rEnd1 := rGrossWgt1;
+        g_rEnd2 := rGrossWgt2;
+        g_rcembatch := g_rInitial1 - g_rEnd1;
+        g_rsandbatch  := g_rInitial2 - g_rEnd2;
         SetWidgetVisibility(btnNxt9, Von); 
         DisplayStatus("Batch Complete!");
         EntryMode := NoMode;
@@ -1228,54 +1234,54 @@ begin
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
 
   line1 := "SHIPPING INFO";
   length1 := Len(line1);
-  if length1 < 45 then
-    WriteLn(g_ciPrinter, line1 + Space$(45-length1) + "BILLING INFO");
+  if length1 < 40 then
+    WriteLn(g_ciPrinter, line1 + Space$(40-length1) + "BILLING INFO");
   end if;
 
   line2 := "Customer: " + ts_customer;
   length2 := Len(line2);
-  if length2 < 45 then
-    WriteLn(g_ciPrinter, line2 + Space$(45-length2) + "Customer: " + t_customer);
+  if length2 < 40 then
+    WriteLn(g_ciPrinter, line2 + Space$(40-length2) + "Customer: " + t_customer);
   end if;
-  --WriteLn(g_ciPrinter, "TESTING HELLO");
+  
   line3 := "Shipping Address: ";
   length3 := Len(line3);
-  if length3 < 45 then
-    WriteLn(g_ciPrinter, line3 + Space$(45-length3) + "Billing Address: ");
+  if length3 < 40 then
+    WriteLn(g_ciPrinter, line3 + Space$(40-length3) + "Billing Address: ");
   end if;
   
   line4 := ts_street;
   length4 := Len(line4);
-  if length4 < 45 then
-    WriteLn(g_ciPrinter, line4 + Space$(45-length4) + t_street);
+  if length4 < 40 then
+    WriteLn(g_ciPrinter, line4 + Space$(40-length4) + t_street);
   end if;
   
   line5 := ts_town + "," + ts_state;
   length5 := Len(line5);
-  if length5 < 45 then
-    WriteLn(g_ciPrinter, line5 + Space$(45-length5) + t_town + "," + t_state);
+  if length5 < 40 then
+    WriteLn(g_ciPrinter, line5 + Space$(40-length5) + t_town + "," + t_state);
   end if;
 
   line6 :="Onsite #: " + ts_onsite;
   length6 := Len(line6);
-  if length6 < 45 then
-    WriteLn(g_ciPrinter, line6 + Space$(45-length6) + "Phone #: " + t_phonenum);
+  if length6 < 40 then
+    WriteLn(g_ciPrinter, line6 + Space$(40-length6) + "Phone #: " + t_phonenum);
   end if;
     
 
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
 
   line7 :="PSI: " + IntegerToString(t_psi,0);
   length7 := Len(line7);
   if bCalcium = true then 
-    if length7 < 45 then
-      WriteLn(g_ciPrinter, line7 + Space$(45-length7) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
+    if length7 < 40 then
+      WriteLn(g_ciPrinter, line7 + Space$(40-length7) + "Calcium: " + IntegerToString(t_calcium,0) + " lbs.");
     end if;
   else 
     WriteLn(g_ciPrinter, line7);
@@ -1284,28 +1290,28 @@ begin
   line8 := "Quantity of Concrete: " + RealToString(t_qtyconc, 4, 1) + " yds.";
   length8 := Len(line8);
   if bAnti_hydro = true then 
-    if length8 < 45 then
-      WriteLn(g_ciPrinter, line8 + Space$(45-length8) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
+    if length8 < 40 then
+      WriteLn(g_ciPrinter, line8 + Space$(40-length8) + "Anti Hydro: " + RealToString(t_antihydr,4,2) + " gals/CYs");
     end if;
   else 
     WriteLn(g_ciPrinter, line8);
   end if;   
 
-  line9 := "Sand & Stone Mix: " + RealToString(t_sand, 4, 0) + " lb.";
+  line9 := "Sand & Stone Mix: " + RealToString(g_rsandbatch, 4, 0) + " lb.";
   length9 := Len(line9);
   if bAir_ent = true then 
-    if length9 < 45 then
-      WriteLn(g_ciPrinter, line9 + Space$(45-length9) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
+    if length9 < 40 then
+      WriteLn(g_ciPrinter, line9 + Space$(40-length9) + "Air Entrainment: " + RealToString(t_air_ent,4,2) + " oz.");
     end if;
   else 
     WriteLn(g_ciPrinter, line9 );
   end if;   
 
-  line10 := "Cement: " + RealToString(t_cement, 4, 0) + " lb.";
+  line10 := "Cement: " + RealToString(g_rcembatch, 4, 0) + " lb.";
   length10 := Len(line10);
   if bRetarder = true then 
-    if length10 < 45 then
-      WriteLn(g_ciPrinter, line10 + Space$(45-length10) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
+    if length10 < 40 then
+      WriteLn(g_ciPrinter, line10 + Space$(40-length10) + "Retarder: " + RealToString(t_retard,6,2) + " oz.");
     end if;
   else 
     WriteLn(g_ciPrinter, line10);
@@ -1315,11 +1321,11 @@ begin
   
 
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
-  --WriteLn(g_ciPrinter, Blank);
-  --WriteLn(g_ciPrinter, Blank);
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "By signing this ticket buyer has agreed to the Terms and Conditions");
   WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
 
@@ -1444,6 +1450,7 @@ handler WidgetClicked;
     elsif g_iWidget = btnDone then
       ClearCustomerTemp;
       ClearProductTemp;
+      ClearShipTemp; --Added 
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
