@@ -54,6 +54,8 @@ program reverse;
   g_rEnd2 : real;
   g_rcembatch : real;
   g_rsandbatch : real;
+  g_rCemAccum : stored real := 0;
+  g_rSandAccum : stored real := 0;
   -- 
   -- Printer port
   g_ciPrinter : constant integer := 1;
@@ -726,6 +728,8 @@ program reverse;
         g_rEnd2 := rGrossWgt2;
         g_rcembatch := g_rInitial1 - g_rEnd1;
         g_rsandbatch  := g_rInitial2 - g_rEnd2;
+        g_rCemAccum := g_rCemAccum + g_rcembatch;
+        g_rSandAccum := g_rSandAccum + g_rsandbatch;
         SetWidgetVisibility(btnNxt9, Von); 
         DisplayStatus("Batch Complete!");
         EntryMode := NoMode;
@@ -1111,7 +1115,7 @@ begin
     end if;
 
   end loop;
-    WaitSS;
+  WaitSS;
 
   --DisplayStatus("Batch Complete!");
 
@@ -1142,18 +1146,17 @@ begin
     
 end;
 
---new changes Aris 
-	handler UserEntry; -- Built in and 
-  	sTemp : string;
-	begin
-  	sTemp := GetEntry; -- is the action of getting user entry
-  	ClosePrompt;
-    
-    if EventKey = EnterKey then
-      ProcessDataEntry(sTemp);
-    else
-      ProcessPromptCancel;
-    end if;
+handler UserEntry; -- Built in and 
+  sTemp : string;
+begin
+  sTemp := GetEntry; -- is the action of getting user entry
+  ClosePrompt;
+  
+  if EventKey = EnterKey then
+    ProcessDataEntry(sTemp);
+  else
+    ProcessPromptCancel;
+  end if;
 
 end;
 
@@ -1234,7 +1237,7 @@ begin
   WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
   WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
 
   line1 := "SHIPPING INFO";
   length1 := Len(line1);
@@ -1247,7 +1250,7 @@ begin
   if length2 < 40 then
     WriteLn(g_ciPrinter, line2 + Space$(40-length2) + "Customer: " + t_customer);
   end if;
-  --WriteLn(g_ciPrinter, "TESTING HELLO");
+  
   line3 := "Shipping Address: ";
   length3 := Len(line3);
   if length3 < 40 then
@@ -1273,7 +1276,7 @@ begin
   end if;
     
 
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
 
@@ -1321,11 +1324,11 @@ begin
   
 
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
-  --WriteLn(g_ciPrinter, Blank);
-  --WriteLn(g_ciPrinter, Blank);
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
-  --WriteLn(g_ciPrinter, Blank);
+  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "By signing this ticket buyer has agreed to the Terms and Conditions");
   WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
 
@@ -1450,6 +1453,7 @@ handler WidgetClicked;
     elsif g_iWidget = btnDone then
       ClearCustomerTemp;
       ClearProductTemp;
+      ClearShipTemp; --Added 
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     

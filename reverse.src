@@ -54,6 +54,8 @@ program reverse;
   g_rEnd2 : real;
   g_rcembatch : real;
   g_rsandbatch : real;
+  g_rCemAccum : stored real := 0;
+  g_rSandAccum : stored real := 0;
   -- 
   -- Printer port
   g_ciPrinter : constant integer := 1;
@@ -726,6 +728,8 @@ program reverse;
         g_rEnd2 := rGrossWgt2;
         g_rcembatch := g_rInitial1 - g_rEnd1;
         g_rsandbatch  := g_rInitial2 - g_rEnd2;
+        g_rCemAccum := g_rCemAccum + g_rcembatch;
+        g_rSandAccum := g_rSandAccum + g_rsandbatch;
         SetWidgetVisibility(btnNxt9, Von); 
         DisplayStatus("Batch Complete!");
         EntryMode := NoMode;
@@ -1111,7 +1115,7 @@ begin
     end if;
 
   end loop;
-    WaitSS;
+  WaitSS;
 
   --DisplayStatus("Batch Complete!");
 
@@ -1142,18 +1146,17 @@ begin
     
 end;
 
---new changes Aris 
-	handler UserEntry; -- Built in and 
-  	sTemp : string;
-	begin
-  	sTemp := GetEntry; -- is the action of getting user entry
-  	ClosePrompt;
-    
-    if EventKey = EnterKey then
-      ProcessDataEntry(sTemp);
-    else
-      ProcessPromptCancel;
-    end if;
+handler UserEntry; -- Built in and 
+  sTemp : string;
+begin
+  sTemp := GetEntry; -- is the action of getting user entry
+  ClosePrompt;
+  
+  if EventKey = EnterKey then
+    ProcessDataEntry(sTemp);
+  else
+    ProcessPromptCancel;
+  end if;
 
 end;
 
