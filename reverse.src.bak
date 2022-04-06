@@ -1117,19 +1117,19 @@ begin
     SetLabelText(tarAg, IntegerToString(y,0));
 
     if x <= 100 then
-      SetWidgetColor(bar5, "Yellow");
+      SetWidgetColor(bar5, "#FFFF00");
       SetBargraphLevel(bar5, 100);
     end if;
 
     if y <= 100 then
-      SetWidgetColor(bar6, "Yellow");
+      SetWidgetColor(bar6, "#FFFF00");
       SetBargraphLevel(bar6, 100);
     end if;
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       sw := 0;
-      SetWidgetColor(bar5, "Green");
-      SetWidgetColor(bar6, "Green");
+      SetWidgetColor(bar5, "#00FF00");
+      SetWidgetColor(bar6, "#00FF00");
       --if FileExists("/sdimages/next.png", SDCard) = SysOk then
         --SetImageWidgetPath(btnNxt9, "/next.png");
       --else
