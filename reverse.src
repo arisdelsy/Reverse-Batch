@@ -56,6 +56,7 @@ program reverse;
   g_rsandbatch : real;
   g_rCemAccum : stored real := 0;
   g_rSandAccum : stored real := 0;
+  g_iBatchAcc : stored integer := 0;
   -- 
   -- Printer port
   g_ciPrinter : constant integer := 1;
@@ -626,6 +627,11 @@ program reverse;
     t_antihydr := 0;
     t_retard := 0;
 
+    r1_select := False;
+    r2_select := False;
+    r1current_select := 0;
+    r2current_select := 0;
+
   end;
 
   procedure ClearBillingScreen;
@@ -730,6 +736,7 @@ program reverse;
         g_rsandbatch  := g_rInitial2 - g_rEnd2;
         g_rCemAccum := g_rCemAccum + g_rcembatch;
         g_rSandAccum := g_rSandAccum + g_rsandbatch;
+        g_iBatchAcc := g_iBatchAcc + 1;
         SetWidgetVisibility(btnNxt9, Von); 
         DisplayStatus("Batch Complete!");
         EntryMode := NoMode;
@@ -1033,13 +1040,15 @@ program reverse;
   procedure setupScreen; -- populate the setup screen 
   i : integer;
   begin
+    
+    -- setting background bar for screen
+    Setbargraphlevel(9,100); 
 
-    -- setting background bars for screens
-    for i := 1 to 16
-    loop
-      Setbargraphlevel(i,100); 
-    end loop;
     --SetImageWidgetPath(btnSetup, "local://11.png");
+
+    SetLabelText(lbl1, "Total amount of batches " + IntegerToString(g_iBatchAcc, 0));
+    SetLabelText(lbl2, "Total cement used: " + RealToString(g_rCemAccum,0,0) + " lbs.");
+    SetLabelText(lbl3, "Total sand used: " + RealToString(g_rSandAccum,0, 0) + " lbs.");
 
   end;
 
@@ -1070,6 +1079,9 @@ procedure RunBatch;
   sw : integer := 1;
 
 begin
+
+  SetBargraphLevel(bar5, 0);
+  SetBargraphLevel(bar6, 0);
 
   --Batching concrete
 
@@ -1104,8 +1116,20 @@ begin
     SetBargraphLevel(bar280, bar_percentage2);
     SetLabelText(tarAg, IntegerToString(y,0));
 
+    if x <= 100 then
+      SetWidgetColor(bar5, "Yellow");
+      SetBargraphLevel(bar5, 100);
+    end if;
+
+    if y <= 100 then
+      SetWidgetColor(bar6, "Yellow");
+      SetBargraphLevel(bar6, 100);
+    end if;
+
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       sw := 0;
+      SetWidgetColor(bar5, "Green");
+      SetWidgetColor(bar6, "Green");
       --if FileExists("/sdimages/next.png", SDCard) = SysOk then
         --SetImageWidgetPath(btnNxt9, "/next.png");
       --else
@@ -1125,8 +1149,8 @@ end;
 procedure CheckBatch;
 begin
 
-  --GetGross(1,Primary,g_rInitial1);
-  --GetGross(2,Primary,g_rInitial2);
+  GetGross(1,Primary,g_rInitial1);
+  GetGross(2,Primary,g_rInitial2);
   WaitSS;
 
   if g_rInitial1 < t_cement then
@@ -1165,6 +1189,12 @@ procedure Ready;  -- Initialization procedure
 begin
 
   --UnLockMajorKeys;
+  if FileExists("/sdimages/ASC.png", SDCard) = SysOk then  
+    SetImageWidgetPath(img4, "/ASC.png");
+    SetWidgetVisibility(img4, Von);
+  else
+    SetWidgetVisibility(img4, VOff);
+  end if;
   LockKey(NavUpKey);
   LockKey(NavDownKey);
   setupScreen;
@@ -1454,6 +1484,8 @@ handler WidgetClicked;
       ClearCustomerTemp;
       ClearProductTemp;
       ClearShipTemp; --Added 
+      ClearBillingScreen;
+      ClearShippingScreen;
       EntryMode := NoMode;
       SelectScreen(g_ciMain);
     
@@ -1632,6 +1664,11 @@ handler WidgetClicked;
     elsif g_iWidget = btnNo5 then
       ProcessDataEntry("N");
       g_iSelect := 0;      
+    
+    elsif g_iWidget = lbSet9H then
+      g_iBatchAcc := 0;
+      g_rSandAccum := 0;
+      g_rCemAccum := 0;
 
     end if;
 
