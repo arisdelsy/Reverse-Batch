@@ -98,7 +98,10 @@ program reverse;
   EnterShipTownMode          : constant integer := 1019;
   EnterShipStateMode         : constant integer := 1020;
   EnterShipZipCodeMode       : constant integer := 1021;
- 
+
+  -- EntryModes for 
+  EnterOrderNumMode          : constant integer := 1025;
+  EnterPurchaseOrderMode     : constant integer := 1026;
  
  -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
@@ -118,13 +121,15 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : string;
+  t_ordernum  : string;
 
   ts_onsite   : string;
   ts_customer : string;
   ts_street   : string;
   ts_town     : string;
   ts_state    : string;
-  ts_zip      : string;  
+  ts_zip      : string;
+  t_purchase  : string;
 
   --Temp variables for product information
   t_psi       : integer;
@@ -416,6 +421,76 @@ program reverse;
   
   end;    
 
+  procedure ClearProductListArray;  -- Clear Display List Array
+    i : integer;
+  begin 
+  
+    for i := 1 to g_ciMaxProducts  -- in the range from 1 to 1000
+    loop
+
+      g_arProduct[i].sPSI := 0;
+      g_arProduct[i].sQTY_CONC := 0;  
+      g_arProduct[i].sSAND_MIX := 0;
+      g_arProduct[i].sCEMENT := 0;
+      g_arProduct[i].sWAT_GALL := 0;
+      g_arProduct[i].sCALCIUM := 0;
+      g_arProduct[i].sAIR_ENT := 0;
+      g_arProduct[i].sANTIHYDR := 0;
+      g_arProduct[i].sRETARDER := 0; 
+
+    end loop;
+         
+  end;
+
+  procedure FillProductArray;
+  i : integer;
+  begin
+  
+    ClearProductListArray;
+
+    ProductDB.sort(1);
+    i := 1;
+
+    -- FillArray
+    if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
+      g_arProduct[i].sPSI := ProductDB.PSI;
+      g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+      g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+      g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+      g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+      g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+      g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+      g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+      g_arProduct[i].sRETARDER := ProductDB.RETARDER; 
+      i := 2;            
+    end if; 
+    while ProductDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
+    loop         
+      if i <= g_ciMaxRecords then             
+        g_arProduct[i].sPSI := ProductDB.PSI;
+        g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
+        g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
+        g_arProduct[i].sCEMENT := ProductDB.CEMENT;
+        g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
+        g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
+        g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
+        g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
+        g_arProduct[i].sRETARDER := ProductDB.RETARDER;                                             
+        i := i + 1;                          
+      end if;       
+    end loop; 
+    
+  end;
+
+  procedure ResetProduct;
+  i : integer;
+  begin
+    for i := minL4 to maxL4
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
+  end;
+
   procedure ProcessDataEntry(sTemp : string);
   begin
     --This is only going to show up for new customer entries
@@ -518,6 +593,30 @@ program reverse;
       ts_zip := sTemp;
       EntryMode := ShippingMode;
 
+    elsif EntryMode = EnterOrderNumMode then 
+      if sTemp = Blank then 
+        PromptForEntry("Invalid: To Continue Enter Order Number", EnterOrderNumMode, Blank, 1);
+      end if;
+      t_ordernum := sTemp;
+      EntryMode := EnterPurchaseOrderMode;
+      PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
+
+    elsif EntryMode = EnterPurchaseOrderMode then 
+      if sTemp = Blank then 
+        PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
+      end if;
+      t_purchase := sTemp;
+      EntryMode := ProductSelectMode;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        SetImageWidgetPath(btnNxt, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt, "local://10.png");
+      end if;
+      SetWidgetVisibility(btnNxt, Voff);
+      ResetProduct;
+      FillProductArray;
+      SelectScreen(g_ciProduct);
+
     elsif EntryMode = YNClearOneMode then
       if sTemp = "Y" then
         g_sysResult := CustomersDB.Delete;
@@ -570,27 +669,6 @@ program reverse;
 
     end;
 
-  procedure ClearProductListArray;  -- Clear Display List Array
-    i : integer;
-  begin 
-  
-    for i := 1 to g_ciMaxProducts  -- in the range from 1 to 1000
-    loop
-
-      g_arProduct[i].sPSI := 0;
-      g_arProduct[i].sQTY_CONC := 0;  
-      g_arProduct[i].sSAND_MIX := 0;
-      g_arProduct[i].sCEMENT := 0;
-      g_arProduct[i].sWAT_GALL := 0;
-      g_arProduct[i].sCALCIUM := 0;
-      g_arProduct[i].sAIR_ENT := 0;
-      g_arProduct[i].sANTIHYDR := 0;
-      g_arProduct[i].sRETARDER := 0; 
-
-    end loop;
-         
-  end;
-
   procedure ClearShipTemp;
   begin
     ts_onsite   := Blank;
@@ -598,7 +676,9 @@ program reverse;
     ts_street   := Blank;
     ts_town     := Blank;
     ts_state    := Blank;
-    ts_zip      := Blank;  
+    ts_zip      := Blank;
+    t_ordernum  := Blank;
+    t_purchase  := Blank;  
 
   end;
 
@@ -793,58 +873,7 @@ program reverse;
   
   SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
 
-  end; 
-
-  procedure ResetProduct;
-  i : integer;
-  begin
-    for i := minL4 to maxL4
-    loop
-      SetwidgetColor(i, "Black");
-    end loop;
-  end;
-
-  
-
-  procedure FillProductArray;
-  i : integer;
-  begin
-  
-    ClearProductListArray;
-
-    ProductDB.sort(1);
-    i := 1;
-
-    -- FillArray
-    if ProductDB.GetFirst = SysOk then  -- .GetFirst gets the first logical record and it returns a syscode
-      g_arProduct[i].sPSI := ProductDB.PSI;
-      g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
-      g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
-      g_arProduct[i].sCEMENT := ProductDB.CEMENT;
-      g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
-      g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
-      g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
-      g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
-      g_arProduct[i].sRETARDER := ProductDB.RETARDER; 
-      i := 2;            
-    end if; 
-    while ProductDB.GetNext = SysOk  -- .GetNext gets the next record and it returns a syscode 
-    loop         
-      if i <= g_ciMaxRecords then             
-        g_arProduct[i].sPSI := ProductDB.PSI;
-        g_arProduct[i].sQTY_CONC := ProductDB.QTY_CONC;  
-        g_arProduct[i].sSAND_MIX := ProductDB.SAND_MIX;
-        g_arProduct[i].sCEMENT := ProductDB.CEMENT;
-        g_arProduct[i].sWAT_GALL := ProductDB.WAT_GALL;
-        g_arProduct[i].sCALCIUM := ProductDB.CALCIUM;
-        g_arProduct[i].sAIR_ENT := ProductDB.AIR_ENT;
-        g_arProduct[i].sANTIHYDR := ProductDB.ANTIHYDR;
-        g_arProduct[i].sRETARDER := ProductDB.RETARDER;                                             
-        i := i + 1;                          
-      end if;       
-    end loop; 
-    
-  end;
+end;   
 
   procedure SelectProduct;
     i : integer;
@@ -1080,9 +1109,6 @@ procedure RunBatch;
 
 begin
 
-  SetBargraphLevel(bar5, 0);
-  SetBargraphLevel(bar6, 0);
-
   --Batching concrete
 
   --Calculation for target weight
@@ -1116,20 +1142,8 @@ begin
     SetBargraphLevel(bar280, bar_percentage2);
     SetLabelText(tarAg, IntegerToString(y,0));
 
-    if x <= 100 then
-      SetWidgetColor(bar5, "#FFFF00");
-      SetBargraphLevel(bar5, 100);
-    end if;
-
-    if y <= 100 then
-      SetWidgetColor(bar6, "#FFFF00");
-      SetBargraphLevel(bar6, 100);
-    end if;
-
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       sw := 0;
-      SetWidgetColor(bar5, "#00FF00");
-      SetWidgetColor(bar6, "#00FF00");
       --if FileExists("/sdimages/next.png", SDCard) = SysOk then
         --SetImageWidgetPath(btnNxt9, "/next.png");
       --else
@@ -1237,6 +1251,7 @@ end;
 
 procedure TicketOutput;
   dTime : datetime := SystemTime;
+  line0 : string;
   line1 : string;
   line2 : string;
   line3 : string;
@@ -1247,6 +1262,7 @@ procedure TicketOutput;
   line8 : string;
   line9 : string;
   line10: string;
+  length0 : integer; 
   length1 : integer;
   length2 : integer;
   length3 : integer;
@@ -1261,6 +1277,12 @@ begin
 
   DisplayStatus("Printing...");
   SetupStartTimer(3,500,TimerOneShot);
+
+  line0 := "Order #: " + t_ordernum;
+  length0 := Len(line0);
+  if length0 < 45 then
+    WriteLn(g_ciPrinter, line0 + Space$(45-length10) + "PO #: " + t_purchase);
+  end if;
 
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
@@ -1308,7 +1330,7 @@ begin
 
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(19) + "*********************************");
+  WriteLn(g_ciPrinter, "**************************" + Space$(19) + "**************************************");
 
   line7 :="PSI: " + IntegerToString(t_psi,0);
   length7 := Len(line7);
@@ -1361,7 +1383,6 @@ begin
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "By signing this ticket buyer has agreed to the Terms and Conditions");
   WriteLn(g_ciPrinter, Space$(5) + "which are located at www.shortloadconcrete.net");
-
 
 end;
 
@@ -1435,6 +1456,7 @@ handler WidgetClicked;
           end if;
         end if;
       end if;
+      
 
     elsif g_iWidget = btnSub1 or g_iWidget = btnSub2 then
       if ts_onsite = Blank or len(ts_onsite) < 10 then
@@ -1450,17 +1472,23 @@ handler WidgetClicked;
       elsif len(ts_zip) < 5 then
         DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
       else
-        EntryMode := ProductSelectMode;
-        if FileExists("/sdimages/next.png", SDCard) = SysOk then
-          SetImageWidgetPath(btnNxt, "/next.png");
-        else
-          SetImageWidgetPath(btnNxt, "local://10.png");
-        end if;
-        SetWidgetVisibility(btnNxt, Voff);
-        ResetProduct;
-        FillProductArray;
-        SelectScreen(g_ciProduct);
+        EntryMode := EnterOrderNumMode;
+        PromptForEntry("Please Enter an Order Number", EnterOrderNumMode, Blank, 1);
+--------------------------------------------------------------------------
+        --EntryMode := ProductSelectMode;
+        --if FileExists("/sdimages/next.png", SDCard) = SysOk then
+          --SetImageWidgetPath(btnNxt, "/next.png");
+        --else
+         -- SetImageWidgetPath(btnNxt, "local://10.png");
+        --end if;
+        --SetWidgetVisibility(btnNxt, Voff);
+        --ResetProduct;
+        --FillProductArray;
+        --SelectScreen(g_ciProduct);
+--------------------------------------------------------------------------- MOVE THIS
       end if;
+      --EntryMode = EnterPurchaseOrderMode;
+      --PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
       SelectProduct;
