@@ -102,6 +102,8 @@ program reverse;
   -- EntryModes for 
   EnterOrderNumMode          : constant integer := 1025;
   EnterPurchaseOrderMode     : constant integer := 1026;
+  EnterPasswordMode          : constant integer := 1027;
+  EnterNewPasswordMode       : constant integer := 1028;
  
  -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
@@ -112,7 +114,12 @@ program reverse;
   Blank : constant string := "";
 
   EntryMode : integer;
-  g_Entrymode : integer;
+  g_Entrymode : integer; -- Used only for prompts
+
+  lastReset : stored string := Blank; --Last reset date variable to display
+
+  backdoor_pass : stored string := "asc1058";
+  sPassword : stored string;
 
   --Temp variables for entry for customer info
   t_phonenum  : string;
@@ -145,6 +152,7 @@ program reverse;
   type boolean is (False,True);
   r1_select : boolean := False;
   r2_select : boolean := False;
+  locked    : boolean := True;
 
   bCalcium : boolean;
   bAnti_hydro : boolean;
@@ -316,6 +324,23 @@ program reverse;
         EntryMode := ShippingMode;
         ts_zip := Blank;
         SelectScreen(g_ciShip);
+      elsif Entrymode = EnterOrderNumMode then
+        EntryMode := ShippingMode;
+        t_ordernum := Blank;
+        SelectScreen(g_ciShip);
+      elsif EntryMode = EnterPurchaseOrderMode then 
+        EntryMode := ShippingMode;
+        t_ordernum := Blank;
+        t_purchase := Blank;
+        SelectScreen(g_ciShip);
+      elsif g_EntryMode = EnterPasswordMode then
+        EntryMode := NoMode;
+        g_sTmpPassword := Blank;
+        SelectScreen(g_ciMain);
+      elsif g_EntryMode = EnterNewPasswordMode then
+        EntryMode := NoMode;
+        g_sTmpPassword := Blank;
+        SelectScreen(g_ciMain);
       else   
         DisplayStatus(Blank); 
         EntryMode := NoMode;  
@@ -491,6 +516,22 @@ program reverse;
     end loop;
   end;
 
+  procedure setupScreen; -- populate the setup screen 
+  i : integer;
+  begin
+    
+    -- setting background bar for screen
+    Setbargraphlevel(9,100); 
+
+    --SetImageWidgetPath(btnSetup, "local://11.png");
+
+    SetLabelText(lbl1, "Total amount of batches " + IntegerToString(g_iBatchAcc, 0));
+    SetLabelText(lbl2, "Total cement used: " + RealToString(g_rCemAccum,0,0) + " lbs.");
+    SetLabelText(lbl3, "Total sand used: " + RealToString(g_rSandAccum,0, 0) + " lbs.");
+    SetLabelText(lblLstR, "Last Reset " + lastReset);
+
+  end;
+
   procedure ProcessDataEntry(sTemp : string);
   begin
     --This is only going to show up for new customer entries
@@ -592,6 +633,25 @@ program reverse;
       SetLabelText(lbl333, sTemp);
       ts_zip := sTemp;
       EntryMode := ShippingMode;
+    
+    elsif g_EntryMode = EnterNewPasswordMode then
+      if sTemp = Blank or sTemp <> backdoor_pass then
+        PromptForEntry("Invalid Password Entry - Retry", EnterNewPasswordMode, Blank, 1); 
+      end if;
+      g_sTmpPassword := sTemp;
+      sPassword := g_sTmpPassword;
+      EntryMode:= SetupMenuMode;
+      setupScreen;
+      SelectScreen(g_ciSetup);
+    
+    elsif g_EntryMode = EnterPasswordMode then
+      if sTemp = Blank or sTemp <> sPassword or sTemp <> backdoor_pass then
+        PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 1); 
+      end if;
+      locked := False;
+      EntryMode:= SetupMenuMode;
+      setupScreen;
+      SelectScreen(g_ciSetup);
 
     elsif EntryMode = EnterOrderNumMode then 
       if sTemp = Blank then 
@@ -1065,22 +1125,6 @@ end;
     ProcessSelection;
   end;
 
-
-  procedure setupScreen; -- populate the setup screen 
-  i : integer;
-  begin
-    
-    -- setting background bar for screen
-    Setbargraphlevel(9,100); 
-
-    --SetImageWidgetPath(btnSetup, "local://11.png");
-
-    SetLabelText(lbl1, "Total amount of batches " + IntegerToString(g_iBatchAcc, 0));
-    SetLabelText(lbl2, "Total cement used: " + RealToString(g_rCemAccum,0,0) + " lbs.");
-    SetLabelText(lbl3, "Total sand used: " + RealToString(g_rSandAccum,0, 0) + " lbs.");
-
-  end;
-
 procedure ProcessingCustomerEntry;
 begin
     CustomersDB.PhoneNum := t_phonenum; -- we are temporarily setting the value of t_phonenum to the database 
@@ -1330,7 +1374,7 @@ begin
 
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(19) + "**************************************");
+  WriteLn(g_ciPrinter, "**************************" + Space$(16) + "**************************************");
 
   line7 :="PSI: " + IntegerToString(t_psi,0);
   length7 := Len(line7);
@@ -1534,9 +1578,11 @@ handler WidgetClicked;
       SelectScreen(g_ciCust);
     
     elsif g_iWidget = btnSetup then
-      EntryMode:= SetupMenuMode;
-      setupScreen;
-      SelectScreen(g_ciSetup);
+      if sPassword = Blank then
+        PromptForEntry("Enter A New Password", EnterNewPasswordMode, Blank,1);
+      else
+        PromptForEntry("Enter Password", EnterPasswordMode, Blank,1);
+      end if;
 
     elsif g_iWidget = btnNxt then
       if FileExists("/sdimages/next.png", SDCard) = SysOk then
@@ -1693,10 +1739,12 @@ handler WidgetClicked;
       ProcessDataEntry("N");
       g_iSelect := 0;      
     
-    elsif g_iWidget = lbSet9H then
+    elsif g_iWidget = btnReset then
       g_iBatchAcc := 0;
       g_rSandAccum := 0;
       g_rCemAccum := 0;
+      lastReset := Date$(SystemTime);
+      setupScreen;
 
     end if;
 
