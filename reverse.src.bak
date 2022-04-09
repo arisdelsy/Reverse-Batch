@@ -118,7 +118,7 @@ program reverse;
 
   lastReset : stored string := Blank; --Last reset date variable to display
 
-  backdoor_pass : stored string := "asc1058";
+  backdoor_pass : constant string := "asc1058";
   sPassword : stored string;
 
   --Temp variables for entry for customer info
@@ -516,6 +516,13 @@ program reverse;
     end loop;
   end;
 
+  procedure ResetProductScreen;
+  begin
+    ResetProduct;
+    ClearProductListArray;
+    FillProductArray;
+  end;
+
   procedure setupScreen; -- populate the setup screen 
   i : integer;
   begin
@@ -635,23 +642,27 @@ program reverse;
       EntryMode := ShippingMode;
     
     elsif g_EntryMode = EnterNewPasswordMode then
-      if sTemp = Blank or sTemp <> backdoor_pass then
-        PromptForEntry("Invalid Password Entry - Retry", EnterNewPasswordMode, Blank, 1); 
+      if sTemp = Blank then
+        PromptForEntry("Invalid Password Entry - Retry", EnterNewPasswordMode, Blank, 3);
+      else
+        g_sTmpPassword := sTemp;
+        sPassword := g_sTmpPassword;
+        EntryMode:= SetupMenuMode;
+        setupScreen;
+        SelectScreen(g_ciSetup); 
       end if;
-      g_sTmpPassword := sTemp;
-      sPassword := g_sTmpPassword;
-      EntryMode:= SetupMenuMode;
-      setupScreen;
-      SelectScreen(g_ciSetup);
+
     
     elsif g_EntryMode = EnterPasswordMode then
-      if sTemp = Blank or sTemp <> sPassword or sTemp <> backdoor_pass then
-        PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 1); 
+      if sTemp = sPassword or sTemp = backdoor_pass then
+        locked := False;
+        EntryMode:= SetupMenuMode;
+        setupScreen;
+        SelectScreen(g_ciSetup);
+      else
+        PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 3); 
       end if;
-      locked := False;
-      EntryMode:= SetupMenuMode;
-      setupScreen;
-      SelectScreen(g_ciSetup);
+
 
     elsif EntryMode = EnterOrderNumMode then 
       if sTemp = Blank then 
@@ -794,6 +805,66 @@ program reverse;
     SetLabelText(lbl333, Blank);
   end;
 
+procedure RunBatch;
+  bar_percentage1 : integer := 0;
+  bar_percentage2 : integer := 0;
+  x : integer;
+  y : integer;
+  sw : integer := 1;
+
+begin
+
+  --Batching concrete
+
+  --Calculation for target weight
+  --GetGross(1,Primary,g_rInitial1);
+  g_rActive1 := g_rInitial1;
+
+  g_rtarget1 := g_rActive1 - t_cement;
+  x := g_rActive1 - g_rtarget1;
+  --while(g_rActive1 > g_rtarget1)
+
+  --Batching sand mix
+  
+  --GetGross(2,Primary,g_rInitial2);
+  g_rActive2 := g_rInitial2;
+
+  g_rtarget2 := g_rActive2 - t_sand;
+  y := g_rActive2 - g_rtarget2;
+
+  while sw = 1
+  loop
+
+    GetGross(1,Primary,g_rActive1);
+    x := g_rActive1 - g_rtarget1;
+    bar_percentage1 := (x/t_cement) * 100;
+    SetBargraphLevel(bar279, bar_percentage1);
+    SetLabelText(tarCem, IntegerToString(x,0));
+
+    GetGross(2,Primary,g_rActive2);
+    y := g_rActive2 - g_rtarget2;
+    bar_percentage2 := (y/t_sand) * 100;
+    SetBargraphLevel(bar280, bar_percentage2);
+    SetLabelText(tarAg, IntegerToString(y,0));
+
+    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
+      sw := 0;
+      --if FileExists("/sdimages/next.png", SDCard) = SysOk then
+        --SetImageWidgetPath(btnNxt9, "/next.png");
+      --else
+        --SetImageWidgetPath(btnNxt9, "local://10.png");
+      --end if;
+      --SetWidgetVisibility(btnNxt9, Von);
+    end if;
+
+  end loop;
+  WaitSS;
+
+  --DisplayStatus("Batch Complete!");
+
+
+end;
+
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion1 : integer; 
     iMotion2 : integer;   
@@ -864,6 +935,11 @@ program reverse;
       elsif EntryMode = BatchReadyMode then
         g_rInitial1 := rGrossWgt1;
         g_rInitial2 := rGrossWgt2;
+        EntryMode := BatchMode;
+        SetWidgetVisibility(btnNxt9, Voff);
+        SelectScreen(g_ciScales);
+        RunBatch;
+
       elsif EntryMode = BatchMode then
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
           SetImageWidgetPath(btnNxt9, "/next.png");
@@ -1144,73 +1220,12 @@ begin
   
 end;
 
-procedure RunBatch;
-  bar_percentage1 : integer := 0;
-  bar_percentage2 : integer := 0;
-  x : integer;
-  y : integer;
-  sw : integer := 1;
-
-begin
-
-  --Batching concrete
-
-  --Calculation for target weight
-  --GetGross(1,Primary,g_rInitial1);
-  g_rActive1 := g_rInitial1;
-
-  g_rtarget1 := g_rActive1 - t_cement;
-  x := g_rActive1 - g_rtarget1;
-  --while(g_rActive1 > g_rtarget1)
-
-  --Batching sand mix
-  
-  --GetGross(2,Primary,g_rInitial2);
-  g_rActive2 := g_rInitial2;
-
-  g_rtarget2 := g_rActive2 - t_sand;
-  y := g_rActive2 - g_rtarget2;
-
-  while sw = 1
-  loop
-
-    GetGross(1,Primary,g_rActive1);
-    x := g_rActive1 - g_rtarget1;
-    bar_percentage1 := (x/t_cement) * 100;
-    SetBargraphLevel(bar279, bar_percentage1);
-    SetLabelText(tarCem, IntegerToString(x,0));
-
-    GetGross(2,Primary,g_rActive2);
-    y := g_rActive2 - g_rtarget2;
-    bar_percentage2 := (y/t_sand) * 100;
-    SetBargraphLevel(bar280, bar_percentage2);
-    SetLabelText(tarAg, IntegerToString(y,0));
-
-    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
-      sw := 0;
-      --if FileExists("/sdimages/next.png", SDCard) = SysOk then
-        --SetImageWidgetPath(btnNxt9, "/next.png");
-      --else
-        --SetImageWidgetPath(btnNxt9, "local://10.png");
-      --end if;
-      --SetWidgetVisibility(btnNxt9, Von);
-    end if;
-
-  end loop;
-  WaitSS;
-
-  --DisplayStatus("Batch Complete!");
-
-
-end;
-
 procedure CheckBatch;
 begin
 
   GetGross(1,Primary,g_rInitial1);
   GetGross(2,Primary,g_rInitial2);
-  WaitSS;
-
+  
   if g_rInitial1 < t_cement then
     Displaystatus("ERROR! NOT ENOUGH MATERIAL ON SCALE 1!");
     SetLabelText(lbStat, "Please put " + RealToString(t_cement, 0, 0) + " on cement scale!");
@@ -1220,10 +1235,11 @@ begin
     SetLabelText(lbStat, "Please put " + RealToString(t_sand, 0, 0) + " on aggregate scale!");
     SetWidgetVisibility(lbStat, Von);
   else
-    EntryMode := BatchMode;
-    SetWidgetVisibility(btnNxt9, Voff);
-    SelectScreen(g_ciScales);
-    RunBatch;
+    WaitSS;
+    --EntryMode := BatchMode;
+    --SetWidgetVisibility(btnNxt9, Voff);
+    --SelectScreen(g_ciScales);
+    --RunBatch;
   end if;
     
 end;
@@ -1294,7 +1310,7 @@ begin
 end;
 
 procedure TicketOutput;
-  dTime : datetime := SystemTime;
+  --dTime : datetime := SystemTime;
   line0 : string;
   line1 : string;
   line2 : string;
@@ -1324,8 +1340,8 @@ begin
 
   line0 := "Order #: " + t_ordernum;
   length0 := Len(line0);
-  if length0 < 45 then
-    WriteLn(g_ciPrinter, line0 + Space$(45-length10) + "PO #: " + t_purchase);
+  if length0 < 55 then
+    WriteLn(g_ciPrinter, line0 + Space$(55-length0) + "PO #: " + t_purchase);
   end if;
 
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
@@ -1373,8 +1389,8 @@ begin
     
 
   WriteLn(g_ciPrinter, Blank);
-  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(36) + "ADD ONS");
-  WriteLn(g_ciPrinter, "**************************" + Space$(16) + "**************************************");
+  WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(35) + "ADD ONS");
+  WriteLn(g_ciPrinter, "**************************" + Space$(14) + "***********************************");
 
   line7 :="PSI: " + IntegerToString(t_psi,0);
   length7 := Len(line7);
@@ -1416,11 +1432,7 @@ begin
     WriteLn(g_ciPrinter, line10);
   end if;   
 
-  
-  
-
   WriteLn(g_ciPrinter, "Water: " + RealToString(t_wat_gal, 5, 0) + " gal.");
-  WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, Blank);
   WriteLn(g_ciPrinter, "Auth. Signature ______________________________________");
@@ -1541,13 +1553,18 @@ handler WidgetClicked;
     elsif g_iWidget = btnExt2 then
       if EntryMode = CustomerSelectMode then
         EntryMode := NoMode;
+        g_iSelect := 0;
         SelectScreen(g_ciMain);
       end if;
 
     elsif g_iWidget = btnExt4 then
-      EntryMode := NoMode;
+      EntryMode := CustomerSelectMode;
       ClearProductTemp;
-      SelectScreen(g_ciMain);
+      ClearShipTemp;
+      ClearShippingScreen;
+      DisplayCustomersDB;
+      g_iSelect := 0;
+      SelectScreen(g_ciCust);
  
     elsif g_iWidget = btnPrint then  
       TicketOutput;
@@ -1559,12 +1576,15 @@ handler WidgetClicked;
       ClearBillingScreen;
       ClearShippingScreen;
       EntryMode := NoMode;
+      g_iSelect := 0;
       SelectScreen(g_ciMain);
     
-    elsif g_iWidget = btnExt12 then
+    elsif g_iWidget = btnExt8 then
       EntryMode := CustomerSelectMode;
       ClearCustomerTemp;
       ClearBillingScreen;
+      DisplayCustomersDB;
+      g_iSelect := 0;
       SelectScreen(g_ciCust);
 
     elsif g_iWidget = btnExt10 then
@@ -1575,13 +1595,15 @@ handler WidgetClicked;
       EntryMode := CustomerSelectMode;
       ClearShipTemp;
       ClearShippingScreen;
+      g_iSelect := 0;
+      DisplayCustomersDB;
       SelectScreen(g_ciCust);
     
     elsif g_iWidget = btnSetup then
       if sPassword = Blank then
-        PromptForEntry("Enter A New Password", EnterNewPasswordMode, Blank,1);
+        PromptForEntry("Enter A New Password", EnterNewPasswordMode, Blank,3);
       else
-        PromptForEntry("Enter Password", EnterPasswordMode, Blank,1);
+        PromptForEntry("Enter Password", EnterPasswordMode, Blank,3);
       end if;
 
     elsif g_iWidget = btnNxt then
@@ -1592,9 +1614,11 @@ handler WidgetClicked;
       end if;
       GetProductSelection;
       LoadProduct; 
-      EntryMode := AddOnsMode;
-      SelectScreen(g_ciAddOns); 
-      DefaultsForAddOns;
+      if g_iProductRow <> 0 then
+        EntryMode := AddOnsMode;
+        SelectScreen(g_ciAddOns); 
+        DefaultsForAddOns;
+      end if;
       
       -- (Note: we dont want to create lockup: which is like gridlock)
     
@@ -1615,8 +1639,9 @@ handler WidgetClicked;
       SelectScreen(g_ciBatch);
 
     elsif g_iWidget = btnExt13 then
-      EntryMode := NoMode;
-      SelectScreen(g_ciMain);
+      EntryMode := ProductSelectMode;
+      ResetProductScreen;
+      SelectScreen(g_ciProduct);
 
     elsif g_iWidget = lbl127 then
       if  bCalcium = False then
@@ -1760,6 +1785,3 @@ begin
   Ready;       
 
 end reverse; 
-
---setpoints are a value that are user defined, active if enabled or Disabled
---we only want is enabled if we are running a batch and disabled otherwise 
