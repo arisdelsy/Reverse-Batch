@@ -18,8 +18,6 @@ program reverse;
   --g_ciTest    : constant integer := 99;
 
   -- Global/Types variables definitions 
-  g_sSetupPassword : stored string;
-  g_iDownload : stored integer;
   g_sTmpPassword : string;  
   g_rCountby : real;    
   --g_ibUpdate : boolean;
@@ -34,8 +32,6 @@ program reverse;
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
   g_ciMaxPerScreen :integer;
-  --g_iWaitSSScale : integer;
-  g_iUpdate : integer;
   g_iPage : integer;
   r1current_select : integer;   
   r2current_select : integer; 
@@ -43,21 +39,25 @@ program reverse;
   --Variables for storing inital weight of scales as well as target weights
   g_rInitial1 : real;
   g_rInitial2 : real;
+  -- Variables for storing the targets from the database
   g_rtarget1  : real;
   g_rtarget2  : real;
+  --Variables for storing the active scale weights to run the batch process
   g_rActive1 : real;
   g_rActive2 : real;
-  --
-  g_initial1 : real;
-  g_initial2 : real;
+  -- Final weight values used to calculate how much material was batched onto the ticket
   g_rEnd1 : real;
   g_rEnd2 : real;
+  --Actual ammount of material batched are in these variables
   g_rcembatch : real;
   g_rsandbatch : real;
+
+  --------------- Accumulator values ----------------
   g_rCemAccum : stored real := 0;
   g_rSandAccum : stored real := 0;
   g_iBatchAcc : stored integer := 0;
-  -- 
+  ---------------------------------------------------
+
   -- Printer port
   g_ciPrinter : constant integer := 1;
 
@@ -113,11 +113,16 @@ program reverse;
 
   Blank : constant string := "";
 
+  -- Entry Mode variable to have the current entry mode
   EntryMode : integer;
-  g_Entrymode : integer; -- Used only for prompts
+
+  ------------- Used only for prompts ------------------
+  g_Entrymode : integer; 
+  ------------------------------------------------------
 
   lastReset : stored string := Blank; --Last reset date variable to display
 
+  -- Backdoor password and user password
   backdoor_pass : constant string := "asc1058";
   sPassword : stored string;
 
@@ -130,6 +135,7 @@ program reverse;
   t_zip       : string;
   t_ordernum  : string;
 
+  -- Temp variables to store the shipping information to be printed to the ticket
   ts_onsite   : string;
   ts_customer : string;
   ts_street   : string;
@@ -149,17 +155,21 @@ program reverse;
   t_antihydr  : real;
   t_retard    : real;
 
-  type boolean is (False,True);
+  type boolean is (False,True); -- Boolean type declaration
+
+-- Booleans to show that rows 1/2 are selected in the product selection screen (SEE THE SelectProduct PROCEDURE)
   r1_select : boolean := False;
   r2_select : boolean := False;
-  locked    : boolean := True;
 
+  locked    : boolean := True; -- Boolean to show if the setup screen is locked or unlocked to prompt for the password
+
+-- Boolean values for selecting the add ons to be displayed onto the ticket for the batch
   bCalcium : boolean;
   bAnti_hydro : boolean;
   bAir_ent : boolean;
   bRetarder : boolean;
 
-  type DisplayRecord is
+  type DisplayRecord is -- Array used to hold and display customer billing information for the selection screen
     record 
       sPhoneNum : string; 
       sName     : string;
@@ -169,7 +179,7 @@ program reverse;
       sZip      : string;
     end record;     
 
-  type ProductRecord is
+  type ProductRecord is -- Array used to store the product information from the database
     record
       sPSI     : integer;
       sQTY_CONC: real;
@@ -467,7 +477,7 @@ program reverse;
          
   end;
 
-  procedure FillProductArray;
+  procedure FillProductArray; -- fills the product array with information from the database
   i : integer;
   begin
   
@@ -507,7 +517,7 @@ program reverse;
     
   end;
 
-  procedure ResetProduct;
+  procedure ResetProduct; --Reset the selection screen of the prodct
   i : integer;
   begin
     for i := minL4 to maxL4
@@ -516,7 +526,7 @@ program reverse;
     end loop;
   end;
 
-  procedure ResetProductScreen;
+  procedure ResetProductScreen; -- Calls different procedures to reset the product screen with one procedure call
   begin
     ResetProduct;
     ClearProductListArray;
@@ -539,7 +549,7 @@ program reverse;
 
   end;
 
-  procedure ProcessDataEntry(sTemp : string);
+  procedure ProcessDataEntry(sTemp : string); --Processes different data entries based on the entry mode the program is in
   begin
     --This is only going to show up for new customer entries
     if g_Entrymode = EnterPhoneMode then 
@@ -817,16 +827,12 @@ begin
   --Batching concrete
 
   --Calculation for target weight
-  --GetGross(1,Primary,g_rInitial1);
   g_rActive1 := g_rInitial1;
 
   g_rtarget1 := g_rActive1 - t_cement;
   x := g_rActive1 - g_rtarget1;
-  --while(g_rActive1 > g_rtarget1)
 
   --Batching sand mix
-  
-  --GetGross(2,Primary,g_rInitial2);
   g_rActive2 := g_rInitial2;
 
   g_rtarget2 := g_rActive2 - t_sand;
@@ -849,19 +855,10 @@ begin
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       sw := 0;
-      --if FileExists("/sdimages/next.png", SDCard) = SysOk then
-        --SetImageWidgetPath(btnNxt9, "/next.png");
-      --else
-        --SetImageWidgetPath(btnNxt9, "local://10.png");
-      --end if;
-      --SetWidgetVisibility(btnNxt9, Von);
     end if;
 
   end loop;
   WaitSS;
-
-  --DisplayStatus("Batch Complete!");
-
 
 end;
 
@@ -923,10 +920,8 @@ end;
         g_sysResult := TransDB.Add;
         
         if g_sysResult = SysOk then      
-          
-          --EntryMode := NoMode;
+
           DisplayStatus(RealToString(rGrossWgt1, 0, 2));
-          --SelectScreen(g_ciMain);
 
         else 
           DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
@@ -1236,10 +1231,6 @@ begin
     SetWidgetVisibility(lbStat, Von);
   else
     WaitSS;
-    --EntryMode := BatchMode;
-    --SetWidgetVisibility(btnNxt9, Voff);
-    --SelectScreen(g_ciScales);
-    --RunBatch;
   end if;
     
 end;
@@ -1262,28 +1253,25 @@ end;
 procedure Ready;  -- Initialization procedure
 begin
 
-  --UnLockMajorKeys;
   if FileExists("/sdimages/ASC.png", SDCard) = SysOk then  
     SetImageWidgetPath(img4, "/ASC.png");
     SetWidgetVisibility(img4, Von);
   else
     SetWidgetVisibility(img4, VOff);
   end if;
+  
   LockKey(NavUpKey);
   LockKey(NavDownKey);
   setupScreen;
-  --SetLabelText(lbSts1, Blank);     
+   
   if GetUnits(1, g_uUnits) = SysOk then
     if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
       g_iDecimal1 := CalcDecimal(g_rCountby); 
     end if;
-  end if;    
+  end if; 
+
   r1_select := False;
   r2_select := False;
-  
-
-  --RefreshMainDisplay;
-  --SetWidgetVisibility(btnRPrnt, Voff);
   EntryMode := NoMode;
   SelectScreen(g_ciMain); 
   
@@ -1530,25 +1518,10 @@ handler WidgetClicked;
       else
         EntryMode := EnterOrderNumMode;
         PromptForEntry("Please Enter an Order Number", EnterOrderNumMode, Blank, 1);
---------------------------------------------------------------------------
-        --EntryMode := ProductSelectMode;
-        --if FileExists("/sdimages/next.png", SDCard) = SysOk then
-          --SetImageWidgetPath(btnNxt, "/next.png");
-        --else
-         -- SetImageWidgetPath(btnNxt, "local://10.png");
-        --end if;
-        --SetWidgetVisibility(btnNxt, Voff);
-        --ResetProduct;
-        --FillProductArray;
-        --SelectScreen(g_ciProduct);
---------------------------------------------------------------------------- MOVE THIS
       end if;
-      --EntryMode = EnterPurchaseOrderMode;
-      --PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
       SelectProduct;
-      --SetupStartTimer(1,100,TimerOneShot);
 
     elsif g_iWidget = btnExt2 then
       if EntryMode = CustomerSelectMode then
@@ -1572,7 +1545,7 @@ handler WidgetClicked;
     elsif g_iWidget = btnDone then
       ClearCustomerTemp;
       ClearProductTemp;
-      ClearShipTemp; --Added 
+      ClearShipTemp;
       ClearBillingScreen;
       ClearShippingScreen;
       EntryMode := NoMode;
@@ -1750,7 +1723,6 @@ handler WidgetClicked;
 
     elsif g_iWidget = btnExt13 then
       EntryMode := NoMode;
-      --DefaultsForAddOns;
       SelectScreen(g_ciMain);
 
     elsif g_iWidget = btnDelet then
@@ -1779,8 +1751,6 @@ handler WidgetClicked;
 
 begin
 
-  --DisableSetPoints; 
-  --DisplayVersion; 
   setmenubarcolor("Black");
   Ready;       
 
