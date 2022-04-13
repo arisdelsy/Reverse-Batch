@@ -56,6 +56,7 @@ program reverse;
   g_rCemAccum : stored real := 0;
   g_rSandAccum : stored real := 0;
   g_iBatchAcc : stored integer := 0;
+  g_iTicketNum  : stored integer := 0;
   ---------------------------------------------------
 
   -- Printer port
@@ -931,6 +932,7 @@ end;
         g_rCemAccum := g_rCemAccum + g_rcembatch;
         g_rSandAccum := g_rSandAccum + g_rsandbatch;
         g_iBatchAcc := g_iBatchAcc + 1;
+        g_iTicketNum := g_iTicketNum + 1;
         SetWidgetVisibility(btnNxt9, Von); 
         DisplayStatus("Batch Complete!");
         EntryMode := NoMode;
@@ -1309,7 +1311,7 @@ begin
   DisplayStatus("Printing...");
   SetupStartTimer(3,500,TimerOneShot);
 
-  line0 := "Order #: " + ; --ENTER HERE
+  line0 := "Order #: " + IntegerToString(g_iTicketNum, 0);
   length0 := Len(line0);
   if length0 < 55 then
     WriteLn(g_ciPrinter, line0 + Space$(55-length0) + "PO #: " + t_purchase);
