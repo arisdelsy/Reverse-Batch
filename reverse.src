@@ -100,7 +100,6 @@ program reverse;
   EnterShipZipCodeMode       : constant integer := 1021;
 
   -- EntryModes for 
-  EnterOrderNumMode          : constant integer := 1025;
   EnterPurchaseOrderMode     : constant integer := 1026;
   EnterPasswordMode          : constant integer := 1027;
   EnterNewPasswordMode       : constant integer := 1028;
@@ -133,7 +132,6 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : string;
-  t_ordernum  : string;
 
   -- Temp variables to store the shipping information to be printed to the ticket
   ts_onsite   : string;
@@ -334,13 +332,8 @@ program reverse;
         EntryMode := ShippingMode;
         ts_zip := Blank;
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterOrderNumMode then
-        EntryMode := ShippingMode;
-        t_ordernum := Blank;
-        SelectScreen(g_ciShip);
       elsif EntryMode = EnterPurchaseOrderMode then 
         EntryMode := ShippingMode;
-        t_ordernum := Blank;
         t_purchase := Blank;
         SelectScreen(g_ciShip);
       elsif g_EntryMode = EnterPasswordMode then
@@ -673,15 +666,6 @@ program reverse;
         PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 3); 
       end if;
 
-
-    elsif EntryMode = EnterOrderNumMode then 
-      if sTemp = Blank then 
-        PromptForEntry("Invalid: To Continue Enter Order Number", EnterOrderNumMode, Blank, 1);
-      end if;
-      t_ordernum := sTemp;
-      EntryMode := EnterPurchaseOrderMode;
-      PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
-
     elsif EntryMode = EnterPurchaseOrderMode then 
       if sTemp = Blank then 
         PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
@@ -758,7 +742,6 @@ program reverse;
     ts_town     := Blank;
     ts_state    := Blank;
     ts_zip      := Blank;
-    t_ordernum  := Blank;
     t_purchase  := Blank;  
 
   end;
@@ -1326,7 +1309,7 @@ begin
   DisplayStatus("Printing...");
   SetupStartTimer(3,500,TimerOneShot);
 
-  line0 := "Order #: " + t_ordernum;
+  line0 := "Order #: " + ; --ENTER HERE
   length0 := Len(line0);
   if length0 < 55 then
     WriteLn(g_ciPrinter, line0 + Space$(55-length0) + "PO #: " + t_purchase);
@@ -1516,8 +1499,8 @@ handler WidgetClicked;
       elsif len(ts_zip) < 5 then
         DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
       else
-        EntryMode := EnterOrderNumMode;
-        PromptForEntry("Please Enter an Order Number", EnterOrderNumMode, Blank, 1);
+        EntryMode := EnterPurchaseOrderMode;
+        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
 
     elsif g_iWidget >= 108 and g_iWidget <= 116 then
