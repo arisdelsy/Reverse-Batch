@@ -90,8 +90,6 @@ Port1     : constant integer := 1;
 Port2     : constant integer := 2;
 Port3     : constant integer := 3;
 Port4     : constant integer := 4;
-Port5     : constant integer := 5;
-Port6     : constant integer := 6;
 
 -- Ethernet Communication Aliases
 TCPS      : constant string := "TCPS";
@@ -111,6 +109,7 @@ lbl2      : constant integer := 2;
 lbl3      : constant integer := 3;
 img4      : constant integer := 4;
 lblLstR   : constant integer := 5;
+btnExt9   : constant integer := 6;
 bar9      : constant integer := 9;
 btnReset  : constant integer := 33;
 lbl50     : constant integer := 50;

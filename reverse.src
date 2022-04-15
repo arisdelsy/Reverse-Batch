@@ -1727,6 +1727,16 @@ handler WidgetClicked;
       g_rCemAccum := 0;
       lastReset := Date$(SystemTime);
       setupScreen;
+    
+    elsif g_iWidget = btnExt9 then
+      ClearBillingScreen;
+      ClearCustomerTemp;
+      ClearProductTemp;
+      ClearShippingScreen;
+      ClearShipTemp;
+      EntryMode := NoMode;
+      SelectScreen(g_ciMain);
+
 
     end if;
 
