@@ -160,6 +160,10 @@ program reverse;
   r1_select : boolean := False;
   r2_select : boolean := False;
 
+-- Boolean to show that the batch is either running or canceled
+  b_runBatch : boolean;
+  b_canBatch : boolean;
+
   locked    : boolean := True; -- Boolean to show if the setup screen is locked or unlocked to prompt for the password
 
 -- Boolean values for selecting the add ons to be displayed onto the ticket for the batch
@@ -804,10 +808,11 @@ procedure RunBatch;
   bar_percentage2 : integer := 0;
   x : integer;
   y : integer;
-  sw : integer := 1;
 
 begin
 
+  b_runBatch := True;
+  b_canBatch := False;
   --Batching concrete
 
   --Calculation for target weight
@@ -822,7 +827,7 @@ begin
   g_rtarget2 := g_rActive2 - t_sand;
   y := g_rActive2 - g_rtarget2;
 
-  while sw = 1
+  while b_runBatch = True
   loop
 
     GetGross(1,Primary,g_rActive1);
@@ -838,11 +843,21 @@ begin
     SetLabelText(tarAg, IntegerToString(y,0));
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
-      sw := 0;
+      b_runBatch := False;
     end if;
 
   end loop;
-  WaitSS;
+
+  if b_canBatch = False then
+    WaitSS;
+  else
+    ClearCustomerTemp;
+    ClearProductTemp;
+    ClearShippingScreen;
+    ClearShipTemp;
+    EntryMode := NoMode;
+    SelectScreen(g_ciMain);
+  end if;
 
 end;
 
@@ -1280,6 +1295,18 @@ begin
   Setwidgetcolor(lbl133, "#BB0000");
   Setwidgetcolor(lbl142, "#BB0000");
 
+end;
+
+procedure CancelBatch;
+begin
+  b_canBatch := True;
+  b_runBatch := False;
+--  ClearCustomerTemp;
+--  ClearProductTemp;
+--  ClearShippingScreen;
+--  ClearShipTemp;
+--  EntryMode := NoMode;
+--  SelectScreen(g_ciMain);
 end;
 
 procedure TicketOutput;
@@ -1729,13 +1756,7 @@ handler WidgetClicked;
       setupScreen;
     
     elsif g_iWidget = btnExt9 then
-      ClearBillingScreen;
-      ClearCustomerTemp;
-      ClearProductTemp;
-      ClearShippingScreen;
-      ClearShipTemp;
-      EntryMode := NoMode;
-      SelectScreen(g_ciMain);
+      CancelBatch;
 
 
     end if;

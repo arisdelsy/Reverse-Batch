@@ -4,7 +4,7 @@
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="120 11 21 250 58 135 45 218 174 126 26 201 113 35 162 190 232 241 199 216 " />
+  <ConfigHash value="223 178 170 117 71 190 41 195 70 70 195 179 118 118 136 214 243 81 182 141 " />
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=120000
@@ -13503,6 +13503,8 @@ WDGT#333=4,181,315,335,45,,2,1,18,Black,lbl333,2,0,0,1,3
 WDGT#334=7,703,0,100,100,1,1,0,local://9.png,3,btnExt3
 WDGT#335=4,181,84,335,45,,2,1,18,Black,lbl335,2,0,0,1,3
 WDGT#336=4,33,84,135,45,Customer,1,1,18,Black,lbl336,4,0,0,1,3
+WDGT#7=4,85,101,217,31,Cement,1,3,20,Black,lbl7,4,0,0,1,14
+WDGT#8=4,500,101,217,31,Aggregate,1,3,20,Black,lbl8,4,0,0,1,14
 AUTOBKLGHT=OFF
 BKLGHT=LOW
 GFMT=GROSS&lt;G&gt;&lt;NL2&gt;&lt;TD&gt;&lt;NL&gt;
