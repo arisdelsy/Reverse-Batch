@@ -160,11 +160,9 @@ program reverse;
   r1_select : boolean := False;
   r2_select : boolean := False;
 
--- Boolean to show that the batch is either running or canceled
-  b_runBatch : boolean;
-  b_canBatch : boolean;
-
+-------------------------------------------------------
   locked    : boolean := True; -- Boolean to show if the setup screen is locked or unlocked to prompt for the password
+-------------------------------------------------------
 
 -- Boolean values for selecting the add ons to be displayed onto the ticket for the batch
   bCalcium : boolean;
@@ -808,11 +806,9 @@ procedure RunBatch;
   bar_percentage2 : integer := 0;
   x : integer;
   y : integer;
-
+  sw : integer := 1;
 begin
 
-  b_runBatch := True;
-  b_canBatch := False;
   --Batching concrete
 
   --Calculation for target weight
@@ -827,9 +823,9 @@ begin
   g_rtarget2 := g_rActive2 - t_sand;
   y := g_rActive2 - g_rtarget2;
 
-  while b_runBatch = True
+  while sw = 1
   loop
-
+  
     GetGross(1,Primary,g_rActive1);
     x := g_rActive1 - g_rtarget1;
     bar_percentage1 := (x/t_cement) * 100;
@@ -843,21 +839,13 @@ begin
     SetLabelText(tarAg, IntegerToString(y,0));
 
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
-      b_runBatch := False;
+      sw := 0;
     end if;
 
   end loop;
 
-  if b_canBatch = False then
     WaitSS;
-  else
-    ClearCustomerTemp;
-    ClearProductTemp;
-    ClearShippingScreen;
-    ClearShipTemp;
-    EntryMode := NoMode;
-    SelectScreen(g_ciMain);
-  end if;
+
 
 end;
 
@@ -1299,14 +1287,12 @@ end;
 
 procedure CancelBatch;
 begin
-  b_canBatch := True;
-  b_runBatch := False;
---  ClearCustomerTemp;
---  ClearProductTemp;
---  ClearShippingScreen;
---  ClearShipTemp;
---  EntryMode := NoMode;
---  SelectScreen(g_ciMain);
+  ClearCustomerTemp;
+  ClearProductTemp;
+  ClearShippingScreen;
+  ClearShipTemp;
+  EntryMode := NoMode;
+  SelectScreen(g_ciMain);
 end;
 
 procedure TicketOutput;
