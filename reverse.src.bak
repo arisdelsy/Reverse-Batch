@@ -291,67 +291,67 @@ program reverse;
     
       ClosePrompt;  
 
-      if Entrymode = EnterPhoneMode then 
+      if g_Entrymode = EnterPhoneMode then 
         EntryMode := CustomerProcessMode;
         t_phonenum := Blank;
         SetLabelText(lbl224, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterNameMode then 
+      elsif g_Entrymode = EnterNameMode then 
         EntryMode := CustomerProcessMode;
         t_customer := Blank;
         SetLabelText(lbl225, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterStreetMode then 
+      elsif g_Entrymode = EnterStreetMode then 
         EntryMode := CustomerProcessMode;
         t_street := Blank;
         SetLabelText(lbl226, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterTownMode then 
+      elsif g_Entrymode = EnterTownMode then 
         EntryMode := CustomerProcessMode;
         t_town := Blank;
         SetLabelText(lbl227, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterStateMode then 
+      elsif g_Entrymode = EnterStateMode then 
         EntryMode := CustomerProcessMode;
         t_state := Blank;
         SetLabelText(lbl228, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterZipCodeMode then 
+      elsif g_Entrymode = EnterZipCodeMode then 
         EntryMode := CustomerProcessMode;
         t_zip := Blank;
         SetLabelText(lbl229, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterOnsiteTelMode then 
+      elsif g_Entrymode = EnterOnsiteTelMode then 
         EntryMode := ShippingMode;
         ts_onsite := Blank;
         SetLabelText(lbl328, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipCustomerMode then 
+      elsif g_Entrymode = EnterShipCustomerMode then 
         EntryMode := ShippingMode;
         ts_customer := Blank;
         SetLabelText(lbl335, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipStreetMode then 
+      elsif g_Entrymode = EnterShipStreetMode then 
         EntryMode := ShippingMode;
         ts_street := Blank;
         SetLabelText(lbl330, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipTownMode then 
+      elsif g_Entrymode = EnterShipTownMode then 
         EntryMode := ShippingMode;
         ts_town := Blank;
         SetLabelText(lbl331, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipStateMode then 
+      elsif g_Entrymode = EnterShipStateMode then 
         EntryMode := ShippingMode;
         ts_state := Blank;
         SetLabelText(lbl332, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipZipCodeMode then 
+      elsif g_Entrymode = EnterShipZipCodeMode then 
         EntryMode := ShippingMode;
         ts_zip := Blank;
         SetLabelText(lbl333, Blank);
         SelectScreen(g_ciShip);
-      elsif EntryMode = EnterPurchaseOrderMode then 
+      elsif g_Entrymode = EnterPurchaseOrderMode then 
         EntryMode := ShippingMode;
         t_purchase := Blank;
         SelectScreen(g_ciShip);
