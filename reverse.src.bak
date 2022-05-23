@@ -1347,9 +1347,13 @@ begin
   end if;
 
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
-  WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
-  WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  --WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
+  WriteLn(g_ciPrinter, Space$(25) + "SHORT LOAD CONCRETE");
+  --WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
+  WriteLn(g_ciPrinter, Space$(31) + "53 Warfield St");
+  --WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  WriteLn(g_ciPrinter, Space$(30) + "Milford, CT, 06461");
+  WriteLn(g_ciPrinter, Space$(32) + "(866)746-7853");
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
