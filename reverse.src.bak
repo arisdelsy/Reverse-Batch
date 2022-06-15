@@ -82,6 +82,7 @@ program reverse;
   ShippingMode        : constant integer := 1022;
   YNClearOneMode      : constant integer := 1023;
   BatchReadyMode      : constant integer := 1024;
+  YNShippingAddress   : constant integer := 1025;
 
 
 -- Entry Modes for customer entry
@@ -107,7 +108,7 @@ program reverse;
  
  -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
-	g_ciMaxProducts						: constant integer := 20;	
+	g_ciMaxProducts						: constant integer := 24;	
 
   g_ciMaxPerSelectScreen    : constant integer := 8;
 
@@ -264,7 +265,7 @@ program reverse;
 
   end;      
 
-  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for entry
   begin
     
     DisableHandler(NumericKeyPressed);
@@ -673,7 +674,6 @@ program reverse;
         setupScreen;
         SelectScreen(g_ciSetup); 
       end if;
-
     
     elsif g_EntryMode = EnterPasswordMode then
       if sTemp = sPassword or sTemp = backdoor_pass then
@@ -720,6 +720,19 @@ program reverse;
         DisplayStatus("Loading Customers...");
         DisplayCustomersDB;     
         DisplayStatus("Selection NOT Cleared");      
+      end if;
+    elsif EntryMode = YNShippingAddress then
+      if stemp = "Y" then
+        ts_onsite := t_phonenum;
+        ts_customer := t_customer;
+        ts_street := t_street;
+        ts_town := t_town;
+        ts_state := t_state;
+        ts_zip := t_zip;
+        SelectScreen(g_ciProduct);
+      else
+        EntryMode := ShippingMode;
+        SelectScreen(g_ciShip);
       end if;
     end if;
   end;
@@ -1013,13 +1026,13 @@ end;
   procedure SelectProduct;
     i : integer;
   begin
-  --r1 = BTN 108-111
-  --r2 = BTN 112-116
+  --r1 = BTN 108-113
+  --r2 = BTN 114-117
 
     g_iProductRow := 0;
 
    --R1
-    if g_iWidget >= 108 and g_iWidget <= 111 then 
+    if g_iWidget >= 108 and g_iWidget <= 113 then 
       if r1_select = True and r1current_select = g_iWidget then 
         r1_select := False;
         SetWidgetColor(r1current_select, "Black");
@@ -1037,7 +1050,7 @@ end;
 
 
     --R2
-    if g_iWidget >= 112 and g_iWidget <= 116 then 
+    if g_iWidget >= 114 and g_iWidget <= 117 then 
       if r2_select = true and r2current_select = g_iWidget then 
         r2_select := False;
         SetWidgetColor(r2current_select, "Black");
@@ -1063,46 +1076,54 @@ end;
 
   procedure GetProductSelection;
   begin
-    if r1current_select = 108 and r2current_select = 112 then
+    if r1current_select = 108 and r2current_select = 114 then --1 2500
       g_iProductRow := 1;
-    elsif r1current_select = 108 and r2current_select = 113 then
+    elsif r1current_select = 108 and r2current_select = 115 then --2
       g_iProductRow := 2;
-    elsif r1current_select = 108 and r2current_select = 114 then
+    elsif r1current_select = 108 and r2current_select = 116 then --3
       g_iProductRow := 3;
-    elsif r1current_select = 108 and r2current_select = 115 then
+    elsif r1current_select = 108 and r2current_select = 117 then --4
       g_iProductRow := 4;
-    elsif r1current_select = 108 and r2current_select = 116 then
+    elsif r1current_select = 109 and r2current_select = 114 then --1 3000
       g_iProductRow := 5;
-    elsif r1current_select = 109 and r2current_select = 112 then
+    elsif r1current_select = 109 and r2current_select = 115 then --2
       g_iProductRow := 6;
-    elsif r1current_select = 109 and r2current_select = 113 then
+    elsif r1current_select = 109 and r2current_select = 116 then --3
       g_iProductRow := 7;
-    elsif r1current_select = 109 and r2current_select = 114 then
+    elsif r1current_select = 109 and r2current_select = 117 then --4
       g_iProductRow := 8;
-    elsif r1current_select = 109 and r2current_select = 115 then
+    elsif r1current_select = 110 and r2current_select = 114 then --1 3500
       g_iProductRow := 9;
-    elsif r1current_select = 109 and r2current_select = 116 then
+    elsif r1current_select = 110 and r2current_select = 115 then --2
       g_iProductRow := 10;
-    elsif r1current_select = 110 and r2current_select = 112 then
+    elsif r1current_select = 110 and r2current_select = 116 then --3
       g_iProductRow := 11;
-    elsif r1current_select = 110 and r2current_select = 113 then
+    elsif r1current_select = 110 and r2current_select = 117 then --4
       g_iProductRow := 12;
-    elsif r1current_select = 110 and r2current_select = 114 then
+    elsif r1current_select = 111 and r2current_select = 114 then --1 4000
       g_iProductRow := 13;
-    elsif r1current_select = 110 and r2current_select = 115 then
+    elsif r1current_select = 111 and r2current_select = 115 then --2
       g_iProductRow := 14;
-    elsif r1current_select = 110 and r2current_select = 116 then
+    elsif r1current_select = 111 and r2current_select = 116 then --3
       g_iProductRow := 15;
-    elsif r1current_select = 111 and r2current_select = 112 then
+    elsif r1current_select = 111 and r2current_select = 117 then --4
       g_iProductRow := 16;
-    elsif r1current_select = 111 and r2current_select = 113 then
+    elsif r1current_select = 112 and r2current_select = 114 then --1 5000
       g_iProductRow := 17;
-    elsif r1current_select = 111 and r2current_select = 114 then
+    elsif r1current_select = 112 and r2current_select = 115 then --2
       g_iProductRow := 18;
-    elsif r1current_select = 111 and r2current_select = 115 then
+    elsif r1current_select = 112 and r2current_select = 116 then --3
       g_iProductRow := 19;
-    elsif r1current_select = 111 and r2current_select = 116 then
+    elsif r1current_select = 112 and r2current_select = 117 then --4
       g_iProductRow := 20;
+    elsif r1current_select = 113 and r2current_select = 114 then --1 Free Flow
+      g_iProductRow := 21;
+    elsif r1current_select = 113 and r2current_select = 115 then --2
+      g_iProductRow := 22;
+    elsif r1current_select = 113 and r2current_select = 116 then --3
+      g_iProductRow := 23;
+    elsif r1current_select = 113 and r2current_select = 117 then --4
+      g_iProductRow := 24;
     else
       DisplayStatus("System Malfunction!");
       g_iProductRow := 0;
@@ -1216,7 +1237,6 @@ begin
       Delete25Percent;
       CustomersDB.Add;
     end if;
-  
 end;
 
 procedure CheckBatch;
@@ -1353,7 +1373,7 @@ begin
   WriteLn(g_ciPrinter, Space$(31) + "53 Warfield St");
   --WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
   WriteLn(g_ciPrinter, Space$(30) + "Milford, CT, 06461");
-  WriteLn(g_ciPrinter, Space$(32) + "(866)746-7853");
+  WriteLn(g_ciPrinter, Space$(32) + "(866)746-7853"); --Delete this line for the Calvaliere Site
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
@@ -1398,7 +1418,11 @@ begin
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(35) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(14) + "***********************************");
 
-  line7 :="PSI: " + IntegerToString(t_psi,0);
+  if t_psi = 0 then
+    line7 := "PSI: Free Flow";
+  else
+    line7 :="PSI: " + IntegerToString(t_psi,0);
+  end if;
   length7 := Len(line7);
   if bCalcium = true then 
     if length7 < 40 then
@@ -1453,6 +1477,13 @@ begin
   DisplayStatus(Blank);
 end;
 
+handler Timer4Trip;
+begin
+  EntryMode := YNShippingAddress;
+  SelectScreen(g_ciYN);
+  SetLabelText(lbMsg1, "Is the shipping address the same as billing?");   
+end;
+
 procedure DisplayBatchComplete;
 begin
   if EntryMode = BatchCompleteMode then
@@ -1490,8 +1521,9 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt2 then
       if g_iSelect <> 0 then
-        EntryMode := ShippingMode;
-        SelectScreen(g_ciShip);
+        EntryMode := YNShippingAddress;
+        SelectScreen(g_ciYN);
+        SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
       end if;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
@@ -1511,8 +1543,7 @@ handler WidgetClicked;
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
           if g_sysResult <> SysOk then
-            EntryMode := ShippingMode;
-            SelectScreen(g_ciShip);            
+                 SetupStartTimer(4,50,TimerOneShot);
           else
             DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
@@ -1538,7 +1569,7 @@ handler WidgetClicked;
         PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
 
-    elsif g_iWidget >= 108 and g_iWidget <= 116 then
+    elsif g_iWidget >= 108 and g_iWidget <= 117 then
       SelectProduct;
 
     elsif g_iWidget = btnExt2 then
