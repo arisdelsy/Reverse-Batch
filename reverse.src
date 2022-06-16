@@ -721,6 +721,7 @@ program reverse;
         DisplayCustomersDB;     
         DisplayStatus("Selection NOT Cleared");      
       end if;
+
     elsif EntryMode = YNShippingAddress then
       if stemp = "Y" then
         ts_onsite := t_phonenum;
@@ -729,11 +730,13 @@ program reverse;
         ts_town := t_town;
         ts_state := t_state;
         ts_zip := t_zip;
-        SelectScreen(g_ciProduct);
+        EntryMode := EnterPurchaseOrderMode;
+        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       else
         EntryMode := ShippingMode;
         SelectScreen(g_ciShip);
       end if;
+      
     end if;
   end;
 
@@ -1543,7 +1546,14 @@ handler WidgetClicked;
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
           if g_sysResult <> SysOk then
-                 SetupStartTimer(4,50,TimerOneShot);
+            EntryMode := CustomerSelectMode;
+            DisplayCustomersDB;
+            if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+              SetImageWidgetPath(btnNxt2, "/next.png");
+            else
+              SetImageWidgetPath(btnNxt2, "local://10.png");
+            end if;
+            SelectScreen(g_ciCust);
           else
             DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
