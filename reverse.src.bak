@@ -721,6 +721,7 @@ program reverse;
         DisplayCustomersDB;     
         DisplayStatus("Selection NOT Cleared");      
       end if;
+
     elsif EntryMode = YNShippingAddress then
       if stemp = "Y" then
         ts_onsite := t_phonenum;
@@ -735,6 +736,7 @@ program reverse;
         EntryMode := ShippingMode;
         SelectScreen(g_ciShip);
       end if;
+      
     end if;
   end;
 
@@ -1480,9 +1482,7 @@ end;
 
 handler Timer4Trip;
 begin
-  EntryMode := YNShippingAddress;
-  SelectScreen(g_ciYN);
-  SetLabelText(lbMsg1, "Is the shipping address the same as billing?");   
+  SelectScreen(g_ciCust); 
 end;
 
 procedure DisplayBatchComplete;
@@ -1522,9 +1522,14 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt2 then
       if g_iSelect <> 0 then
-        EntryMode := YNShippingAddress;
-        SelectScreen(g_ciYN);
-        SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
+        CustomersDB.Name := g_arDisplay[GetSelection].sName;
+        if CustomersDB.FindFirst(2) = SysOK then
+          EntryMode := YNShippingAddress;
+          SelectScreen(g_ciYN);
+          SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
+        else
+          DisplayStatus("Error: Invalid Selection");
+        end if;
       end if;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
@@ -1551,7 +1556,7 @@ handler WidgetClicked;
             else
               SetImageWidgetPath(btnNxt2, "local://10.png");
             end if;
-            SelectScreen(g_ciCust);
+            SetupStartTimer(4,100,TimerOneShot);
           else
             DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
