@@ -82,7 +82,7 @@ program reverse;
   ShippingMode        : constant integer := 1022;
   YNClearOneMode      : constant integer := 1023;
   BatchReadyMode      : constant integer := 1024;
-  YNShippingAddress   : constant integer := 1025;
+  YNShippingAddress   : constant integer := 1030;
 
 
 -- Entry Modes for customer entry
@@ -1204,6 +1204,11 @@ end;
 
   end;
 
+  handler Timer4Trip;
+  begin
+    SelectScreen(g_ciCust); 
+  end;
+
   procedure SelectCustomer;
     i : integer;
   begin
@@ -1236,9 +1241,25 @@ begin
     g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
+      EntryMode := CustomerSelectMode;
+      DisplayCustomersDB;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        SetImageWidgetPath(btnNxt2, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt2, "local://10.png");
+      end if;
+      SetupStartTimer(4,100,TimerOneShot);
     elsif g_sysResult = SysDatabaseFull then
       Delete25Percent;
       CustomersDB.Add;
+      EntryMode := CustomerSelectMode;
+      DisplayCustomersDB;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        SetImageWidgetPath(btnNxt2, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt2, "local://10.png");
+      end if;
+      SetupStartTimer(4,100,TimerOneShot);
     end if;
 end;
 
@@ -1480,11 +1501,6 @@ begin
   DisplayStatus(Blank);
 end;
 
-handler Timer4Trip;
-begin
-  SelectScreen(g_ciCust); 
-end;
-
 procedure DisplayBatchComplete;
 begin
   if EntryMode = BatchCompleteMode then
@@ -1548,16 +1564,7 @@ handler WidgetClicked;
       else
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
-          if g_sysResult <> SysOk then
-            EntryMode := CustomerSelectMode;
-            DisplayCustomersDB;
-            if FileExists("/sdimages/next.png", SDCard) = SysOk then  
-              SetImageWidgetPath(btnNxt2, "/next.png");
-            else
-              SetImageWidgetPath(btnNxt2, "local://10.png");
-            end if;
-            SetupStartTimer(4,100,TimerOneShot);
-          else
+          if g_sysResult = SysOk then
             DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
           end if;
         end if;
@@ -1655,7 +1662,7 @@ handler WidgetClicked;
         DefaultsForAddOns;
       end if;
       
-      -- (Note: we dont want to create lockup: which is like gridlock)
+      -- (Note: we dont want to create lockup: which is a gridlock)
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
