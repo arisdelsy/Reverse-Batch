@@ -1149,7 +1149,7 @@ end;
         PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 3); 
       end if;
 
-    elsif EntryMode = EnterPurchaseOrderMode then 
+    elsif g_EntryMode = EnterPurchaseOrderMode then 
       if sTemp = Blank then 
         PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
@@ -1186,7 +1186,7 @@ end;
         DisplayStatus("Selection NOT Cleared");      
       end if;
 
-    elsif EntryMode = YNShippingAddress then
+    elsif g_Entrymode = YNShippingAddress then
       if stemp = "Y" then
         ts_onsite := t_phonenum;
         ts_customer := t_customer;
@@ -1254,6 +1254,7 @@ begin
       Delete25Percent;
       CustomersDB.Add;
       EntryMode := CustomerSelectMode;
+      g_Entrymode := CustomerSelectMode;
       DisplayCustomersDB;
       if FileExists("/sdimages/next.png", SDCard) = SysOk then  
         SetImageWidgetPath(btnNxt2, "/next.png");
