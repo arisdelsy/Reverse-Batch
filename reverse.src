@@ -1006,6 +1006,25 @@ end;
 
   end;
 
+  procedure SelectCustomer;
+  i : integer;
+  begin
+    for i := minL2 to maxL2
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
+  -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
+    if g_iWidget <> g_iSelect and g_iSelect <> 0 then
+      SetWidgetColor(g_iSelect, "Black");
+      SetWidgetColor(g_iWidget, "#BB0000");
+      g_iSelect := g_iWidget;
+    else
+      Setwidgetcolor(g_iWidget, "#BB0000");
+      g_iSelect := g_iWidget;
+    end if;
+    ProcessSelection;
+  end;
+
   procedure DeleteCustomer;
   begin
 
@@ -1163,70 +1182,13 @@ end;
       SetWidgetVisibility(btnNxt, Voff);
       ResetProduct;
       FillProductArray;
-      SelectScreen(g_ciProduct);
-
-    elsif EntryMode = YNClearOneMode then
-      if sTemp = "Y" then
-        g_sysResult := CustomersDB.Delete;
-        if g_sysResult = SysOk then
-          EntryMode := CustomerSelectMode;
-          DisplayStatus("Loading Customers...");
-          DisplayCustomersDB; 
-          DisplayStatus("Selection Deleted");  
-        else    
-          EntryMode := CustomerSelectMode;
-          DisplayStatus("Loading Customers...");
-          DisplayCustomersDB;     
-          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
-        end if;             
-      else
-        EntryMode := CustomerSelectMode;
-        DisplayStatus("Loading Customers...");
-        DisplayCustomersDB;     
-        DisplayStatus("Selection NOT Cleared");      
-      end if;
-
-    elsif g_Entrymode = YNShippingAddress then
-      if stemp = "Y" then
-        ts_onsite := t_phonenum;
-        ts_customer := t_customer;
-        ts_street := t_street;
-        ts_town := t_town;
-        ts_state := t_state;
-        ts_zip := t_zip;
-        EntryMode := EnterPurchaseOrderMode;
-        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
-      else
-        EntryMode := ShippingMode;
-        SelectScreen(g_ciShip);
-      end if;
-      
+      SelectScreen(g_ciProduct);      
     end if;
   end;
 
   handler Timer4Trip;
   begin
     SelectScreen(g_ciCust); 
-  end;
-
-  procedure SelectCustomer;
-    i : integer;
-  begin
-    for i := minL2 to maxL2
-    loop
-      SetwidgetColor(i, "Black");
-    end loop;
-  -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
-    
-    if g_iWidget <> g_iSelect and g_iSelect <> 0 then
-      SetWidgetColor(g_iSelect, "Black");
-      SetWidgetColor(g_iWidget, "#BB0000");
-      g_iSelect := g_iWidget;
-    else
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      g_iSelect := g_iWidget;
-    end if;
-    ProcessSelection;
   end;
 
 procedure ProcessingCustomerEntry;
@@ -1780,6 +1742,7 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnAdd then
       EntryMode := CustomerProcessMode;
+      ClearBillingScreen;
       SelectScreen(g_ciaddcust);
     elsif g_iWidget = btnPgUp2 then
       g_iPage := g_iPage - 1;   
@@ -1799,11 +1762,41 @@ handler WidgetClicked;
       DeleteCustomer;
 
     elsif g_iWidget = btnYes5 then
-      ProcessDataEntry("Y");
+      if EntryMode = YNShippingAddress then
+        ts_onsite := t_phonenum;
+        ts_customer := t_customer;
+        ts_street := t_street;
+        ts_town := t_town;
+        ts_state := t_state;
+        ts_zip := t_zip;
+        EntryMode := EnterPurchaseOrderMode;
+        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
+      elsif EntryMode = YNClearOneMode then
+        g_sysResult := CustomersDB.Delete;
+        if g_sysResult = SysOk then
+          EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB; 
+          DisplayStatus("Selection Deleted");  
+        else    
+          EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB;     
+          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
+        end if;
+      end if; 
       g_iSelect := 0;
 
     elsif g_iWidget = btnNo5 then
-      ProcessDataEntry("N");
+      if EntryMode = YNShippingAddress then
+        EntryMode := ShippingMode;
+        SelectScreen(g_ciShip);
+      elsif EntryMode = YNClearOneMode then
+        EntryMode := CustomerSelectMode;
+        DisplayStatus("Loading Customers...");
+        DisplayCustomersDB;     
+        DisplayStatus("Selection NOT Cleared");  
+      end if;
       g_iSelect := 0;      
     
     elsif g_iWidget = btnReset then
