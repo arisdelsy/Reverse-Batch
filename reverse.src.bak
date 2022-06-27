@@ -496,7 +496,7 @@ program reverse;
   
     ClearProductListArray;
 
-    ProductDB.sort(1);
+    --ProductDB.sort(1); commented out for the free flow
     i := 1;
 
     -- FillArray
@@ -1408,7 +1408,7 @@ begin
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(35) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(14) + "***********************************");
 
-  if t_psi = 0 then
+  if t_psi = 1 then
     line7 := "PSI: Free Flow";
   else
     line7 :="PSI: " + IntegerToString(t_psi,0);
@@ -1476,7 +1476,11 @@ begin
     SetLabelText(lblShp1, ts_street);
     SetLabelText(lblShp2, ts_town);
     SetLabelText(lblShp3, ts_state);
-    SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    if t_psi = 1 then
+      SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + "FREE FLOW");
+    else
+      SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    end if;
     SetLabelText(lbl275, RealToString(t_qtyconc,1,1) + " Yards");
   end if;
 end;
@@ -1506,10 +1510,8 @@ handler WidgetClicked;
       if g_iSelect <> 0 then
         CustomersDB.Name := g_arDisplay[GetSelection].sName;
         if CustomersDB.FindFirst(2) = SysOK then
-          --SelectCustomer;
           EntryMode := YNShippingAddress;
           SelectScreen(g_ciYN);
-          DisplayStatus("Entry Mode: " + IntegerToString(EntryMode,0));
           SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
         else
           DisplayStatus("Error: Invalid Selection");
@@ -1554,7 +1556,7 @@ handler WidgetClicked;
         PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
 
-    elsif g_iWidget >= 108 and g_iWidget <= 117 then
+    elsif g_iWidget >= minL4 and g_iWidget <= maxL4 then
       SelectProduct;
 
     elsif g_iWidget = btnExt2 then
