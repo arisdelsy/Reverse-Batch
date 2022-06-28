@@ -679,7 +679,6 @@ begin
 
   while sw = 1
   loop
-  
     GetGross(1,Primary,g_rActive1);
     x := g_rActive1 - g_rtarget1;
     bar_percentage1 := (x/t_cement) * 100;
@@ -695,12 +694,9 @@ begin
     if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
       sw := 0;
     end if;
-
   end loop;
 
     WaitSS;
-
-
 end;
 
   handler Timer25Trip;  -- Wait for Standstill check
