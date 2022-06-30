@@ -28,7 +28,7 @@ program reverse;
   g_sysResult1 : SysCode;
   g_sysResult2 : SysCode;
   g_sysResult3 : SysCode;
-  g_sysResult4 : SysCode;   
+  g_sysResult4 : SysCode;  
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
@@ -84,6 +84,7 @@ program reverse;
   YNClearOneMode      : constant integer := 1023;
   BatchReadyMode      : constant integer := 1024;
   YNShippingAddress   : constant integer := 1030;
+  LoadMode            : constant integer := 1031;
 
 
 -- Entry Modes for customer entry
@@ -1482,6 +1483,13 @@ begin
   end if;
 end;
 
+handler Timer6Trip;
+begin
+  if EntryMode = BatchReadyMode then
+    CheckBatch;
+  end if;
+end;
+
 handler WidgetClicked;
   begin
 
@@ -1504,16 +1512,20 @@ handler WidgetClicked;
       SelectCustomer;
     
     elsif g_iWidget = btnNxt2 then
-      if g_iSelect <> 0 then
-        CustomersDB.Name := g_arDisplay[GetSelection].sName;
-        if CustomersDB.FindFirst(2) = SysOK then
-          EntryMode := YNShippingAddress;
-          SelectScreen(g_ciYN);
-          SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
-        else
-          DisplayStatus("Error: Invalid Selection");
-        end if;
+    if g_iSelect <> 0 then
+      CustomersDB.Name := g_arDisplay[GetSelection].sName;
+      if CustomersDB.FindFirst(2) = SysOK then
+        EntryMode := YNShippingAddress;
+        SelectScreen(g_ciYN);
+        SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
+      else
+        DisplayStatus("Error: Invalid Selection");
       end if;
+    end if;
+
+    elsif g_iWidget = lbl10 then --Cancel Button
+      StopTimer(6);
+      CancelBatch;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if t_phonenum = Blank or len(t_phonenum) < 10 then
@@ -1635,9 +1647,12 @@ handler WidgetClicked;
       SelectScreen(g_ciBatchReady);
 
     elsif g_iWidget = btnBatch then
-      if EntryMode = BatchReadyMode then
-        CheckBatch;
-      end if;
+      EntryMode := LoadMode;
+      SelectScreen(g_ciLoad);
+      SetupStartTimer(6,500,TimerOneShot);
+     -- if EntryMode = BatchReadyMode then
+      --  CheckBatch;
+     -- end if;
 
     elsif g_iWidget = btnNxt9 then
       EntryMode := BatchCompleteMode;

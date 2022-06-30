@@ -113,6 +113,8 @@ lbl6      : constant integer := 6;
 lbl7      : constant integer := 7;
 lbl8      : constant integer := 8;
 bar9      : constant integer := 9;
+lbl10     : constant integer := 10;
+lbl11     : constant integer := 11;
 btnReset  : constant integer := 33;
 lbl50     : constant integer := 50;
 lbProg1   : constant integer := 51;
@@ -361,8 +363,6 @@ lbl333    : constant integer := 333;
 btnExt3   : constant integer := 334;
 lbl335    : constant integer := 335;
 lbl336    : constant integer := 336;
-barLoad   : constant integer := 10;
-lbl11     : constant integer := 11;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
