@@ -701,6 +701,14 @@ begin
     WaitSS;
 end;
 
+handler Timer6Trip;
+begin
+  EntryMode := BatchMode;
+  SetWidgetVisibility(btnNxt9, Voff);
+  SelectScreen(g_ciScales);
+  RunBatch;
+end;
+
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion1 : integer; 
     iMotion2 : integer;   
@@ -769,10 +777,13 @@ end;
       elsif EntryMode = BatchReadyMode then
         g_rInitial1 := rGrossWgt1;
         g_rInitial2 := rGrossWgt2;
-        EntryMode := BatchMode;
-        SetWidgetVisibility(btnNxt9, Voff);
-        SelectScreen(g_ciScales);
-        RunBatch;
+        EntryMode := LoadMode;
+        SelectScreen(g_ciLoad);
+        SetupStartTimer(6,500,TimerOneShot);
+        --EntryMode := BatchMode;
+        --SetWidgetVisibility(btnNxt9, Voff);
+        --SelectScreen(g_ciScales);
+        --RunBatch;
 
       elsif EntryMode = BatchMode then
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
@@ -1483,13 +1494,6 @@ begin
   end if;
 end;
 
-handler Timer6Trip;
-begin
-  if EntryMode = BatchReadyMode then
-    CheckBatch;
-  end if;
-end;
-
 handler WidgetClicked;
   begin
 
@@ -1647,12 +1651,9 @@ handler WidgetClicked;
       SelectScreen(g_ciBatchReady);
 
     elsif g_iWidget = btnBatch then
-      EntryMode := LoadMode;
-      SelectScreen(g_ciLoad);
-      SetupStartTimer(6,500,TimerOneShot);
-     -- if EntryMode = BatchReadyMode then
-      --  CheckBatch;
-     -- end if;
+      if EntryMode = BatchReadyMode then
+        CheckBatch;
+      end if;
 
     elsif g_iWidget = btnNxt9 then
       EntryMode := BatchCompleteMode;
