@@ -1313,10 +1313,10 @@ begin
   bAir_ent := False;
   bRetarder := False;
 
-  Setwidgetcolor(lbl128, "#BB0000");
-  Setwidgetcolor(lbl137, "#BB0000");
-  Setwidgetcolor(lbl133, "#BB0000");
-  Setwidgetcolor(lbl142, "#BB0000");
+  Setwidgetcolor(lbl128, "Red");
+  Setwidgetcolor(lbl137, "Red");
+  Setwidgetcolor(lbl133, "Red");
+  Setwidgetcolor(lbl142, "Red");
 
 end;
 
@@ -1521,7 +1521,8 @@ handler WidgetClicked;
       if CustomersDB.FindFirst(2) = SysOK then
         EntryMode := YNShippingAddress;
         SelectScreen(g_ciYN);
-        SetLabelText(lbMsg1, "Is the shipping address the same as billing?");
+        SetLabelText(lbMsg1, "Is the shipping address");
+        SetLabelText(lbMsg2, "the same as billing?");
       else
         DisplayStatus("Error: Invalid Selection");
       end if;
@@ -1668,35 +1669,35 @@ handler WidgetClicked;
     elsif g_iWidget = lbl127 then
       if  bCalcium = False then
         SetWidgetColor(lbl128, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bCalcium := True;
       end if;
       
     elsif g_iWidget = lbl128 then 
       if bCalcium = True then 
         SetWidgetColor(lbl127, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bCalcium := False;
       end if;
 
     elsif g_iWidget = lbl132 then
       if  bAir_ent = False then
         SetWidgetColor(lbl133, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAir_ent := True;
       end if;
 
     elsif g_iWidget = lbl133 then
       if  bAir_ent = True then
         SetWidgetColor(lbl132, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAir_ent := False;
       end if;
 
     elsif g_iWidget = lbl136 then
       if  bAnti_hydro= False then
         SetWidgetColor(lbl137, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAnti_hydro := True;
       end if;
     
@@ -1704,20 +1705,20 @@ handler WidgetClicked;
       if  bAnti_hydro= True then
         bAnti_hydro := False;
         SetWidgetColor(lbl136, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
       end if;
 
     elsif g_iWidget = lbl141 then
       if  bRetarder = False then
         SetWidgetColor(lbl142, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bRetarder := True;
       end if;
     
     elsif g_iWidget = lbl142 then
       if  bRetarder = True then
         SetWidgetColor(lbl141, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bRetarder := False;
       end if;
 
