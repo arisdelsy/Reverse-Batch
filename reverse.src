@@ -874,10 +874,10 @@ end;
       elsif r1_select = True and r1current_select <> g_iWidget then
         SetWidgetColor(r1current_select, "Black");
         r1current_select := g_iWidget;
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
       else 
         r1_select := True;
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         r1current_select := g_iWidget;
       end if;
     end if;
@@ -892,10 +892,10 @@ end;
       elsif r2_select = True and r2current_select <> g_iWidget then
         SetWidgetColor(r2current_select, "Black");
         r2current_select := g_iWidget;
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
       else 
         r2_select := True;
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         r2current_select := g_iWidget;
       end if;
     end if;
@@ -1025,10 +1025,10 @@ end;
   -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
     if g_iWidget <> g_iSelect and g_iSelect <> 0 then
       SetWidgetColor(g_iSelect, "Black");
-      SetWidgetColor(g_iWidget, "#BB0000");
+      SetWidgetColor(g_iWidget, "Red");
       g_iSelect := g_iWidget;
     else
-      Setwidgetcolor(g_iWidget, "#BB0000");
+      Setwidgetcolor(g_iWidget, "Red");
       g_iSelect := g_iWidget;
     end if;
     ProcessSelection;
