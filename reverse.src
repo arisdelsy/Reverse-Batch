@@ -1290,6 +1290,16 @@ begin
 
 end;
 
+procedure CancelBatch;
+begin
+  ClearCustomerTemp;
+  ClearProductTemp;
+  ClearShippingScreen;
+  ClearShipTemp;
+  EntryMode := NoMode;
+  SelectScreen(g_ciMain);
+end;
+
 procedure TicketOutput;
   --dTime : datetime := SystemTime;
   line0 : string;
