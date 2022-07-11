@@ -14,6 +14,7 @@ program reverse;
   g_ciScales     : constant integer := 9;
   g_ciAddOns     : constant integer := 13;
   g_ciBatchReady : constant integer := 12;
+  g_ciLoad       : constant integer := 15;
   --Testing screen
   --g_ciTest    : constant integer := 99;
 
@@ -81,6 +82,8 @@ program reverse;
   ShippingMode        : constant integer := 1022;
   YNClearOneMode      : constant integer := 1023;
   BatchReadyMode      : constant integer := 1024;
+  YNShippingAddress   : constant integer := 1030;
+  LoadMode            : constant integer := 1031;
 
 
 -- Entry Modes for customer entry
@@ -697,27 +700,6 @@ program reverse;
       ResetProduct;
       FillProductArray;
       SelectScreen(g_ciProduct);
-
-    elsif EntryMode = YNClearOneMode then
-      if sTemp = "Y" then
-        g_sysResult := CustomersDB.Delete;
-        if g_sysResult = SysOk then
-          EntryMode := CustomerSelectMode;
-          DisplayStatus("Loading Customers...");
-          DisplayCustomersDB; 
-          DisplayStatus("Selection Deleted");  
-        else    
-          EntryMode := CustomerSelectMode;
-          DisplayStatus("Loading Customers...");
-          DisplayCustomersDB;     
-          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
-        end if;             
-      else
-        EntryMode := CustomerSelectMode;
-        DisplayStatus("Loading Customers...");
-        DisplayCustomersDB;     
-        DisplayStatus("Selection NOT Cleared");      
-      end if;
     end if;
   end;
 
@@ -862,6 +844,14 @@ begin
 
 end;
 
+handler Timer6Trip;
+begin
+  EntryMode := BatchMode;
+  SetWidgetVisibility(btnNxt9, Voff);
+  SelectScreen(g_ciScales);
+  RunBatch;
+end;
+
   handler Timer25Trip;  -- Wait for Standstill check
     iMotion1 : integer; 
     iMotion2 : integer;   
@@ -930,10 +920,13 @@ end;
       elsif EntryMode = BatchReadyMode then
         g_rInitial1 := rGrossWgt1;
         g_rInitial2 := rGrossWgt2;
-        EntryMode := BatchMode;
-        SetWidgetVisibility(btnNxt9, Voff);
-        SelectScreen(g_ciScales);
-        RunBatch;
+        EntryMode := LoadMode;
+        SelectScreen(g_ciLoad);
+        SetupStartTimer(6,500,TimerOneShot);
+        --EntryMode := BatchMode;
+        --SetWidgetVisibility(btnNxt9, Voff);
+        --SelectScreen(g_ciScales);
+        --RunBatch;
 
       elsif EntryMode = BatchMode then
         if FileExists("/sdimages/next.png", SDCard) = SysOk then
@@ -1472,8 +1465,15 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnNxt2 then
       if g_iSelect <> 0 then
-        EntryMode := ShippingMode;
-        SelectScreen(g_ciShip);
+        CustomersDB.Name := g_arDisplay[GetSelection].sName;
+        if CustomersDB.FindFirst(2) = SysOK then
+          EntryMode := YNShippingAddress;
+          SelectScreen(g_ciYN);
+          SetLabelText(lbMsg1, "Is the shipping address");
+          SetLabelText(lbMsg2, "the same as billing?");
+        else
+          DisplayStatus("Error: Invalid Selection");
+        end if;
       end if;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
@@ -1729,12 +1729,42 @@ handler WidgetClicked;
       DeleteCustomer;
 
     elsif g_iWidget = btnYes5 then
-      ProcessDataEntry("Y");
+      if EntryMode = YNShippingAddress then
+        ts_onsite := t_phonenum;
+        ts_customer := t_customer;
+        ts_street := t_street;
+        ts_town := t_town;
+        ts_state := t_state;
+        ts_zip := t_zip;
+        EntryMode := EnterPurchaseOrderMode;
+        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
+      elsif EntryMode = YNClearOneMode then
+        g_sysResult := CustomersDB.Delete;
+        if g_sysResult = SysOk then
+          EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB; 
+          DisplayStatus("Selection Deleted");  
+        else    
+          EntryMode := CustomerSelectMode;
+          DisplayStatus("Loading Customers...");
+          DisplayCustomersDB;     
+          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult));
+        end if;
+      end if; 
       g_iSelect := 0;
 
     elsif g_iWidget = btnNo5 then
-      ProcessDataEntry("N");
-      g_iSelect := 0;      
+      if EntryMode = YNShippingAddress then
+        EntryMode := ShippingMode;
+        SelectScreen(g_ciShip);
+      elsif EntryMode = YNClearOneMode then
+        EntryMode := CustomerSelectMode;
+        DisplayStatus("Loading Customers...");
+        DisplayCustomersDB;     
+        DisplayStatus("Selection NOT Cleared");  
+      end if;
+      g_iSelect := 0;    
     
     elsif g_iWidget = btnReset then
       g_iBatchAcc := 0;
@@ -1742,6 +1772,10 @@ handler WidgetClicked;
       g_rCemAccum := 0;
       lastReset := Date$(SystemTime);
       setupScreen;
+
+    elsif g_iWidget = btnCan then
+      StopTimer(6);
+      CancelBatch;
 
     end if;
 

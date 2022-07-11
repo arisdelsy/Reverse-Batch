@@ -360,6 +360,8 @@ lbl333    : constant integer := 333;
 btnExt3   : constant integer := 334;
 lbl335    : constant integer := 335;
 lbl336    : constant integer := 336;
+lbl6      : constant integer := 6;
+btnCan    : constant integer := 7;
 
 USBPRN    : constant string := "USBPRN";
 ADVPRN    : constant string := "ADVPRN";
