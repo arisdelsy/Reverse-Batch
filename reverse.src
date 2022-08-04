@@ -28,7 +28,7 @@ program reverse;
   g_sysResult1 : SysCode;
   g_sysResult2 : SysCode;
   g_sysResult3 : SysCode;
-  g_sysResult4 : SysCode;   
+  g_sysResult4 : SysCode;  
   g_iWidget : integer; -- this is for widget alias 
   g_iWidgetNum : integer; -- this is for columns
   g_iSelect   : integer;
@@ -57,6 +57,7 @@ program reverse;
   g_rCemAccum : stored real := 0;
   g_rSandAccum : stored real := 0;
   g_iBatchAcc : stored integer := 0;
+  g_iTicketNum  : stored integer := 0;
   ---------------------------------------------------
 
   -- Printer port
@@ -103,14 +104,13 @@ program reverse;
   EnterShipZipCodeMode       : constant integer := 1021;
 
   -- EntryModes for 
-  EnterOrderNumMode          : constant integer := 1025;
   EnterPurchaseOrderMode     : constant integer := 1026;
   EnterPasswordMode          : constant integer := 1027;
   EnterNewPasswordMode       : constant integer := 1028;
  
  -- Number of Max record
   g_ciMaxRecords            : constant integer := 1000;
-	g_ciMaxProducts						: constant integer := 20;	
+	g_ciMaxProducts						: constant integer := 24;	
 
   g_ciMaxPerSelectScreen    : constant integer := 8;
 
@@ -136,7 +136,6 @@ program reverse;
   t_town      : string;
   t_state     : string;
   t_zip       : string;
-  t_ordernum  : string;
 
   -- Temp variables to store the shipping information to be printed to the ticket
   ts_onsite   : string;
@@ -164,7 +163,9 @@ program reverse;
   r1_select : boolean := False;
   r2_select : boolean := False;
 
+-------------------------------------------------------
   locked    : boolean := True; -- Boolean to show if the setup screen is locked or unlocked to prompt for the password
+-------------------------------------------------------
 
 -- Boolean values for selecting the add ons to be displayed onto the ticket for the batch
   bCalcium : boolean;
@@ -266,7 +267,7 @@ program reverse;
 
   end;      
 
-  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for data
+  procedure PromptForEntry(sPrompt : string;  iMode : integer; sDefault : string; iPrompt : integer);  -- Prompts operator for entry
   begin
     
     DisableHandler(NumericKeyPressed);
@@ -293,57 +294,68 @@ program reverse;
     
       ClosePrompt;  
 
-      if Entrymode = EnterPhoneMode then 
+      if g_Entrymode = EnterPhoneMode then 
         EntryMode := CustomerProcessMode;
         t_phonenum := Blank;
+        SetLabelText(lbl224, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterNameMode then 
+      elsif g_Entrymode = EnterNameMode then 
         EntryMode := CustomerProcessMode;
         t_customer := Blank;
+        SetLabelText(lbl225, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterStreetMode then 
+      elsif g_Entrymode = EnterStreetMode then 
         EntryMode := CustomerProcessMode;
         t_street := Blank;
+        SetLabelText(lbl226, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterTownMode then 
+      elsif g_Entrymode = EnterTownMode then 
         EntryMode := CustomerProcessMode;
         t_town := Blank;
+        SetLabelText(lbl227, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterStateMode then 
+      elsif g_Entrymode = EnterStateMode then 
         EntryMode := CustomerProcessMode;
         t_state := Blank;
+        SetLabelText(lbl228, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterZipCodeMode then 
+      elsif g_Entrymode = EnterZipCodeMode then 
         EntryMode := CustomerProcessMode;
         t_zip := Blank;
+        SetLabelText(lbl229, Blank);
         SelectScreen(g_ciaddcust);
-      elsif Entrymode = EnterOnsiteTelMode then 
+      elsif g_Entrymode = EnterOnsiteTelMode then 
         EntryMode := ShippingMode;
         ts_onsite := Blank;
+        SetLabelText(lbl328, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipCustomerMode then 
+      elsif g_Entrymode = EnterShipCustomerMode then 
         EntryMode := ShippingMode;
         ts_customer := Blank;
+        SetLabelText(lbl335, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipStreetMode then 
+      elsif g_Entrymode = EnterShipStreetMode then 
         EntryMode := ShippingMode;
         ts_street := Blank;
+        SetLabelText(lbl330, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipTownMode then 
+      elsif g_Entrymode = EnterShipTownMode then 
         EntryMode := ShippingMode;
         ts_town := Blank;
+        SetLabelText(lbl331, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterShipZipCodeMode then 
+      elsif g_Entrymode = EnterShipStateMode then 
+        EntryMode := ShippingMode;
+        ts_state := Blank;
+        SetLabelText(lbl332, Blank);
+        SelectScreen(g_ciShip);
+      elsif g_Entrymode = EnterShipZipCodeMode then 
         EntryMode := ShippingMode;
         ts_zip := Blank;
+        SetLabelText(lbl333, Blank);
         SelectScreen(g_ciShip);
-      elsif Entrymode = EnterOrderNumMode then
+      elsif g_Entrymode = EnterPurchaseOrderMode then 
         EntryMode := ShippingMode;
-        t_ordernum := Blank;
-        SelectScreen(g_ciShip);
-      elsif EntryMode = EnterPurchaseOrderMode then 
-        EntryMode := ShippingMode;
-        t_ordernum := Blank;
         t_purchase := Blank;
         SelectScreen(g_ciShip);
       elsif g_EntryMode = EnterPasswordMode then
@@ -486,7 +498,7 @@ program reverse;
   
     ClearProductListArray;
 
-    ProductDB.sort(1);
+    --ProductDB.sort(1); commented out for the free flow
     i := 1;
 
     -- FillArray
@@ -549,6 +561,496 @@ program reverse;
     SetLabelText(lbl2, "Total cement used: " + RealToString(g_rCemAccum,0,0) + " lbs.");
     SetLabelText(lbl3, "Total sand used: " + RealToString(g_rSandAccum,0, 0) + " lbs.");
     SetLabelText(lblLstR, "Last Reset " + lastReset);
+
+  end;
+
+   function GetSelection : integer;  -- Returns the current selected record in the display list    
+    -- we choose function because it returns a value 
+    i : integer;    
+    begin
+        if g_iSelect = 53 then   
+          g_iWidgetNum := 1;
+        elsif g_iSelect = 54 then
+          g_iWidgetnum := 2;
+        elsif g_iSelect = 55 then
+          g_iWidgetNum := 3;
+        elsif g_iSelect = 56 then
+          g_iWidgetNum := 4;
+        elsif g_iSelect = 57 then
+          g_iWidgetNum := 5;
+        elsif g_iSelect = 58 then
+          g_iWidgetNum := 6;
+        elsif g_iSelect = 59 then
+          g_iWidgetNum := 7;
+        elsif g_iSelect = 60 then
+          g_iWidgetNum := 8;
+
+        end if;
+
+        i := (g_iPage - 1) * g_ciMaxPerSelectScreen + g_iWidgetNum;  
+      
+      return i;
+
+    end;
+
+  procedure ClearShipTemp;
+  begin
+    ts_onsite   := Blank;
+    ts_customer := Blank;
+    ts_street   := Blank;
+    ts_town     := Blank;
+    ts_state    := Blank;
+    ts_zip      := Blank;
+    t_purchase  := Blank;  
+
+  end;
+
+  procedure ClearCustomerTemp;
+  begin
+
+    t_phonenum  := Blank;
+    t_customer  := Blank;
+    t_street    := Blank;
+    t_town      := Blank;
+    t_state     := Blank;
+    t_zip       := Blank;
+
+  end;
+
+  procedure ClearProductTemp;
+  begin
+
+    t_psi := 0;
+    t_qtyconc := 0;
+    t_sand := 0;
+    t_cement := 0;
+    t_wat_gal := 0;
+    t_calcium := 0;
+    t_air_ent := 0;
+    t_antihydr := 0;
+    t_retard := 0;
+
+    r1_select := False;
+    r2_select := False;
+    r1current_select := 0;
+    r2current_select := 0;
+
+  end;
+
+  procedure ClearBillingScreen;
+  begin
+    SetLabelText(lbl224, Blank);
+    SetLabelText(lbl225, Blank);
+    SetLabelText(lbl226, Blank);
+    SetLabelText(lbl227, Blank);
+    SetLabelText(lbl228, Blank);
+    SetLabelText(lbl229, Blank);
+  end;
+
+  procedure ClearShippingScreen;
+  begin
+    SetLabelText(lbl328, Blank);
+    SetLabelText(lbl335, Blank);
+    SetLabelText(lbl330, Blank);
+    SetLabelText(lbl331, Blank);
+    SetLabelText(lbl332, Blank);
+    SetLabelText(lbl333, Blank);
+  end;
+
+procedure RunBatch;
+  bar_percentage1 : integer := 0;
+  bar_percentage2 : integer := 0;
+  x : integer;
+  y : integer;
+  sw : integer := 1;
+begin
+
+  --Batching concrete
+
+  --Calculation for target weight
+  g_rActive1 := g_rInitial1;
+
+  g_rtarget1 := g_rActive1 - t_cement;
+  x := g_rActive1 - g_rtarget1;
+
+  --Batching sand mix
+  g_rActive2 := g_rInitial2;
+
+  g_rtarget2 := g_rActive2 - t_sand;
+  y := g_rActive2 - g_rtarget2;
+
+  while sw = 1
+  loop
+    GetGross(1,Primary,g_rActive1);
+    x := g_rActive1 - g_rtarget1;
+    bar_percentage1 := (x/t_cement) * 100;
+    SetBargraphLevel(bar279, bar_percentage1);
+    SetLabelText(tarCem, IntegerToString(x,0));
+
+    GetGross(2,Primary,g_rActive2);
+    y := g_rActive2 - g_rtarget2;
+    bar_percentage2 := (y/t_sand) * 100;
+    SetBargraphLevel(bar280, bar_percentage2);
+    SetLabelText(tarAg, IntegerToString(y,0));
+
+    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
+      sw := 0;
+    end if;
+  end loop;
+
+    WaitSS;
+end;
+
+handler Timer6Trip;
+begin
+  EntryMode := BatchMode;
+  SetWidgetVisibility(btnNxt9, Voff);
+  SelectScreen(g_ciScales);
+  RunBatch;
+end;
+
+  handler Timer25Trip;  -- Wait for Standstill check
+    iMotion1 : integer; 
+    iMotion2 : integer;   
+    rGrossWgt1 : real;
+    rGrossWgt2 : real;
+		iInRange1 : integer;
+    iInRange2 : integer;
+    
+  begin
+
+    InMotion(1, iMotion1);
+    InMotion(2, iMotion2);
+    
+    if iMotion1 = 0 and iMotion2 = 0 then  
+    
+      StopTimer(25);
+      DisplayStatus(Blank);  
+
+      g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
+			g_sysResult2 := InRange(1, iInRange1);
+
+      g_sysResult3 := GetGross(2, Primary, rGrossWgt2);
+      g_sysResult4 := InRange(2, iInRange2); 
+      
+			-- Get Gross Command
+      if g_sysResult1 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult1));  
+			  return;
+      end if;
+			
+			-- Check In Range
+      if g_sysResult3 <> SysOk then
+        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult3));  
+			  return;
+      end if;			
+			
+		 -- Validate InRage
+		 if iInRange1 = 0 then  
+        DisplayStatus("Scale 1 NOT In Range");  
+				return;
+		 end if;
+
+		 if iInRange2 = 0 then  
+        DisplayStatus("Scale 2 NOT In Range");  
+				return;
+		 end if;
+    
+
+      if EntryMode = BatchCompleteMode then  -- Print Screen
+        
+        TransDB.DT := SystemTime; 
+        TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
+        TransDB.T_Sand := RealToString(rGrossWgt2, 0, 2);
+        TransDB.Yards := RealToString(t_qtyconc, 0, 2);
+        TransDB.Product := IntegerToString(t_psi, 0) + RealToString(t_qtyconc, 0, 2);
+        g_sysResult := TransDB.Add;
+        
+        if g_sysResult = SysOk then      
+
+          DisplayStatus(RealToString(rGrossWgt1, 0, 2));
+
+        else 
+          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
+        end if; 
+
+      elsif EntryMode = BatchReadyMode then
+        g_rInitial1 := rGrossWgt1;
+        g_rInitial2 := rGrossWgt2;
+        EntryMode := LoadMode;
+        SelectScreen(g_ciLoad);
+        SetupStartTimer(6,500,TimerOneShot);
+        --EntryMode := BatchMode;
+        --SetWidgetVisibility(btnNxt9, Voff);
+        --SelectScreen(g_ciScales);
+        --RunBatch;
+
+      elsif EntryMode = BatchMode then
+        if FileExists("/sdimages/next.png", SDCard) = SysOk then
+          SetImageWidgetPath(btnNxt9, "/next.png");
+        else
+          SetImageWidgetPath(btnNxt9, "local://10.png");
+        end if;
+        g_rEnd1 := rGrossWgt1;
+        g_rEnd2 := rGrossWgt2;
+        g_rcembatch := g_rInitial1 - g_rEnd1;
+        g_rsandbatch  := g_rInitial2 - g_rEnd2;
+        g_rCemAccum := g_rCemAccum + g_rcembatch;
+        g_rSandAccum := g_rSandAccum + g_rsandbatch;
+        g_iBatchAcc := g_iBatchAcc + 1;
+        g_iTicketNum := g_iTicketNum + 1;
+        SetWidgetVisibility(btnNxt9, Von); 
+        DisplayStatus("Batch Complete!");
+        EntryMode := NoMode;
+      end if;  
+    else
+      DisplayStatus("...In Motion...");  
+    end if;
+
+  end;
+
+  procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
+    a : integer;
+    i : integer;
+    j : integer;
+    b : integer;
+  begin 
+    
+    -- Clear display
+    for i := MinL2 to MaxL2
+    loop
+      SetLabelText(i, Blank);
+    end loop;
+    
+    -- Find out where we are in the array
+    if tmpPage = 1 then
+      i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
+    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerSelectScreen) then
+      i := (tmpPage * g_ciMaxPerSelectScreen) - 7;      
+    else
+      i := 1;
+      g_iPage := 1;              
+    end if;
+
+    b := MinL2;
+    j := i + 7; 
+    
+    -- Display the top of the list if we have reach the end 
+    if g_arDisplay[i].sPhoneNum = Blank then --and EntryMode <> CustomerSelectMode then
+ 
+      DisplayCustomersDB;  
+
+    else  
+      
+    -- Populate display with new data
+    for a := i to j
+    loop  
+      if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sPhoneNum <> Blank then
+        SetLabelText(b, g_arDisplay[a].sName); 
+        b := b + 1; 
+      end if; 
+    end loop;
+       
+    end if;
+  
+  SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
+
+end;   
+
+  procedure SelectProduct;
+    i : integer;
+  begin
+  --r1 = BTN 108-113
+  --r2 = BTN 114-117
+
+    g_iProductRow := 0;
+
+   --R1
+    if g_iWidget >= 108 and g_iWidget <= 113 then 
+      if r1_select = True and r1current_select = g_iWidget then 
+        r1_select := False;
+        SetWidgetColor(r1current_select, "Black");
+        r1current_select := 0;
+      elsif r1_select = True and r1current_select <> g_iWidget then
+        SetWidgetColor(r1current_select, "Black");
+        r1current_select := g_iWidget;
+        SetWidgetColor(g_iWidget, "Red");
+      else 
+        r1_select := True;
+        SetWidgetColor(g_iWidget, "Red");
+        r1current_select := g_iWidget;
+      end if;
+    end if;
+
+
+    --R2
+    if g_iWidget >= 114 and g_iWidget <= 117 then 
+      if r2_select = true and r2current_select = g_iWidget then 
+        r2_select := False;
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := 0;
+      elsif r2_select = True and r2current_select <> g_iWidget then
+        SetWidgetColor(r2current_select, "Black");
+        r2current_select := g_iWidget;
+        SetWidgetColor(g_iWidget, "Red");
+      else 
+        r2_select := True;
+        SetWidgetColor(g_iWidget, "Red");
+        r2current_select := g_iWidget;
+      end if;
+    end if;
+
+    if r1_select = true and r2_select = true then
+      SetWidgetVisibility(btnNxt, Von);
+    else
+      SetWidgetVisibility(btnNxt, Voff);
+    end if; 
+
+  end;
+
+  procedure GetProductSelection;
+  begin
+    if r1current_select = 108 and r2current_select = 114 then --1 2500
+      g_iProductRow := 1;
+    elsif r1current_select = 108 and r2current_select = 115 then --2
+      g_iProductRow := 2;
+    elsif r1current_select = 108 and r2current_select = 116 then --3
+      g_iProductRow := 3;
+    elsif r1current_select = 108 and r2current_select = 117 then --4
+      g_iProductRow := 4;
+    elsif r1current_select = 109 and r2current_select = 114 then --1 3000
+      g_iProductRow := 5;
+    elsif r1current_select = 109 and r2current_select = 115 then --2
+      g_iProductRow := 6;
+    elsif r1current_select = 109 and r2current_select = 116 then --3
+      g_iProductRow := 7;
+    elsif r1current_select = 109 and r2current_select = 117 then --4
+      g_iProductRow := 8;
+    elsif r1current_select = 110 and r2current_select = 114 then --1 3500
+      g_iProductRow := 9;
+    elsif r1current_select = 110 and r2current_select = 115 then --2
+      g_iProductRow := 10;
+    elsif r1current_select = 110 and r2current_select = 116 then --3
+      g_iProductRow := 11;
+    elsif r1current_select = 110 and r2current_select = 117 then --4
+      g_iProductRow := 12;
+    elsif r1current_select = 111 and r2current_select = 114 then --1 4000
+      g_iProductRow := 13;
+    elsif r1current_select = 111 and r2current_select = 115 then --2
+      g_iProductRow := 14;
+    elsif r1current_select = 111 and r2current_select = 116 then --3
+      g_iProductRow := 15;
+    elsif r1current_select = 111 and r2current_select = 117 then --4
+      g_iProductRow := 16;
+    elsif r1current_select = 112 and r2current_select = 114 then --1 5000
+      g_iProductRow := 17;
+    elsif r1current_select = 112 and r2current_select = 115 then --2
+      g_iProductRow := 18;
+    elsif r1current_select = 112 and r2current_select = 116 then --3
+      g_iProductRow := 19;
+    elsif r1current_select = 112 and r2current_select = 117 then --4
+      g_iProductRow := 20;
+    elsif r1current_select = 113 and r2current_select = 114 then --1 Free Flow
+      g_iProductRow := 21;
+    elsif r1current_select = 113 and r2current_select = 115 then --2
+      g_iProductRow := 22;
+    elsif r1current_select = 113 and r2current_select = 116 then --3
+      g_iProductRow := 23;
+    elsif r1current_select = 113 and r2current_select = 117 then --4
+      g_iProductRow := 24;
+    else
+      DisplayStatus("System Malfunction!");
+      g_iProductRow := 0;
+    end if;
+
+  end;
+
+
+  procedure LoadProduct;
+  i : integer;
+  begin
+    
+    if g_iProductRow <> 0 then
+      t_psi       := g_arProduct[g_iProductRow].sPSI;
+      t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
+      t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
+      t_cement    := g_arProduct[g_iProductRow].sCEMENT;
+      t_wat_gal   := g_arProduct[g_iProductRow].sWAT_GALL;
+      t_calcium   := g_arProduct[g_iProductRow].sCALCIUM;
+      t_air_ent   := g_arProduct[g_iProductRow].sAIR_ENT;
+      t_antihydr  := g_arProduct[g_iProductRow].sANTIHYDR;
+      t_retard    := g_arProduct[g_iProductRow].sRETARDER;
+          
+
+    else
+      DisplayStatus("ERROR! No Selection Made.");
+    end if;
+
+    r1current_select := 0;
+    r2current_select := 0;
+  end;
+
+  procedure ProcessSelection;
+
+  begin
+    if g_iSelect <> 0 then
+      if EntryMode = CustomerSelectMode then
+        if g_arDisplay[GetSelection].sName <> Blank then   
+          t_customer := g_arDisplay[GetSelection].sName;
+          t_phonenum := g_arDisplay[GetSelection].sPhoneNum;
+          t_street   := g_arDisplay[GetSelection].sStreet;
+          t_town     := g_arDisplay[GetSelection].sTown;
+          t_state    := g_arDisplay[GetSelection].sState;
+          t_zip      := g_arDisplay[GetSelection].sZip;
+        else 
+          DisplayStatus("Error: Please Enter A Customer");
+          g_iSelect := 0;
+        end if;
+      end if;
+    else
+      Displaystatus("Select An Entry to Continue");
+      EntryMode :=  CustomerSelectMode;
+      g_iSelect := 0;    
+    end if;
+
+  end;
+
+  procedure SelectCustomer;
+  i : integer;
+  begin
+    for i := minL2 to maxL2
+    loop
+      SetwidgetColor(i, "Black");
+    end loop;
+  -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
+    if g_iWidget <> g_iSelect and g_iSelect <> 0 then
+      SetWidgetColor(g_iSelect, "Black");
+      SetWidgetColor(g_iWidget, "Red");
+      g_iSelect := g_iWidget;
+    else
+      Setwidgetcolor(g_iWidget, "Red");
+      g_iSelect := g_iWidget;
+    end if;
+    ProcessSelection;
+  end;
+
+  procedure DeleteCustomer;
+  begin
+
+    if g_iSelect <> 0 then
+      if EntryMode = CustomerSelectMode then
+        CustomersDB.Name := g_arDisplay[GetSelection].sName;
+        if CustomersDB.FindFirst(2) = SysOk then        
+          EntryMode := YNClearOneMode;
+          SelectScreen(g_ciYN);         
+          Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
+        else 
+          DisplayStatus("Error: Invalid CUSTOMER");
+        end if;
+      end if;
+    else
+      Displaystatus("Select One to Delete");
+    end if;
 
   end;
 
@@ -664,7 +1166,6 @@ program reverse;
         setupScreen;
         SelectScreen(g_ciSetup); 
       end if;
-
     
     elsif g_EntryMode = EnterPasswordMode then
       if sTemp = sPassword or sTemp = backdoor_pass then
@@ -676,16 +1177,7 @@ program reverse;
         PromptForEntry("Invalid Password Entry - Retry", EnterPasswordMode, Blank, 3); 
       end if;
 
-
-    elsif EntryMode = EnterOrderNumMode then 
-      if sTemp = Blank then 
-        PromptForEntry("Invalid: To Continue Enter Order Number", EnterOrderNumMode, Blank, 1);
-      end if;
-      t_ordernum := sTemp;
-      EntryMode := EnterPurchaseOrderMode;
-      PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
-
-    elsif EntryMode = EnterPurchaseOrderMode then 
+    elsif g_EntryMode = EnterPurchaseOrderMode then 
       if sTemp = Blank then 
         PromptForEntry("Invalid: To Continue Enter Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
@@ -699,494 +1191,13 @@ program reverse;
       SetWidgetVisibility(btnNxt, Voff);
       ResetProduct;
       FillProductArray;
-      SelectScreen(g_ciProduct);
+      SelectScreen(g_ciProduct);      
     end if;
   end;
 
-   function GetSelection : integer;  -- Returns the current selected record in the display list    
-    -- we choose function because it returns a value 
-    i : integer;    
-    begin
-        if g_iSelect = 53 then   
-          g_iWidgetNum := 1;
-        elsif g_iSelect = 54 then
-          g_iWidgetnum := 2;
-        elsif g_iSelect = 55 then
-          g_iWidgetNum := 3;
-        elsif g_iSelect = 56 then
-          g_iWidgetNum := 4;
-        elsif g_iSelect = 57 then
-          g_iWidgetNum := 5;
-        elsif g_iSelect = 58 then
-          g_iWidgetNum := 6;
-        elsif g_iSelect = 59 then
-          g_iWidgetNum := 7;
-        elsif g_iSelect = 60 then
-          g_iWidgetNum := 8;
-
-        end if;
-
-        i := (g_iPage - 1) * g_ciMaxPerSelectScreen + g_iWidgetNum;  
-      
-      return i;
-
-    end;
-
-  procedure ClearShipTemp;
+  handler Timer4Trip;
   begin
-    ts_onsite   := Blank;
-    ts_customer := Blank;
-    ts_street   := Blank;
-    ts_town     := Blank;
-    ts_state    := Blank;
-    ts_zip      := Blank;
-    t_ordernum  := Blank;
-    t_purchase  := Blank;  
-
-  end;
-
-  procedure ClearCustomerTemp;
-  begin
-
-    t_phonenum  := Blank;
-    t_customer  := Blank;
-    t_street    := Blank;
-    t_town      := Blank;
-    t_state     := Blank;
-    t_zip       := Blank;
-
-  end;
-
-  procedure ClearProductTemp;
-  begin
-
-    t_psi := 0;
-    t_qtyconc := 0;
-    t_sand := 0;
-    t_cement := 0;
-    t_wat_gal := 0;
-    t_calcium := 0;
-    t_air_ent := 0;
-    t_antihydr := 0;
-    t_retard := 0;
-
-    r1_select := False;
-    r2_select := False;
-    r1current_select := 0;
-    r2current_select := 0;
-
-  end;
-
-  procedure ClearBillingScreen;
-  begin
-    SetLabelText(lbl224, Blank);
-    SetLabelText(lbl225, Blank);
-    SetLabelText(lbl226, Blank);
-    SetLabelText(lbl227, Blank);
-    SetLabelText(lbl228, Blank);
-    SetLabelText(lbl229, Blank);
-  end;
-
-  procedure ClearShippingScreen;
-  begin
-    SetLabelText(lbl328, Blank);
-    SetLabelText(lbl335, Blank);
-    SetLabelText(lbl330, Blank);
-    SetLabelText(lbl331, Blank);
-    SetLabelText(lbl332, Blank);
-    SetLabelText(lbl333, Blank);
-  end;
-
-procedure RunBatch;
-  bar_percentage1 : integer := 0;
-  bar_percentage2 : integer := 0;
-  x : integer;
-  y : integer;
-  sw : integer := 1;
-
-begin
-
-  --Batching concrete
-
-  --Calculation for target weight
-  g_rActive1 := g_rInitial1;
-
-  g_rtarget1 := g_rActive1 - t_cement;
-  x := g_rActive1 - g_rtarget1;
-
-  --Batching sand mix
-  g_rActive2 := g_rInitial2;
-
-  g_rtarget2 := g_rActive2 - t_sand;
-  y := g_rActive2 - g_rtarget2;
-
-  while sw = 1
-  loop
-
-    GetGross(1,Primary,g_rActive1);
-    x := g_rActive1 - g_rtarget1;
-    bar_percentage1 := (x/t_cement) * 100;
-    SetBargraphLevel(bar279, bar_percentage1);
-    SetLabelText(tarCem, IntegerToString(x,0));
-
-    GetGross(2,Primary,g_rActive2);
-    y := g_rActive2 - g_rtarget2;
-    bar_percentage2 := (y/t_sand) * 100;
-    SetBargraphLevel(bar280, bar_percentage2);
-    SetLabelText(tarAg, IntegerToString(y,0));
-
-    if bar_percentage1 <= 0 and bar_percentage2 <= 0 then
-      sw := 0;
-    end if;
-
-  end loop;
-  WaitSS;
-
-end;
-
-handler Timer6Trip;
-begin
-  EntryMode := BatchMode;
-  SetWidgetVisibility(btnNxt9, Voff);
-  SelectScreen(g_ciScales);
-  RunBatch;
-end;
-
-  handler Timer25Trip;  -- Wait for Standstill check
-    iMotion1 : integer; 
-    iMotion2 : integer;   
-    rGrossWgt1 : real;
-    rGrossWgt2 : real;
-		iInRange1 : integer;
-    iInRange2 : integer;
-    
-  begin
-
-    InMotion(1, iMotion1);
-    InMotion(2, iMotion2);
-    
-    if iMotion1 = 0 and iMotion2 = 0 then  
-    
-      StopTimer(25);
-      DisplayStatus(Blank);  
-
-      g_sysResult1 := GetGross(1, Primary, rGrossWgt1); 
-			g_sysResult2 := InRange(1, iInRange1);
-
-      g_sysResult3 := GetGross(2, Primary, rGrossWgt2);
-      g_sysResult4 := InRange(2, iInRange2); 
-      
-			-- Get Gross Command
-      if g_sysResult1 <> SysOk then
-        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult1));  
-			  return;
-      end if;
-			
-			-- Check In Range
-      if g_sysResult3 <> SysOk then
-        DisplayStatus("Scale Error: " + SysCodeToString(g_sysResult3));  
-			  return;
-      end if;			
-			
-		 -- Validate InRage
-		 if iInRange1 = 0 then  
-        DisplayStatus("Scale 1 NOT In Range");  
-				return;
-		 end if;
-
-		 if iInRange2 = 0 then  
-        DisplayStatus("Scale 2 NOT In Range");  
-				return;
-		 end if;
-    
-
-      if EntryMode = BatchCompleteMode then  -- Print Screen
-        
-        TransDB.DT := SystemTime; 
-        TransDB.T_Cem := RealToString(rGrossWgt1, 0, 2);
-        TransDB.T_Sand := RealToString(rGrossWgt2, 0, 2);
-        TransDB.Yards := RealToString(t_qtyconc, 0, 2);
-        TransDB.Product := IntegerToString(t_psi, 0) + RealToString(t_qtyconc, 0, 2);
-        g_sysResult := TransDB.Add;
-        
-        if g_sysResult = SysOk then      
-
-          DisplayStatus(RealToString(rGrossWgt1, 0, 2));
-
-        else 
-          DisplayStatus("Database Error: " + SysCodeToString(g_sysResult1)); 					
-        end if; 
-
-      elsif EntryMode = BatchReadyMode then
-        g_rInitial1 := rGrossWgt1;
-        g_rInitial2 := rGrossWgt2;
-        EntryMode := LoadMode;
-        SelectScreen(g_ciLoad);
-        SetupStartTimer(6,500,TimerOneShot);
-        --EntryMode := BatchMode;
-        --SetWidgetVisibility(btnNxt9, Voff);
-        --SelectScreen(g_ciScales);
-        --RunBatch;
-
-      elsif EntryMode = BatchMode then
-        if FileExists("/sdimages/next.png", SDCard) = SysOk then
-          SetImageWidgetPath(btnNxt9, "/next.png");
-        else
-          SetImageWidgetPath(btnNxt9, "local://10.png");
-        end if;
-        g_rEnd1 := rGrossWgt1;
-        g_rEnd2 := rGrossWgt2;
-        g_rcembatch := g_rInitial1 - g_rEnd1;
-        g_rsandbatch  := g_rInitial2 - g_rEnd2;
-        g_rCemAccum := g_rCemAccum + g_rcembatch;
-        g_rSandAccum := g_rSandAccum + g_rsandbatch;
-        g_iBatchAcc := g_iBatchAcc + 1;
-        SetWidgetVisibility(btnNxt9, Von); 
-        DisplayStatus("Batch Complete!");
-        EntryMode := NoMode;
-      end if;  
-    else
-      DisplayStatus("...In Motion...");  
-    end if;
-
-  end;
-
-  procedure PageUporDownCustomerList(tmpPage : integer);  -- Page Up/Page Down the Display List 
-    a : integer;
-    i : integer;
-    j : integer;
-    b : integer;
-  begin 
-    
-    -- Clear display
-    for i := MinL2 to MaxL2
-    loop
-      SetLabelText(i, Blank);
-    end loop;
-    
-    -- Find out where we are in the array
-    if tmpPage = 1 then
-      i := 1;                          -- g_ciMaxRecords MUST BE MULTIPLE OF 8
-    elsif tmpPage >= 2 and tmpPage <= (g_ciMaxRecords/g_ciMaxPerSelectScreen) then
-      i := (tmpPage * g_ciMaxPerSelectScreen) - 7;      
-    else
-      i := 1;
-      g_iPage := 1;              
-    end if;
-
-    b := MinL2;
-    j := i + 7; 
-    
-    -- Display the top of the list if we have reach the end 
-    if g_arDisplay[i].sPhoneNum = Blank then --and EntryMode <> CustomerSelectMode then
- 
-      DisplayCustomersDB;  
-
-    else  
-      
-    -- Populate display with new data
-    for a := i to j
-    loop  
-      if a > 0 and a <= g_ciMaxRecords then--and g_arDisplay[a].sPhoneNum <> Blank then
-        SetLabelText(b, g_arDisplay[a].sName); 
-        b := b + 1; 
-      end if; 
-    end loop;
-       
-    end if;
-  
-  SetLabelText(Page2, "Page " + IntegerToString(g_iPage,0) + " out of 100");
-
-end;   
-
-  procedure SelectProduct;
-    i : integer;
-  begin
-  --r1 = BTN 108-111
-  --r2 = BTN 112-116
-
-    g_iProductRow := 0;
-
-   --R1
-    if g_iWidget >= 108 and g_iWidget <= 111 then 
-      if r1_select = True and r1current_select = g_iWidget then 
-        r1_select := False;
-        SetWidgetColor(r1current_select, "Black");
-        r1current_select := 0;
-      elsif r1_select = True and r1current_select <> g_iWidget then
-        SetWidgetColor(r1current_select, "Black");
-        r1current_select := g_iWidget;
-        SetWidgetColor(g_iWidget, "#BB0000");
-      else 
-        r1_select := True;
-        SetWidgetColor(g_iWidget, "#BB0000");
-        r1current_select := g_iWidget;
-      end if;
-    end if;
-
-
-    --R2
-    if g_iWidget >= 112 and g_iWidget <= 116 then 
-      if r2_select = true and r2current_select = g_iWidget then 
-        r2_select := False;
-        SetWidgetColor(r2current_select, "Black");
-        r2current_select := 0;
-      elsif r2_select = True and r2current_select <> g_iWidget then
-        SetWidgetColor(r2current_select, "Black");
-        r2current_select := g_iWidget;
-        SetWidgetColor(g_iWidget, "#BB0000");
-      else 
-        r2_select := True;
-        SetWidgetColor(g_iWidget, "#BB0000");
-        r2current_select := g_iWidget;
-      end if;
-    end if;
-
-    if r1_select = true and r2_select = true then
-      SetWidgetVisibility(btnNxt, Von);
-    else
-      SetWidgetVisibility(btnNxt, Voff);
-    end if; 
-
-  end;
-
-  procedure GetProductSelection;
-  begin
-    if r1current_select = 108 and r2current_select = 112 then
-      g_iProductRow := 1;
-    elsif r1current_select = 108 and r2current_select = 113 then
-      g_iProductRow := 2;
-    elsif r1current_select = 108 and r2current_select = 114 then
-      g_iProductRow := 3;
-    elsif r1current_select = 108 and r2current_select = 115 then
-      g_iProductRow := 4;
-    elsif r1current_select = 108 and r2current_select = 116 then
-      g_iProductRow := 5;
-    elsif r1current_select = 109 and r2current_select = 112 then
-      g_iProductRow := 6;
-    elsif r1current_select = 109 and r2current_select = 113 then
-      g_iProductRow := 7;
-    elsif r1current_select = 109 and r2current_select = 114 then
-      g_iProductRow := 8;
-    elsif r1current_select = 109 and r2current_select = 115 then
-      g_iProductRow := 9;
-    elsif r1current_select = 109 and r2current_select = 116 then
-      g_iProductRow := 10;
-    elsif r1current_select = 110 and r2current_select = 112 then
-      g_iProductRow := 11;
-    elsif r1current_select = 110 and r2current_select = 113 then
-      g_iProductRow := 12;
-    elsif r1current_select = 110 and r2current_select = 114 then
-      g_iProductRow := 13;
-    elsif r1current_select = 110 and r2current_select = 115 then
-      g_iProductRow := 14;
-    elsif r1current_select = 110 and r2current_select = 116 then
-      g_iProductRow := 15;
-    elsif r1current_select = 111 and r2current_select = 112 then
-      g_iProductRow := 16;
-    elsif r1current_select = 111 and r2current_select = 113 then
-      g_iProductRow := 17;
-    elsif r1current_select = 111 and r2current_select = 114 then
-      g_iProductRow := 18;
-    elsif r1current_select = 111 and r2current_select = 115 then
-      g_iProductRow := 19;
-    elsif r1current_select = 111 and r2current_select = 116 then
-      g_iProductRow := 20;
-    else
-      DisplayStatus("System Malfunction!");
-      g_iProductRow := 0;
-    end if;
-
-  end;
-
-
-  procedure LoadProduct;
-  i : integer;
-  begin
-    
-    if g_iProductRow <> 0 then
-      t_psi       := g_arProduct[g_iProductRow].sPSI;
-      t_qtyconc   := g_arProduct[g_iProductRow].sQTY_CONC;
-      t_sand      := g_arProduct[g_iProductRow].sSAND_MIX;
-      t_cement    := g_arProduct[g_iProductRow].sCEMENT;
-      t_wat_gal   := g_arProduct[g_iProductRow].sWAT_GALL;
-      t_calcium   := g_arProduct[g_iProductRow].sCALCIUM;
-      t_air_ent   := g_arProduct[g_iProductRow].sAIR_ENT;
-      t_antihydr  := g_arProduct[g_iProductRow].sANTIHYDR;
-      t_retard    := g_arProduct[g_iProductRow].sRETARDER;
-          
-
-    else
-      DisplayStatus("ERROR! No Selection Made.");
-    end if;
-
-    r1current_select := 0;
-    r2current_select := 0;
-  end;
-
-  procedure ProcessSelection;
-
-  begin
-    if g_iSelect <> 0 then
-      if EntryMode = CustomerSelectMode then
-        if g_arDisplay[GetSelection].sName <> Blank then   
-          t_customer := g_arDisplay[GetSelection].sName;
-          t_phonenum := g_arDisplay[GetSelection].sPhoneNum;
-          t_street   := g_arDisplay[GetSelection].sStreet;
-          t_town     := g_arDisplay[GetSelection].sTown;
-          t_state    := g_arDisplay[GetSelection].sState;
-          t_zip      := g_arDisplay[GetSelection].sZip;
-        else 
-          DisplayStatus("Error: Please Enter A Customer");
-          g_iSelect := 0;
-        end if;
-      end if;
-    else
-      Displaystatus("Select An Entry to Continue");
-      EntryMode :=  CustomerSelectMode;
-      g_iSelect := 0;    
-    end if;
-
-  end;
-
-  procedure DeleteCustomer;
-  begin
-
-    if g_iSelect <> 0 then
-      if EntryMode = CustomerSelectMode then
-        CustomersDB.Name := g_arDisplay[GetSelection].sName;
-        if CustomersDB.FindFirst(2) = SysOk then        
-          EntryMode := YNClearOneMode;
-          SelectScreen(g_ciYN);         
-          Setlabeltext(lbMsg1,"Do you want to delete " + CustomersDB.Name + "?");
-        else 
-          DisplayStatus("Error: Invalid CUSTOMER");
-        end if;
-      end if;
-    else
-      Displaystatus("Select One to Delete");
-    end if;
-
-  end;
-
-  procedure SelectCustomer;
-    i : integer;
-  begin
-    for i := minL2 to maxL2
-    loop
-      SetwidgetColor(i, "Black");
-    end loop;
-  -- if the number of the widget is divided by 2, the remainder will determine what button is turned 
-    
-    if g_iWidget <> g_iSelect and g_iSelect <> 0 then
-      SetWidgetColor(g_iSelect, "Black");
-      SetWidgetColor(g_iWidget, "#BB0000");
-      g_iSelect := g_iWidget;
-    else
-      Setwidgetcolor(g_iWidget, "#BB0000");
-      g_iSelect := g_iWidget;
-    end if;
-    ProcessSelection;
+    SelectScreen(g_ciCust); 
   end;
 
 procedure ProcessingCustomerEntry;
@@ -1201,11 +1212,30 @@ begin
     g_sysResult := CustomersDB.FindFirst(Customer_Name); --This will equal SysOk if found in DB
     if g_sysResult <> SysOk then
       CustomersDB.Add;
+      EntryMode := CustomerSelectMode;
+      DisplayCustomersDB;
+      ClearCustomerTemp;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        SetImageWidgetPath(btnNxt2, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt2, "local://10.png");
+      end if;
+      SetupStartTimer(4,100,TimerOneShot);
     elsif g_sysResult = SysDatabaseFull then
       Delete25Percent;
       CustomersDB.Add;
+      EntryMode := CustomerSelectMode;
+      g_Entrymode := CustomerSelectMode;
+      DisplayCustomersDB;
+      if FileExists("/sdimages/next.png", SDCard) = SysOk then  
+        SetImageWidgetPath(btnNxt2, "/next.png");
+      else
+        SetImageWidgetPath(btnNxt2, "local://10.png");
+      end if;
+      SetupStartTimer(4,100,TimerOneShot);
+    else
+      DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
     end if;
-  
 end;
 
 procedure CheckBatch;
@@ -1283,10 +1313,10 @@ begin
   bAir_ent := False;
   bRetarder := False;
 
-  Setwidgetcolor(lbl128, "#BB0000");
-  Setwidgetcolor(lbl137, "#BB0000");
-  Setwidgetcolor(lbl133, "#BB0000");
-  Setwidgetcolor(lbl142, "#BB0000");
+  Setwidgetcolor(lbl128, "Red");
+  Setwidgetcolor(lbl137, "Red");
+  Setwidgetcolor(lbl133, "Red");
+  Setwidgetcolor(lbl142, "Red");
 
 end;
 
@@ -1329,16 +1359,20 @@ begin
   DisplayStatus("Printing...");
   SetupStartTimer(3,500,TimerOneShot);
 
-  line0 := "Order #: " + t_ordernum;
+  line0 := "Order #: " + IntegerToString(g_iTicketNum, 0);
   length0 := Len(line0);
   if length0 < 55 then
     WriteLn(g_ciPrinter, line0 + Space$(55-length0) + "PO #: " + t_purchase);
   end if;
 
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
-  WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
-  WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
-  WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  --WriteLn(g_ciPrinter, Space$(25) + "CAVALIERE/SHORT LOAD CONCRETE");
+  WriteLn(g_ciPrinter, Space$(25) + "SHORT LOAD CONCRETE");
+  --WriteLn(g_ciPrinter, Space$(31) + "226 Selleck St C");
+  WriteLn(g_ciPrinter, Space$(31) + "53 Warfield St");
+  --WriteLn(g_ciPrinter, Space$(30) + "Stamford, CT, 06902");
+  WriteLn(g_ciPrinter, Space$(30) + "Milford, CT, 06461");
+  WriteLn(g_ciPrinter, Space$(32) + "(866)746-7853"); --Delete this line for the Calvaliere Site
   WriteLn(g_ciPrinter, Space$(25) + "*****************************");
   WriteLn(g_ciPrinter, Blank);
 
@@ -1383,7 +1417,11 @@ begin
   WriteLn(g_ciPrinter, Space$(5) + "MIX DESCRIPTION" + Space$(35) + "ADD ONS");
   WriteLn(g_ciPrinter, "**************************" + Space$(14) + "***********************************");
 
-  line7 :="PSI: " + IntegerToString(t_psi,0);
+  if t_psi = 1 then
+    line7 := "PSI: Free Flow";
+  else
+    line7 :="PSI: " + IntegerToString(t_psi,0);
+  end if;
   length7 := Len(line7);
   if bCalcium = true then 
     if length7 < 40 then
@@ -1447,7 +1485,11 @@ begin
     SetLabelText(lblShp1, ts_street);
     SetLabelText(lblShp2, ts_town);
     SetLabelText(lblShp3, ts_state);
-    SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    if t_psi = 1 then
+      SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + "FREE FLOW");
+    else
+      SetLabelText(lblProd, RealToString(t_qtyconc,1,1) + " Yards " + IntegerToString(t_psi,0) + " PSI");
+    end if;
     SetLabelText(lbl275, RealToString(t_qtyconc,1,1) + " Yards");
   end if;
 end;
@@ -1474,17 +1516,21 @@ handler WidgetClicked;
       SelectCustomer;
     
     elsif g_iWidget = btnNxt2 then
-      if g_iSelect <> 0 then
-        CustomersDB.Name := g_arDisplay[GetSelection].sName;
-        if CustomersDB.FindFirst(2) = SysOK then
-          EntryMode := YNShippingAddress;
-          SelectScreen(g_ciYN);
-          SetLabelText(lbMsg1, "Is the shipping address");
-          SetLabelText(lbMsg2, "the same as billing?");
-        else
-          DisplayStatus("Error: Invalid Selection");
-        end if;
+    if g_iSelect <> 0 then
+      CustomersDB.Name := g_arDisplay[GetSelection].sName;
+      if CustomersDB.FindFirst(2) = SysOK then
+        EntryMode := YNShippingAddress;
+        SelectScreen(g_ciYN);
+        SetLabelText(lbMsg1, "Is the shipping address");
+        SetLabelText(lbMsg2, "the same as billing?");
+      else
+        DisplayStatus("Error: Invalid Selection");
       end if;
+    end if;
+
+    elsif g_iWidget = lbl10 then --Cancel Button
+      StopTimer(6);
+      CancelBatch;
 
     elsif g_iWidget = btnCont2 or g_iWidget = btnCont1 then
       if t_phonenum = Blank or len(t_phonenum) < 10 then
@@ -1502,12 +1548,6 @@ handler WidgetClicked;
       else
         if EntryMode = CustomerProcessMode then
           ProcessingCustomerEntry;
-          if g_sysResult <> SysOk then
-            EntryMode := ShippingMode;
-            SelectScreen(g_ciShip);            
-          else
-            DisplayStatus("ERROR! CUSTOMER ALREADY EXISTS! PLEASE SELECT THE CUSTOMER FROM THE PREVIOUS SCREEN!");
-          end if;
         end if;
       end if;
       
@@ -1526,11 +1566,11 @@ handler WidgetClicked;
       elsif len(ts_zip) < 5 then
         DisplayStatus("ERROR! INVALID ZIP CODE FIELD!");
       else
-        EntryMode := EnterOrderNumMode;
-        PromptForEntry("Please Enter an Order Number", EnterOrderNumMode, Blank, 1);
+        EntryMode := EnterPurchaseOrderMode;
+        PromptForEntry("Please Enter a Purchase Order", EnterPurchaseOrderMode, Blank, 1);
       end if;
 
-    elsif g_iWidget >= 108 and g_iWidget <= 116 then
+    elsif g_iWidget >= minL4 and g_iWidget <= maxL4 then
       SelectProduct;
 
     elsif g_iWidget = btnExt2 then
@@ -1603,7 +1643,7 @@ handler WidgetClicked;
         DefaultsForAddOns;
       end if;
       
-      -- (Note: we dont want to create lockup: which is like gridlock)
+      -- (Note: we dont want to create lockup: which is a gridlock)
     
     elsif g_iWidget = btnNxt13 then
       --This stays here
@@ -1629,35 +1669,35 @@ handler WidgetClicked;
     elsif g_iWidget = lbl127 then
       if  bCalcium = False then
         SetWidgetColor(lbl128, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bCalcium := True;
       end if;
       
     elsif g_iWidget = lbl128 then 
       if bCalcium = True then 
         SetWidgetColor(lbl127, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bCalcium := False;
       end if;
 
     elsif g_iWidget = lbl132 then
       if  bAir_ent = False then
         SetWidgetColor(lbl133, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAir_ent := True;
       end if;
 
     elsif g_iWidget = lbl133 then
       if  bAir_ent = True then
         SetWidgetColor(lbl132, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAir_ent := False;
       end if;
 
     elsif g_iWidget = lbl136 then
       if  bAnti_hydro= False then
         SetWidgetColor(lbl137, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bAnti_hydro := True;
       end if;
     
@@ -1665,20 +1705,20 @@ handler WidgetClicked;
       if  bAnti_hydro= True then
         bAnti_hydro := False;
         SetWidgetColor(lbl136, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
       end if;
 
     elsif g_iWidget = lbl141 then
       if  bRetarder = False then
         SetWidgetColor(lbl142, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bRetarder := True;
       end if;
     
     elsif g_iWidget = lbl142 then
       if  bRetarder = True then
         SetWidgetColor(lbl141, "Black");
-        SetWidgetColor(g_iWidget, "#BB0000");
+        SetWidgetColor(g_iWidget, "Red");
         bRetarder := False;
       end if;
 
@@ -1720,6 +1760,7 @@ handler WidgetClicked;
     
     elsif g_iWidget = btnAdd then
       EntryMode := CustomerProcessMode;
+      ClearBillingScreen;
       SelectScreen(g_ciaddcust);
     elsif g_iWidget = btnPgUp2 then
       g_iPage := g_iPage - 1;   
@@ -1774,7 +1815,7 @@ handler WidgetClicked;
         DisplayCustomersDB;     
         DisplayStatus("Selection NOT Cleared");  
       end if;
-      g_iSelect := 0;    
+      g_iSelect := 0;      
     
     elsif g_iWidget = btnReset then
       g_iBatchAcc := 0;
@@ -1782,10 +1823,6 @@ handler WidgetClicked;
       g_rCemAccum := 0;
       lastReset := Date$(SystemTime);
       setupScreen;
-
-    elsif g_iWidget = btnCan then
-      StopTimer(6);
-      CancelBatch;
 
     end if;
 
