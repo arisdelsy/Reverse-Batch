@@ -62,6 +62,9 @@ program reverse;
 
   -- Printer port
   g_ciPrinter : constant integer := 1;
+  
+  --testing to see if port 2 can be set to string
+  Port2 : string;
 
   --Accumulators
   g_sYards : stored integer := 0;
