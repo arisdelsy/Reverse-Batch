@@ -129,6 +129,9 @@ program reverse;
   backdoor_pass : constant string := "asc1058";
   sPassword : stored string;
 
+  --String for barcode
+  bar_string : string;
+
   --Temp variables for entry for customer info
   t_phonenum  : string;
   t_customer  : string;
@@ -1286,6 +1289,7 @@ begin
   LockKey(NavUpKey);
   LockKey(NavDownKey);
   setupScreen;
+  bar_string := "";
    
   if GetUnits(1, g_uUnits) = SysOk then
     if GetCountBy(1, g_uUnits, g_rCountby) = SysOk then
@@ -1474,6 +1478,24 @@ end;
 handler Timer3Trip;
 begin
   DisplayStatus(Blank);
+end;
+
+
+handler Port2CharReceived;
+  temp_C : string;
+begin
+
+  while EventChar <> ""
+  loop
+    --temp_C := EventChar;
+    bar_string := bar_string + EventChar;
+  --Setlabeltext(lbl225, temp_C);
+  end loop;
+
+  --bar_string := temp_S;
+
+  Setlabeltext(lbl225, bar_string);
+  DisableHandler(Port2CharReceived);
 end;
 
 procedure DisplayBatchComplete;
