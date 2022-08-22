@@ -62,7 +62,7 @@ program reverse;
 
   -- Printer port
   g_ciPrinter : constant integer := 1;
-
+  
   --Accumulators
   g_sYards : stored integer := 0;
   g_sAgg   : stored integer := 0;
