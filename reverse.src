@@ -1846,6 +1846,9 @@ handler WidgetClicked;
       lastReset := Date$(SystemTime);
       setupScreen;
 
+    elsif g_iWidget = lbprint then
+      Print(GrossFmt);
+
     end if;
 
     EnableHandler(WidgetClicked); 

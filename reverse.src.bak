@@ -1485,7 +1485,7 @@ handler Port2CharReceived;
   temp_C : string;
 begin
 
-  while EventChar <> "\n"
+  while EventChar <> ""
   loop
     --temp_C := EventChar;
     bar_string := bar_string + EventChar;
@@ -1845,6 +1845,9 @@ handler WidgetClicked;
       g_rCemAccum := 0;
       lastReset := Date$(SystemTime);
       setupScreen;
+
+    elsif g_iWidget = lbprint then
+      Print(GrossFmt);
 
     end if;
 
