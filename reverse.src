@@ -1848,8 +1848,7 @@ handler WidgetClicked;
       setupScreen;
 
     elsif g_iWidget = lbprint then
-      WriteLn(1, "Hello, World!");
-      -- Print(GrossFmt);
+      Print(GrossFmt);
 
     end if;
 
