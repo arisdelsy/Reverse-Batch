@@ -1487,6 +1487,8 @@ begin
   loop
     if EventChar <> "" then
       bar_string := bar_string + EventChar;
+    else
+      exit;
     end if;
   end loop;
 
