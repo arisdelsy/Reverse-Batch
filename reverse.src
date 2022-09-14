@@ -1483,8 +1483,7 @@ end;
 
 handler Port2CharReceived;
 begin
-
-  while StartStreaming(2) = SysOk;
+  while StartStreaming(2) = SysOk
   loop
     if EventChar <> "" then
       bar_string := bar_string + EventChar;

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Indicator>
-  <Revision value="1.2.7.28548" />
+  <Revision value="1.2.7.27074" />
   <IndicatorModel value="1280" />
   <IndicatorVersion value="1.07+" />
   <ChildAssembly value="rev1280.v305.dll" />
-  <ConfigHash value="3 228 192 145 35 80 75 231 212 230 32 83 17 91 203 202 28 90 153 213 " />
+  <ConfigHash value="81 143 206 199 129 96 173 93 208 39 250 121 123 243 86 194 110 216 244 160 " />
   <CODFile value="C:\AACode\1280_FillingDosing_PN191318\source\PN191318.cod" />
   <Config>SC.ALIAS#1=Scale1
 SC.CAPACITY#1=120000
@@ -733,7 +733,7 @@ EDP.DUPLEX#2=HALF
 EDP.ECHO#2=ON
 EDP.EOLDLY#2=0
 EDP.HANDSHK#2=OFF
-EDP.INPUT#2=CMD
+EDP.INPUT#2=PROGIN
 EDP.RESPONSE#2=ON
 EDP.STOPBITS#2=1
 EDP.TERMIN#2=CR/LF
@@ -793,7 +793,7 @@ EDP.TYPE#6=232
 STRM.STREAM#1=LFT
 STRM.FORMAT#1=RLWS
 STRM.SOURCE#1=2
-STRM.DESTINATION#1=PORT2
+STRM.DESTINATION#1=NONE
 STRM.CUSTOM#1=&lt;2&gt;&lt;P&gt;&lt;W7.&gt;&lt;U&gt;&lt;M&gt;&lt;S&gt;&lt;CR&gt;&lt;LF&gt;
 STRM.POS#1=SPACE
 STRM.NEG#1=-

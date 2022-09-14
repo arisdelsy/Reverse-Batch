@@ -1482,16 +1482,15 @@ end;
 
 
 handler Port2CharReceived;
-  temp_C : string;
 begin
-
-  while EventChar <> ""
+  while StartStreaming(2) = SysOk
   loop
-    --temp_C := EventChar;
-    bar_string := bar_string + EventChar;
-  --Setlabeltext(lbl225, temp_C);
+    if EventChar <> "" then
+      bar_string := bar_string + EventChar;
+    end if;
   end loop;
 
+  StopStreaming(2);
   --bar_string := temp_S;
 
   Setlabeltext(lbl225, bar_string);
