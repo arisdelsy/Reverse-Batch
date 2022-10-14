@@ -1481,22 +1481,18 @@ begin
 end;
 
 
-handler Port2CharReceived;
-begin
-  while StartStreaming(2) = SysOk
-  loop
-    if EventChar <> "" then
-      bar_string := bar_string + EventChar;
-    else
-      exit;
-    end if;
-  end loop;
 
-  StopStreaming(2);
+handler Cmd2Handler;
+begin
+  DisableHandler(Cmd2Handler); 
+  if EventString <> "" then
+    bar_string := bar_string + EventString;
+  end if;
+
   --bar_string := temp_S;
 
   Setlabeltext(lbl225, bar_string);
-  DisableHandler(Port2CharReceived);
+  EnableHandler(Cmd2Handler);
 end;
 
 procedure DisplayBatchComplete;
