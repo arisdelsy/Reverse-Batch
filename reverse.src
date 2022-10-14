@@ -1481,9 +1481,18 @@ begin
 end;
 
 
-handler Port2CharReceived;
+handler Cmd2Handler;
 begin
   while StartStreaming(2) = SysOk
+    bar_string := EventString
+
+end;
+
+
+handler Port2CharReceived;
+begin
+   
+  while StartStreaming(2) = SysOk 
   loop
     if EventChar <> "" then
       bar_string := bar_string + EventChar;
